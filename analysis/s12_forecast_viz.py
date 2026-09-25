@@ -19,8 +19,8 @@ MAP_TS = pd.Timestamp("2025-11-18 08:00")  # вторник, утренний п
 
 
 def load_fc() -> pd.DataFrame:
-    # основной вариант после раунда 2 (s18): профиль × городской уровень + дневные FM, правила событий
-    return pd.read_parquet(DATA / "forecast_blend_external.parquet")
+    # основной вариант: профиль × городской уровень + дневные FM, правила событий, маршрут 5 с 16.12
+    return pd.read_parquet(DATA / "forecast_blend_external_route5.parquet")
 
 
 def heatmap(fc: pd.DataFrame) -> None:
