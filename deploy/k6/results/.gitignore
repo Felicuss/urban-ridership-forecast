@@ -1,0 +1,4 @@
+# последний прогон run-load.sh; в git только именованные копии замеров
+summary.json
+stats.csv
+started_at.txt
