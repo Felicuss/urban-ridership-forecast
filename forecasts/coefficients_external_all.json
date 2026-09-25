@@ -1,0 +1,23 @@
+{
+  "members": [
+    "profile_4w"
+  ],
+  "profile_weeks": 4,
+  "level_nov": 1.015,
+  "level_dec": 1.02,
+  "holiday_to_sunday": 0.95,
+  "working_saturday": 0.85,
+  "last_workdays_dec": 0.85,
+  "dec31_day": 0.9,
+  "dec31_free_from_hour": 20,
+  "weekend_restore_date": "2025-11-15",
+  "t1_start": "2025-11-12",
+  "t1_route7": 0.95,
+  "route5_on": false,
+  "route5_start": "2025-12-16 18:00",
+  "route5_workday": 5000.0,
+  "weather": true,
+  "precip_day_coef": -0.0074,
+  "hour_precip_coef": -0.035,
+  "frost_coef": -0.0178
+}
