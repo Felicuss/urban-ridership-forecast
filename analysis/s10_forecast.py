@@ -274,6 +274,9 @@ VARIANTS = {
     "daily_fm_external": (ENSEMBLE_RULES, Mix("none", DAILY_FM)),
     "blend_external": (ENSEMBLE_RULES, Mix("external_level", DAILY_FM)),
     "blend_external_route5": (dataclasses.replace(ENSEMBLE_RULES, route5_on=True), Mix("external_level", DAILY_FM)),
+    # итог по лидерборду 25.09.2026: маршрут 5 +0.41 п.п., возврат выходных 7/50 +1.16, календарные
+    # правила +0.14, а погодная поправка -0.26 п.п. на эталоне, поэтому в финале погоды нет
+    "final": (dataclasses.replace(ENSEMBLE_RULES, route5_on=True, weather=False), Mix("external_level", DAILY_FM)),
     # TimesFM 3.0: веса под некоммерческой лицензией, вариант только для сравнения
     "ensemble_timesfm_external_NONCOMMERCIAL": (ENSEMBLE_RULES, Mix("plain", ("t0", "timesfm3"))),
 }
