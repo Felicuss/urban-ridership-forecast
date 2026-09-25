@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
-import { download, useCalendar, useFactors } from '../../api/queries';
+import { useCalendar, useFactors } from '../../api/queries';
 import { SPEEDS, isDefaultScenario, useStore, type Speed } from '../../state/store';
 import { TIMELINE_DAYS, clock, dayIndex, dayLabel, hourOf, isoDate, sunElevation } from '../../lib/time';
 import { fmtTemp, fmt1 } from '../../lib/format';
 import { SKY_LABEL, weatherAt } from '../../lib/weather';
-import { targetQuery, useTarget } from '../../hooks/useTarget';
+import { useTarget } from '../../hooks/useTarget';
 import { centerWeather, useWeatherGrid } from '../../hooks/useWeather';
 import { Icon, SkyIcon } from '../ui/Icons';
 import { SettingsSheet } from './SettingsSheet';
+import { ExportSheet } from './ExportSheet';
 import { DatePopover } from './DatePopover';
 import styles from './TopBar.module.css';
 
@@ -38,13 +39,11 @@ export function TopBar() {
   const settingsOpen = useStore((s) => s.settingsOpen);
   const scenario = useStore((s) => s.scenario);
   const resetScenario = useStore((s) => s.resetScenario);
-  const horizon = useStore((s) => s.horizon);
   const factors = useFactors().data;
   const calendar = useCalendar().data;
   const target = useTarget();
   const [dateOpen, setDateOpen] = useState(false);
-  const [exporting, setExporting] = useState<string | null>(null);
-  const [exportError, setExportError] = useState<string | null>(null);
+  const [exportOpen, setExportOpen] = useState(false);
   const day = dayIndex(minute);
   const hour = hourOf(minute);
   const cal = calendar?.[day];
@@ -55,20 +54,6 @@ export function TopBar() {
   const night = sunElevation(minute) < -4;
   const badge = SOURCE_BADGE[cal?.source ?? 'forecast'];
 
-  const exportFile = async (format: 'csv' | 'xlsx') => {
-    setExporting(format);
-    setExportError(null);
-    try {
-      const { id, ...rest } = targetQuery(target);
-      const period = horizon === 'day' ? { from: isoDate(day), to: isoDate(day), granularity: 'hour' as const }
-        : horizon === 'month' ? { horizon: 'month' as const, from: isoDate(day) } : { horizon: 'year' as const };
-      await download(format, { ...rest, ids: id ? [id] : undefined, ...period }, scenario);
-    } catch (e) {
-      setExportError(`Выгрузка не удалась: ${e instanceof Error ? e.message : 'сервис недоступен'}`);
-    } finally {
-      setExporting(null);
-    }
-  };
 
   return (
     <header className={styles.bar}>
@@ -142,20 +127,17 @@ export function TopBar() {
           </button>
         )}
         <div className={styles.export}>
-          <button type="button" onClick={() => void exportFile('csv')} disabled={exporting != null}
-            title={`Выгрузить: ${target.name}, горизонт как в панели прогноза`}>
-            <Icon.download />{exporting === 'csv' ? 'CSV…' : 'CSV'}
-          </button>
-          <button type="button" onClick={() => void exportFile('xlsx')} disabled={exporting != null}>
-            {exporting === 'xlsx' ? 'XLSX…' : 'XLSX'}
+          <button type="button" onClick={() => setExportOpen(true)}
+            title={`Выгрузка в CSV или XLSX: ${target.name} или вся сеть, любой период и шаг`}>
+            <Icon.download />Выгрузка
           </button>
         </div>
-        {exportError && <span className={styles.exportError} role="alert" title={exportError}>{exportError}</span>}
         <button type="button" className={styles.icon} aria-label="Настройки" onClick={() => setSettingsOpen(true)}>
           <Icon.gear />
         </button>
       </div>
       {settingsOpen && <SettingsSheet onClose={() => setSettingsOpen(false)} />}
+      {exportOpen && <ExportSheet onClose={() => setExportOpen(false)} />}
       <NowNotice />
     </header>
   );
