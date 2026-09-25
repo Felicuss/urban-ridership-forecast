@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useCalendar, useRouteStops } from '../../api/queries';
 import type { Factors, NetworkLoad, RouteStop } from '../../api/types';
 import { useStore } from '../../state/store';
@@ -6,6 +7,7 @@ import { fmtCompact, fmtInt } from '../../lib/format';
 import { ROUTE_COLORS, routeColor, yandexRouteBetween } from '../../lib/routes';
 import { routeTitle } from '../../hooks/useTarget';
 import { headway } from '../map/trams';
+import { flyTo } from '../map/mapHandle';
 import { Sparkline } from '../charts/Sparkline';
 import { InfoTip } from '../ui/Controls';
 import { Icon } from '../ui/Icons';
@@ -125,6 +127,7 @@ function RouteCard({ route, factors, load, hour }: {
           ))
         )}
       </div>
+      <RouteStops stops={stops} load={load} hour={hour} />
       <SegmentPicker stops={stops} />
       <div className={styles.links}>
         {schedule?.page && <a href={schedule.page} target="_blank" rel="noopener noreferrer">
@@ -181,6 +184,56 @@ function SegmentPicker({ stops }: { stops: RouteStop[] | undefined }) {
       ) : (
         <button type="button" className={styles.segReset} onClick={() => pick(direction, from, to)}>Показать прогноз участка</button>
       )}
+    </details>
+  );
+}
+
+/**
+ * Остановки выбранного маршрута списком по направлению: посадки за выбранный час и клик, который
+ * выбирает остановку так же, как на карте, и подлетает к ней.
+ */
+function RouteStops({ stops, load, hour }: { stops: RouteStop[] | undefined; load: NetworkLoad | undefined; hour: number }) {
+  const selected = useStore((s) => s.stop);
+  const selectStop = useStore((s) => s.selectStop);
+  const [direction, setDirection] = useState(0);
+  const all = stops ?? [];
+  const list = all.filter((s) => s.direction === direction).sort((a, b) => a.seq - b.seq);
+  if (list.length === 0) return null;
+  const endOf = (d: number) => {
+    const own = all.filter((s) => s.direction === d);
+    return own.length ? own.reduce((a, b) => (b.seq > a.seq ? b : a)).name : '';
+  };
+  const values = list.map((s) => load?.stops.get(s.stopId)?.[hour] ?? 0);
+  const max = Math.max(...values, 1);
+  return (
+    <details className={styles.stopsBox} open>
+      <summary>
+        Остановки маршрута
+        <InfoTip>Посадки на каждой остановке в выбранный час: прогноз маршрута, разложенный по долям остановок.
+          Клик выбирает остановку: прогноз справа и графики внизу переключаются на неё.</InfoTip>
+      </summary>
+      <div className={styles.dirs} role="radiogroup" aria-label="Направление">
+        {[0, 1].filter((d) => all.some((s) => s.direction === d)).map((d) => (
+          <button key={d} type="button" role="radio" aria-checked={direction === d}
+            className={direction === d ? styles.dirOn : styles.dir} onClick={() => setDirection(d)}>
+            до «{endOf(d)}»
+          </button>
+        ))}
+      </div>
+      <ol className={styles.stopList}>
+        {list.map((s, i) => (
+          <li key={s.stopId}>
+            <button type="button" className={selected === s.stopId ? styles.stopOn : styles.stopRow}
+              aria-pressed={selected === s.stopId}
+              onClick={() => { selectStop(s.stopId); flyTo(s.lon, s.lat, 15.2); }}>
+              <span className={styles.stopSeq}>{s.seq}</span>
+              <span className={styles.stopName}>{s.name}</span>
+              <span className={styles.stopBar}><i style={{ width: `${(100 * (values[i] ?? 0)) / max}%` }} /></span>
+              <b className="num">{fmtInt(values[i])}</b>
+            </button>
+          </li>
+        ))}
+      </ol>
     </details>
   );
 }
