@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Прогноз почасовых посадок на трамвайных маршрутах Москвы (хакатон МТТЕХ 2026)"
 requires-python = ">=3.13"
 dependencies = [
+    "beautifulsoup4>=4.15.0",
     "duckdb>=1.5.5",
     "holidays>=0.105",
     "lightgbm>=4.7.0",
