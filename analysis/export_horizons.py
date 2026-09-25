@@ -82,7 +82,7 @@ def intervals_and_metrics(bt: pd.DataFrame) -> tuple[dict, dict]:
         scores[gran] = {fold: round(wape_score(d.y, d.p), 4) for fold, d in df.groupby("fold")}
     intervals["note"] = ("p10 = p50 × factors[0], p90 = p50 × factors[1]; квантили log((y+1)/(p+1)) по пяти фолдам "
                          "бэктеста, для нуля в прогнозе коридор нулевой")
-    metrics = {"scheme": "профиль 2 нед × сезонность городского трамвая прошлых лет (s30, s34)",
+    metrics = {"scheme": "посадки за 2 последние недели × сезонность городского трамвая прошлых лет",
                "folds": {f.name[0]: f.name for f in CV_FOLDS}, "wape_score": scores,
                "interval_nominal": QUANTILES[1] - QUANTILES[0], "interval_coverage_leave_one_fold_out": coverage}
     return intervals, metrics
