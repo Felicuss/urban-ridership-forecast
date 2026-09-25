@@ -9,9 +9,10 @@ import { dayIndex, hourOf, sunElevation } from '../../lib/time';
 import { fmtInt } from '../../lib/format';
 import { loadBaseStyle } from './style';
 import { applyDaylight } from './daylight';
+import { addNightLights } from './nightLights';
 import {
-  addNetworkLayers, addTramIcons, ensureMetro, pathFeatures, setHour, setLoadData, setSelection, setVisibility,
-  stopFeatures, TRAMS_3D_ZOOM, withLoad, type Scale,
+  addNetworkLayers, addTramIcons, before, ensureMetro, pathFeatures, setHour, setLoadData, setSelection, setVisibility,
+  setTramMode, stopFeatures, TRAMS_3D_ZOOM, withLoad, type Scale,
 } from './layers';
 import { buildLines, headway, tramBodies, tramCollection, tramScale, tramsAt, type Line, type TramState } from './trams';
 import { RideRunner, rideStops } from './ride';
@@ -76,6 +77,7 @@ export default function MapView({ network, load, factors, calendar, weather, rid
       map.on('load', () => {
         if (!map) return;
         addTramIcons(map);
+        addNightLights(map, before(map));
         addNetworkLayers(map, pathFeatures(network), stopFeatures(network));
         addWeatherLayer(map);
         bindPointer(map, tooltip.current);
@@ -160,7 +162,7 @@ export default function MapView({ network, load, factors, calendar, weather, rid
       if (runner && s.ride) {
         const f = runner.frame(now, true);
         rideTram.current = { at: f.at, bearing: f.bearing, route: s.ride.route };
-        if (s.flags.trams && s.flags.buildings && map.getZoom() >= TRAMS_3D_ZOOM) drawTrams(map, s.minute);
+        if (s.flags.trams && s.viewMode === 'perspective' && map.getZoom() >= TRAMS_3D_ZOOM) drawTrams(map, s.minute);
         const p = s.rideProgress;
         if (!p || p.passed !== f.passed || p.finished !== f.finished) s.setRideProgress(f);
         if (f.finished) s.stopRide();
@@ -182,6 +184,8 @@ export default function MapView({ network, load, factors, calendar, weather, rid
     if (s.route !== prev.route || s.stop !== prev.stop) setSelection(map, s.route, s.stop);
     if (s.viewMode !== prev.viewMode) {
       map.easeTo(s.viewMode === 'top' ? { pitch: 0, bearing: 0, duration: 700 } : { pitch: 55, duration: 700 });
+      setTramMode(map, s.viewMode === 'perspective');
+      drawTrams(map, s.minute);
     }
     if (s.route !== prev.route && s.route != null && !s.ride && !s.segment) fitRoute(map, s.route);
     if (s.segment !== prev.segment || s.route !== prev.route) drawSegment(map, s.segment !== prev.segment);
@@ -196,12 +200,12 @@ export default function MapView({ network, load, factors, calendar, weather, rid
     (map.getSource('trams') as GeoJSONSource | undefined)?.setData(tramCollection(trams));
     // объёмные вагоны только в кадре и только на крупном плане: остальные не видны и не стоят ничего
     const zoom = map.getZoom();
-    const bodies = zoom >= TRAMS_3D_ZOOM && s.flags.buildings;
+    const bodies = zoom >= TRAMS_3D_ZOOM && s.viewMode === 'perspective';
     const bounds = map.getBounds();
     const visible = bodies ? [...trams, ...(rideTram.current ? [rideTram.current] : [])]
       .filter((t) => bounds.contains(t.at)).map((t) => ({ ...t, color: routeColor(t.route) })) : [];
     const night = sunElevation(minute) < -4;
-    (map.getSource('trams-3d') as GeoJSONSource | undefined)?.setData(tramBodies(visible, tramScale(zoom), night));
+    (map.getSource('trams-3d') as GeoJSONSource | undefined)?.setData(tramBodies(visible, tramScale(zoom), night, zoom < 14));
   }
 
   /** Подсветка выбранного участка; при новом участке камера наводится на него. */
@@ -235,6 +239,7 @@ export default function MapView({ network, load, factors, calendar, weather, rid
   function syncAll(map: MapLibre) {
     const s = useStore.getState();
     setVisibility(map, s.flags);
+    setTramMode(map, s.viewMode === 'perspective');
     drawSegment(map, false);
     if (s.flags.metro) void ensureMetro(map).then(() => setVisibility(map, useStore.getState().flags));
     setSelection(map, s.route, s.stop);

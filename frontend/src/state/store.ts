@@ -27,7 +27,7 @@ export const FLAG_LABELS: Record<keyof Flags, { label: string; hint: string }> =
   stops: { label: 'Остановки', hint: 'Точки остановок, размер - посадки в час' },
   trams: { label: 'Трамваи', hint: 'Вагоны на линиях с интервалом по расписанию transport.mos.ru' },
   metro: { label: 'Метро', hint: 'Линии и станции метро из OpenStreetMap' },
-  buildings: { label: 'Объёмные дома и вагоны', hint: 'Высоты зданий из OpenStreetMap и 3D-трамваи при приближении' },
+  buildings: { label: 'Объёмные дома', hint: 'Высоты зданий из OpenStreetMap при приближении' },
   weather: { label: 'Погода', hint: 'Осадки там, где они идут, и температура по районам, Open-Meteo' },
   daylight: { label: 'Свет по времени суток', hint: 'Карта темнеет ночью и светлеет днём по высоте солнца' },
   labels: { label: 'Подписи', hint: 'Названия остановок на карте' },

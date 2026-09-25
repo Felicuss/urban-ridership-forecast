@@ -23,14 +23,17 @@ export interface Scale {
   route: number;
 }
 
-/** С этого приближения вагоны объёмные, если включены 3D-дома; раньше они мельче линии маршрута. */
-export const TRAMS_3D_ZOOM = 15.5;
+/** В перспективе вагоны объёмные с этого приближения: раньше домов, которые поднимаются с 13,2. */
+export const TRAMS_3D_ZOOM = 11.5;
+/** С этого приближения линия маршрута сужается, чтобы не спорить с вагонами и домами. */
+const LINE_THIN_ZOOM = 15.5;
 
 export function emptyCollection(): Collection {
   return { type: 'FeatureCollection', features: [] };
 }
 
-function before(map: MapLibre): string | undefined {
+/** Первый слой подписей подложки: наши слои встают под него. */
+export function before(map: MapLibre): string | undefined {
   return map.getLayer(BEFORE_LABELS) ? BEFORE_LABELS : undefined;
 }
 
@@ -107,7 +110,7 @@ export function addNetworkLayers(map: MapLibre, paths: Feature[], stops: Feature
   map.addLayer({ id: 'trams', type: 'symbol', source: 'trams', layout: {
     'icon-image': ['concat', 'tram-', ['to-string', ['get', 'route']]], 'icon-rotate': ['get', 'bearing'],
     'icon-rotation-alignment': 'map', 'icon-allow-overlap': true, 'icon-ignore-placement': true,
-    'icon-size': ['interpolate', ['linear'], ['zoom'], 10, 0.45, 13, 0.75, 16, 1.2] } });
+    'icon-size': ['interpolate', ['linear'], ['zoom'], 10, 0.65, 13, 1.05, 16, 1.6] } });
   map.addLayer({ id: 'trams-3d', type: 'fill-extrusion', source: 'trams-3d', minzoom: TRAMS_3D_ZOOM - 0.5, paint: {
     'fill-extrusion-color': ['get', 'c'], 'fill-extrusion-height': ['get', 'h'], 'fill-extrusion-base': ['get', 'b'],
     'fill-extrusion-opacity': 1, 'fill-extrusion-vertical-gradient': true } });
@@ -117,7 +120,7 @@ export function addNetworkLayers(map: MapLibre, paths: Feature[], stops: Feature
   map.addLayer({ id: 'ride', type: 'symbol', source: 'ride', layout: {
     'icon-image': ['concat', 'tram-', ['to-string', ['get', 'route']]], 'icon-rotate': ['get', 'bearing'],
     'icon-rotation-alignment': 'map', 'icon-allow-overlap': true, 'icon-ignore-placement': true,
-    'icon-size': ['interpolate', ['linear'], ['zoom'], 10, 0.8, 16, 1.6] } });
+    'icon-size': ['interpolate', ['linear'], ['zoom'], 10, 1.05, 16, 2] } });
 }
 
 export function setLoadData(map: MapLibre, lines: Feature[], points: Feature[]): void {
@@ -137,9 +140,9 @@ export function setHour(map: MapLibre, hour: number, scale: Scale): void {
   const width: ExpressionSpecification = ['+', 1.2, ['*', 7, ['sqrt', ['/', line, routeMax]]]];
   // на крупном плане линия сужается, чтобы не перекрывать объёмные вагоны
   map.setPaintProperty('route-lines', 'line-width', ['interpolate', ['linear'], ['zoom'], 9, ['*', 0.6, width],
-    14, ['*', 1.5, width], TRAMS_3D_ZOOM, ['*', 0.8, width], 17.5, ['*', 0.5, width]]);
+    14, ['*', 1.5, width], LINE_THIN_ZOOM, ['*', 0.8, width], 17.5, ['*', 0.5, width]]);
   map.setPaintProperty('route-casing', 'line-width', ['interpolate', ['linear'], ['zoom'], 9,
-    ['+', 2, ['*', 0.6, width]], 14, ['+', 3, ['*', 1.5, width]], TRAMS_3D_ZOOM, ['+', 2, ['*', 0.8, width]],
+    ['+', 2, ['*', 0.6, width]], 14, ['+', 3, ['*', 1.5, width]], LINE_THIN_ZOOM, ['+', 2, ['*', 0.8, width]],
     17.5, ['+', 1.5, ['*', 0.5, width]]]);
 }
 
@@ -168,7 +171,7 @@ const VISIBILITY: Record<string, (keyof Flags)[]> = {
   'stop-selected': ['stops'],
   'stops-label': ['stops', 'labels'],
   trams: ['trams'],
-  'trams-3d': ['trams', 'buildings'],
+  'trams-3d': ['trams'],
   'buildings-3d': ['buildings'],
   'metro-lines': ['metro'],
   'metro-stations': ['metro'],
@@ -184,8 +187,11 @@ export function setVisibility(map: MapLibre, flags: Flags): void {
       map.setLayoutProperty(id, 'visibility', keys.every((k) => flags[k]) ? 'visible' : 'none');
     }
   }
-  // с объёмными домами вагоны на крупном плане тоже объёмные, плоские иконки остаются для общего плана
-  const iconMax = flags.buildings ? TRAMS_3D_ZOOM : 24;
+}
+
+/** В перспективе вагоны с TRAMS_3D_ZOOM объёмные, плоские значки остаются для общего плана и вида сверху. */
+export function setTramMode(map: MapLibre, threeD: boolean): void {
+  const iconMax = threeD ? TRAMS_3D_ZOOM : 24;
   map.setLayerZoomRange('trams', 0, iconMax);
   map.setLayerZoomRange('ride', 0, iconMax);
   map.setLayerZoomRange('ride-glow', 0, iconMax);

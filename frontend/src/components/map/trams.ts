@@ -70,7 +70,8 @@ export function tramCollection(trams: TramState[]): GeoJSON.FeatureCollection {
 
 // Объёмные вагоны для крупного плана: три секции «Витязя-М» (34 м) слоями fill-extrusion - юбка в цвете
 // маршрута, белый кузов, полоса окон (тёмная днём, светится после заката), крыша и тёмная маска спереди.
-// На среднем приближении вагон увеличен до 2,2 раза, иначе он тоньше линии маршрута; с zoom 16,8 размер настоящий.
+// На общем плане вагон держит на экране длину около 32 пикселей, иначе его не видно; с zoom 17 размер
+// настоящий. До zoom 14 модель упрощённая: юбка, кузов, окна и крыша без маски, сотня вагонов не тормозит.
 
 const M_LAT = 110_540;
 const M_LON = 111_320 * Math.cos((55.75 * Math.PI) / 180);
@@ -102,19 +103,33 @@ function rect(at: LngLat, bearing: number, from: number, to: number, half: numbe
   return [...ring, ring[0]!];
 }
 
+const TRAM_SCREEN_PX = 32;
+/** Метров в пикселе на zoom 0 на широте Москвы. */
+const M_PER_PX_Z0 = 156_543.03 * Math.cos((55.75 * Math.PI) / 180);
+const TRAM_LENGTH_M = 3 * CAR + 2 * GAP;
+
 /** Во сколько раз увеличить вагон на этом приближении, чтобы он читался на карте. */
 export function tramScale(zoom: number): number {
-  return Math.min(Math.max(2 ** (16.8 - zoom), 1), 2.2);
+  return Math.max((TRAM_SCREEN_PX * M_PER_PX_Z0) / 2 ** zoom / TRAM_LENGTH_M, 1);
 }
 
+/** Упрощённая модель для общего плана: вагон шире и выше, чтобы выделялся над линией маршрута. */
+const LITE_LAYERS: { b: number; h: number; c?: string }[] = [
+  { b: 0.25, h: 1.2 },
+  { b: 1.2, h: 2.0, c: '#e8ebf0' },
+  { b: 2.0, h: 2.9, c: WINDOWS_DAY },
+  { b: 2.9, h: 3.6, c: '#d9dee6' },
+];
+const LITE_WIDTH = 1.3;
+
 export function tramBodies(trams: { at: LngLat; bearing: number; color: string }[], scale = 1,
-  night = false): GeoJSON.FeatureCollection {
+  night = false, lite = false): GeoJSON.FeatureCollection {
   const features: GeoJSON.Feature[] = [];
   const push = (ring: Ring, b: number, h: number, c: string) => features.push({ type: 'Feature',
     geometry: { type: 'Polygon', coordinates: [ring] }, properties: { b: b * scale, h: h * scale, c } });
   const car = CAR * scale;
   const gap = GAP * scale;
-  const half = HALF_WIDTH * scale;
+  const half = HALF_WIDTH * scale * (lite ? LITE_WIDTH : 1);
   const nose = NOSE * scale;
   for (const tram of trams) {
     const front = (3 * car + 2 * gap) / 2;
@@ -122,6 +137,13 @@ export function tramBodies(trams: { at: LngLat; bearing: number; color: string }
       const to = front - i * (car + gap);
       const from = to - car;
       const bodyTo = i === 0 ? to - nose : to;
+      if (lite) {
+        for (const layer of LITE_LAYERS) {
+          const color = layer.c === WINDOWS_DAY && night ? WINDOWS_NIGHT : layer.c ?? tram.color;
+          push(rect(tram.at, tram.bearing, from, to, half), layer.b, layer.h, color);
+        }
+        continue;
+      }
       for (const layer of LAYERS) {
         const upto = layer.b >= 1.05 && layer.b < 3.35 ? bodyTo : to;
         const color = layer.c === WINDOWS_DAY && night ? WINDOWS_NIGHT : layer.c ?? tram.color;
