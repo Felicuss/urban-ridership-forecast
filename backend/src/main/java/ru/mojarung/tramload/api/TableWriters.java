@@ -39,7 +39,7 @@ final class TableWriters {
 				ExportRow r = it.next();
 				w.write(r.level() + SEPARATOR + r.id() + SEPARATOR + quote(r.name()) + SEPARATOR + r.period() + SEPARATOR
 						+ number(r.p50(), r.decimals()) + SEPARATOR + number(r.p10(), r.decimals()) + SEPARATOR
-						+ number(r.p90(), r.decimals()) + "\r\n");
+						+ number(r.p90(), r.decimals()) + SEPARATOR + r.source() + "\r\n");
 			}
 			w.flush();
 		}
@@ -65,6 +65,7 @@ final class TableWriters {
 				ws.value(row, 4, r.p50());
 				ws.value(row, 5, r.p10());
 				ws.value(row, 6, r.p90());
+				ws.value(row, 7, r.source());
 				if (row % XLSX_FLUSH_ROWS == 0) {
 					ws.flush();
 				}

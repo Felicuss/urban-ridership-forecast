@@ -18,7 +18,7 @@ import ru.mojarung.tramload.domain.network.Stop;
 class AggregationConsistencyTest {
 
 	private static final ForecastModel MODEL = TestArtifacts.model();
-	private static final Aggregator AGGREGATOR = new Aggregator(MODEL.components(), MODEL.intervals());
+	private static final Aggregator AGGREGATOR = new Aggregator(MODEL.timeline(), MODEL.intervals());
 	private static final double[] PREDICTION = new ForecastEngine(MODEL.components(), MODEL.constants())
 		.compute(Scenario.of(MODEL.catalog().defaults()));
 	private static final LocalDate FROM = MODEL.grid().start();

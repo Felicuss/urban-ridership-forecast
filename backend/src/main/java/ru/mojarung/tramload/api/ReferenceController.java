@@ -16,6 +16,7 @@ import org.springframework.web.server.ServerWebExchange;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import reactor.core.publisher.Mono;
+import ru.mojarung.tramload.api.dto.CalendarDayDto;
 import ru.mojarung.tramload.api.dto.CoefficientDto;
 import ru.mojarung.tramload.api.dto.MetaResponse;
 import ru.mojarung.tramload.api.dto.RouteDto;
@@ -57,7 +58,8 @@ public class ReferenceController {
 		ModelInfo info = model.info();
 		ForecastGrid grid = model.grid();
 		return ResponseEntity.ok().cacheControl(STATIC).body(new MetaResponse(info.modelVersion(), info.gitCommit(),
-				info.generatedAt(), info.forecastOrigin(), grid.start(), grid.end(), grid.routes(), Views.TIMEZONE,
+				info.generatedAt(), info.forecastOrigin(), grid.start(), grid.end(), model.timeline().start(),
+				model.timeline().end(), grid.routes(), Views.TIMEZONE,
 				info.leaderboardWapeScore(), info.defaultSubmission(), info.metrics(), APPLICABILITY));
 	}
 
@@ -66,6 +68,16 @@ public class ReferenceController {
 			+ "интервалы движения по расписанию, посадки по дням за январь-октябрь 2025, события сети")
 	public Mono<ResponseEntity<DataBuffer>> factors(ServerWebExchange exchange) {
 		return NetworkController.staticJson(exchange, factorsEtag, model.factorsJson(), MediaType.APPLICATION_JSON);
+	}
+
+	@GetMapping("/calendar")
+	@Operation(summary = "Календарь шкалы: тип дня, праздник и источник данных (fact, forecast, outlook) на каждый день")
+	public ResponseEntity<List<CalendarDayDto>> calendar() {
+		List<CalendarDayDto> days = model.timeline().days().stream()
+			.map(d -> new CalendarDayDto(d.date(), d.dayOfWeek(), d.dayType(), d.kind().code(), d.dayOff(), d.holiday(),
+					d.source().code()))
+			.toList();
+		return ResponseEntity.ok().cacheControl(STATIC).body(days);
 	}
 
 	@GetMapping("/coefficients")

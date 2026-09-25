@@ -49,7 +49,7 @@ class ExportTest {
 
 		assertThat(Arrays.copyOf(body, 3)).containsExactly(TableWriters.BOM);
 		List<String> lines = new String(body, 3, body.length - 3, StandardCharsets.UTF_8).lines().toList();
-		assertThat(lines.getFirst()).isEqualTo("уровень;объект;название;период;прогноз;p10;p90");
+		assertThat(lines.getFirst()).isEqualTo("уровень;объект;название;период;прогноз;p10;p90;источник");
 		assertThat(lines).hasSize(14_640 + 1);
 		assertThat(result.getResponseHeaders().getFirst("X-Rows")).isEqualTo("14640");
 		assertThat(predictionsByCell(lines)).isEqualTo(submissionByCell());
@@ -93,7 +93,7 @@ class ExportTest {
 		int stops = TestArtifacts.model().network().stops().size();
 		assertThat(lines).hasSize(stops * 61);
 		assertThat(lines).filteredOn(l -> l.contains("\"\"")).isNotEmpty()
-			.allSatisfy(l -> assertThat(l.replaceAll("\"[^\"]*(\"\"[^\"]*)*\"", "X").split(";")).hasSize(7));
+			.allSatisfy(l -> assertThat(l.replaceAll("\"[^\"]*(\"\"[^\"]*)*\"", "X").split(";")).hasSize(8));
 	}
 
 	@Test

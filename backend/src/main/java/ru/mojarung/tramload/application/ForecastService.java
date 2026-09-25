@@ -9,6 +9,7 @@ import ru.mojarung.tramload.domain.Aggregator.Point;
 import ru.mojarung.tramload.domain.ForecastModel;
 import ru.mojarung.tramload.domain.Granularity;
 import ru.mojarung.tramload.domain.Scenario;
+import ru.mojarung.tramload.domain.Source;
 
 /** Прогноз по маршруту, остановке, участку или сети на интервале с нужным шагом, в том числе по сценарию. */
 public final class ForecastService {
@@ -17,6 +18,10 @@ public final class ForecastService {
 			+ "в валидациях остановки посадки нет";
 	static final String NOTE_YEAR = "Январь-октябрь 2026 - качественный прогноз по сезонному индексу городского "
 			+ "трамвая, коридор ±12 %; сценарий на них не влияет";
+
+	static final String NOTE_FACT = "Январь-октябрь 2025 - факт: успешные валидации из данных организаторов, коридора нет";
+	static final String NOTE_OUTLOOK = "2026 год - оценка: месячный прогноз по сезонному индексу разложен по дням и часам "
+			+ "формой суток декабря 2025, коридор ±12 %; сценарий на неё не влияет";
 
 	private final ForecastModel model;
 	private final QueryResolver resolver;
@@ -52,6 +57,12 @@ public final class ForecastService {
 		if (q.isYear()) {
 			notes.add(NOTE_YEAR);
 		}
+		if (points.stream().anyMatch(p -> p.source() == Source.FACT)) {
+			notes.add(NOTE_FACT);
+		}
+		if (!q.isYear() && points.stream().anyMatch(p -> p.source() == Source.OUTLOOK)) {
+			notes.add(NOTE_OUTLOOK);
+		}
 		return new ForecastResult(q, points, Aggregator.total(points), notes);
 	}
 
@@ -62,7 +73,7 @@ public final class ForecastService {
 		List<Point> out = new ArrayList<>(hourly);
 		for (YearMonth month : model.year().months()) {
 			if (month.isAfter(YearMonth.from(model.grid().end()))) {
-				out.add(Point.of(month.toString(), model.year().total(month, q.target().weights())));
+				out.add(Point.of(month.toString(), model.year().total(month, q.target().weights()), Source.OUTLOOK));
 			}
 		}
 		return out;

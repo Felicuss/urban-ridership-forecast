@@ -12,6 +12,7 @@ import ru.mojarung.tramload.domain.ForecastGrid;
 import ru.mojarung.tramload.domain.ForecastModel;
 import ru.mojarung.tramload.domain.Granularity;
 import ru.mojarung.tramload.domain.HourWindow;
+import ru.mojarung.tramload.domain.Timeline;
 import ru.mojarung.tramload.domain.ValidationException;
 import ru.mojarung.tramload.domain.ValidationException.Violation;
 
@@ -58,13 +59,13 @@ public final class QueryResolver {
 		}
 		if (q.horizon() == Horizon.MONTH) {
 			YearMonth month = YearMonth.from(from);
-			if (month.atEndOfMonth().isBefore(grid().start()) || month.atDay(1).isAfter(grid().end())) {
-				violations.add(new Violation("from", "месяц " + month + " вне горизонта прогноза " + grid().start()
-						+ " - " + grid().end()));
+			if (month.atEndOfMonth().isBefore(timeline().start()) || month.atDay(1).isAfter(timeline().end())) {
+				violations.add(new Violation("from", "месяц " + month + " вне шкалы " + timeline().start()
+						+ " - " + timeline().end()));
 				return new LocalDate[] { from, from };
 			}
-			from = max(month.atDay(1), grid().start());
-			to = min(month.atEndOfMonth(), grid().end());
+			from = max(month.atDay(1), timeline().start());
+			to = min(month.atEndOfMonth(), timeline().end());
 		}
 		checkDates(from, to, q.to() != null && q.horizon() == null, violations);
 		return new LocalDate[] { from, to };
@@ -122,12 +123,13 @@ public final class QueryResolver {
 
 	/** Конец интервала проверяем отдельно, только если клиент его задал: иначе он повторяет начало. */
 	private void checkDates(LocalDate from, LocalDate to, boolean explicitTo, List<Violation> violations) {
-		String range = grid().start() + " - " + grid().end();
-		if (!grid().contains(from)) {
-			violations.add(new Violation("from", "дата " + from + " вне горизонта прогноза " + range));
+		String range = timeline().start() + " - " + timeline().end();
+		if (!timeline().contains(from)) {
+			violations.add(new Violation("from", "дата " + from + " вне шкалы " + range
+					+ ": факт с января 2025, прогноз ноября-декабря 2025, оценка до октября 2026"));
 		}
-		if (explicitTo && !grid().contains(to)) {
-			violations.add(new Violation("to", "дата " + to + " вне горизонта прогноза " + range));
+		if (explicitTo && !timeline().contains(to)) {
+			violations.add(new Violation("to", "дата " + to + " вне шкалы " + range));
 		}
 		if (explicitTo && from.isAfter(to)) {
 			violations.add(new Violation("to", "конец интервала раньше начала"));
@@ -154,6 +156,10 @@ public final class QueryResolver {
 
 	private ForecastGrid grid() {
 		return model.grid();
+	}
+
+	private Timeline timeline() {
+		return model.timeline();
 	}
 
 	private static String required(String value, String field, String message) {

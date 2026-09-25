@@ -6,6 +6,7 @@ import java.util.Map;
 
 /** Паспорт модели: версия, горизонт, качество и область применимости. */
 public record MetaResponse(String modelVersion, String gitCommit, String generatedAt, LocalDate forecastOrigin,
-		LocalDate horizonFrom, LocalDate horizonTo, List<Integer> routes, String timezone, double leaderboardWapeScore,
+		LocalDate horizonFrom, LocalDate horizonTo, LocalDate timelineFrom, LocalDate timelineTo, List<Integer> routes,
+		String timezone, double leaderboardWapeScore,
 		String defaultSubmission, Map<String, Object> quality, List<String> applicability) {
 }

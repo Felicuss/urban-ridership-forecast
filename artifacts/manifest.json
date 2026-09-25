@@ -1,8 +1,8 @@
 {
  "schema_version": 1,
  "model_version": "ex_ante_route5",
- "git_commit": "0931238d68f39a82a9b182e91687a51c70487655",
- "generated_at": "2026-09-25T14:45:22+00:00",
+ "git_commit": "85ded0945f4fc197af578877faacb46f64c5e4b8",
+ "generated_at": "2026-09-25T15:42:23+00:00",
  "forecast_origin": "2025-10-31",
  "horizon": {
   "from": "2025-11-01",
@@ -63,6 +63,18 @@
   "factors.json": {
    "sha256": "5603c1232dec29f2e687985696289af633ac1e081de5f8ed756d4dde87f6b4e0",
    "rows": null
+  },
+  "timeline_calendar.csv": {
+   "sha256": "d3ea7f88882d93a02f5f2ba54c72cf71b4cd9b4388fc3c7af2fcd5c46ff1ca9e",
+   "rows": 669
+  },
+  "actuals.csv": {
+   "sha256": "315dcd2c164777145e4902baebb3173b9ab58cc3d41140d0a3bdd7fef9dbf3a2",
+   "rows": 72960
+  },
+  "outlook.csv": {
+   "sha256": "cba2099874d5248a35a494a74edb8c46386b5d9512978a07ddf8bdd0c60d9888",
+   "rows": 72960
   }
  }
 }

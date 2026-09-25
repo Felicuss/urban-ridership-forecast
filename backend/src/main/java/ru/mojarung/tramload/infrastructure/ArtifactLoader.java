@@ -46,7 +46,8 @@ public final class ArtifactLoader {
 		try {
 			return new ForecastModel(components(dir, grid), constants(coefficients),
 					new CoefficientCatalog(CatalogParser.specs(coefficients)), network(dir),
-					intervals(readJson(dir.resolve("intervals.json"))), year(dir), info(dir, manifest),
+					intervals(readJson(dir.resolve("intervals.json"))), year(dir), TimelineParser.timeline(dir, grid),
+					info(dir, manifest),
 					ByteBuffer.wrap(Files.readAllBytes(dir.resolve("network.geojson"))),
 					ByteBuffer.wrap(Files.readAllBytes(dir.resolve("factors.json"))));
 		}

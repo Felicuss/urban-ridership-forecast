@@ -69,3 +69,22 @@ def test_stop_shares_keep_route_total():
     last = rs.loc[rs.groupby(["route", "direction"]).seq.idxmax()]
     assert (last.share == 0).all(), "на конечной только выходят"
     assert set(rs.stop_id) <= set(stops.stop_id)
+
+
+def test_timeline_fact_is_the_organizers_data_and_outlook_adds_up_to_the_year():
+    from common import load_labels
+    from export_timeline import check
+
+    actuals = pd.read_csv(OUT / "actuals.csv")
+    outlook = pd.read_csv(OUT / "outlook.csv")
+    cal = pd.read_csv(OUT / "timeline_calendar.csv")
+    year = pd.read_csv(OUT / "forecast_year.csv")
+    labels = load_labels()
+
+    fact = labels[labels.date <= "2025-10-31"].boardings.to_numpy()
+    assert np.array_equal(actuals.sort_values(["route", "date", "hour"]).boardings.to_numpy(),
+                          labels[labels.date <= "2025-10-31"].sort_values(["route", "date", "hour"]).boardings.to_numpy())
+    assert actuals.boardings.sum() == fact.sum()
+    check(cal, actuals, outlook, year)
+    assert cal[cal.date == "2026-01-09"].day_off.item(), "перенос выходного 2026 из производственного календаря"
+    assert cal[cal.date == "2025-11-01"].day_type.item() == "workday", "рабочая суббота 1 ноября"

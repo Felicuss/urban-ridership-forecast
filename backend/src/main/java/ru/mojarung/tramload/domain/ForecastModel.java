@@ -16,6 +16,7 @@ public record ForecastModel(
 		StopNetwork network,
 		Intervals intervals,
 		YearForecast year,
+		Timeline timeline,
 		ModelInfo info,
 		ByteBuffer networkGeoJson,
 		ByteBuffer factorsJson) {

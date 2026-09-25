@@ -89,7 +89,7 @@ public class NetworkController {
 	}
 
 	private static NetworkLoadResponse view(NetworkLoad load, boolean scenario) {
-		return new NetworkLoadResponse(load.date(), load.hours(), Views.TIMEZONE, scenario,
+		return new NetworkLoadResponse(load.date(), load.source().code(), load.hours(), Views.TIMEZONE, scenario,
 				load.routes().stream().map(NetworkController::series).toList(),
 				load.stops().stream().map(NetworkController::series).toList());
 	}

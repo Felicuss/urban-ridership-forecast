@@ -35,7 +35,7 @@ public class ModelConfiguration {
 
 	@Bean
 	Aggregator aggregator(ForecastModel model) {
-		return new Aggregator(model.components(), model.intervals());
+		return new Aggregator(model.timeline(), model.intervals());
 	}
 
 	/**

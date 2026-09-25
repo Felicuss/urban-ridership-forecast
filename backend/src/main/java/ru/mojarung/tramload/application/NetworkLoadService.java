@@ -10,6 +10,8 @@ import ru.mojarung.tramload.domain.ForecastGrid;
 import ru.mojarung.tramload.domain.ForecastModel;
 import ru.mojarung.tramload.domain.HourWindow;
 import ru.mojarung.tramload.domain.Scenario;
+import ru.mojarung.tramload.domain.Source;
+import ru.mojarung.tramload.domain.Timeline;
 import ru.mojarung.tramload.domain.ValidationException;
 
 /**
@@ -31,13 +33,14 @@ public final class NetworkLoadService {
 	}
 
 	public NetworkLoad load(LocalDate date, HourWindow hours, Scenario scenario) {
-		ForecastGrid grid = model.grid();
-		if (date == null || !grid.contains(date)) {
-			throw ValidationException.of("date", "укажите дату в горизонте " + grid.start() + " - " + grid.end());
+		Timeline timeline = model.timeline();
+		if (date == null || !timeline.contains(date)) {
+			throw ValidationException.of("date", "укажите дату в шкале " + timeline.start() + " - " + timeline.end());
 		}
 		HourWindow window = hours == null ? HourWindow.ALL_DAY : hours;
 		double[] prediction = scenarios.prediction(scenario);
-		int day = grid.dayIndex(date);
+		int day = timeline.dayIndex(date);
+		ForecastGrid grid = model.grid();
 		List<Series> routes = new ArrayList<>();
 		for (int route : grid.routes()) {
 			routes.add(new Series(String.valueOf(route), values(prediction, Map.of(route, 1.0), day, window)));
@@ -48,7 +51,7 @@ public final class NetworkLoadService {
 		for (int h = window.first(); h <= window.last(); h++) {
 			hourList.add(h);
 		}
-		return new NetworkLoad(date, hourList, routes, stops);
+		return new NetworkLoad(date, timeline.day(day).source(), hourList, routes, stops);
 	}
 
 	private List<Double> values(double[] prediction, Map<Integer, Double> weights, int day, HourWindow window) {
@@ -60,7 +63,8 @@ public final class NetworkLoadService {
 	}
 
 	/** Кадры по часам: у каждого маршрута и остановки значения в порядке hours. */
-	public record NetworkLoad(LocalDate date, List<Integer> hours, List<Series> routes, List<Series> stops) {
+	public record NetworkLoad(LocalDate date, Source source, List<Integer> hours, List<Series> routes,
+			List<Series> stops) {
 
 		public NetworkLoad {
 			hours = List.copyOf(hours);

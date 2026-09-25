@@ -2,6 +2,7 @@ package ru.mojarung.tramload.application;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import ru.mojarung.tramload.domain.Aggregator.Point;
@@ -9,6 +10,7 @@ import ru.mojarung.tramload.domain.ForecastModel;
 import ru.mojarung.tramload.domain.Granularity;
 import ru.mojarung.tramload.domain.HourWindow;
 import ru.mojarung.tramload.domain.Scenario;
+import ru.mojarung.tramload.domain.Source;
 import ru.mojarung.tramload.domain.ValidationException;
 import ru.mojarung.tramload.domain.network.Stop;
 
@@ -18,10 +20,13 @@ import ru.mojarung.tramload.domain.network.Stop;
  */
 public final class ExportService {
 
+	private static final Map<Source, String> SOURCE_LABEL = Map.of(Source.FACT, "факт", Source.FORECAST, "прогноз",
+			Source.OUTLOOK, "оценка");
+
 	/** Лист Excel вмещает 1 048 576 строк, одна уходит на заголовок. */
 	public static final long MAX_ROWS = 1_048_575;
 	public static final List<String> HEADER = List.of("уровень", "объект", "название", "период", "прогноз", "p10",
-			"p90");
+			"p90", "источник");
 
 	private final ForecastModel model;
 	private final QueryResolver resolver;
@@ -96,11 +101,11 @@ public final class ExportService {
 
 	/** Строка выгрузки. decimals: 0 для маршрутов и сети (как в сабмите), 1 для остановок. */
 	public record ExportRow(String level, String id, String name, String period, double p50, double p10, double p90,
-			int decimals) {
+			int decimals, String source) {
 
 		static ExportRow of(Target t, Point p, int decimals) {
 			return new ExportRow(t.level().code(), t.id(), t.name(), p.period(), round(p.p50(), decimals),
-					round(p.p10(), decimals), round(p.p90(), decimals), decimals);
+					round(p.p10(), decimals), round(p.p90(), decimals), decimals, SOURCE_LABEL.get(p.source()));
 		}
 
 		private static double round(double value, int decimals) {

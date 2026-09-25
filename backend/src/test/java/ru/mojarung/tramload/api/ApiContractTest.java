@@ -55,8 +55,8 @@ class ApiContractTest {
 	@ParameterizedTest
 	@CsvSource(delimiter = '|', value = {
 			"level=route&id=99|id",
-			"level=route&id=17&from=2026-01-05|from",
-			"level=route&id=17&horizon=month&from=2025-10-10|from",
+			"level=route&id=17&from=2027-01-05|from",
+			"level=route&id=17&horizon=month&from=2024-10-10|from",
 			"level=route&id=17&from=2025-11-10&to=2025-11-05|to",
 			"level=route&id=17&horizon=week|horizon",
 			"level=network&horizon=year&granularity=hour|granularity",
@@ -76,7 +76,7 @@ class ApiContractTest {
 
 	@Test
 	void allViolationsAreReportedAtOnce() {
-		client.get().uri("/api/v1/forecast?level=route&id=99&from=2026-01-05").exchange()
+		client.get().uri("/api/v1/forecast?level=route&id=99&from=2027-01-05").exchange()
 			.expectStatus().isBadRequest()
 			.expectBody().jsonPath("$.errors.length()").isEqualTo(2);
 	}
@@ -129,6 +129,36 @@ class ApiContractTest {
 			.returnResult(byte[].class).getResponseHeaders().getETag();
 
 		client.get().uri("/api/v1/network").header("If-None-Match", etag).exchange().expectStatus().isNotModified();
+	}
+
+	@Test
+	void anyDateOfTheTimelineHasItsSourceAndCorridor() {
+		ForecastResponse fact = get("/api/v1/forecast?level=route&id=17&horizon=day&from=2025-06-10", ForecastResponse.class);
+		ForecastResponse outlook = get("/api/v1/forecast?level=network&horizon=month&from=2026-03-01", ForecastResponse.class);
+		NetworkLoadResponse load = get("/api/v1/network/load?date=2025-06-10", NetworkLoadResponse.class);
+
+		assertThat(fact.points()).hasSize(24).allSatisfy(p -> {
+			assertThat(p.source()).isEqualTo("fact");
+			assertThat(p.p10()).isEqualTo(p.p50()).isEqualTo(p.p90());
+		});
+		assertThat(outlook.points()).hasSize(31).allSatisfy(p -> {
+			assertThat(p.source()).isEqualTo("outlook");
+			assertThat(p.p90()).isCloseTo(p.p50() * 1.12, within(0.2));
+		});
+		assertThat(load.source()).isEqualTo("fact");
+		assertThat(fact.notes()).anySatisfy(n -> assertThat(n).contains("факт"));
+	}
+
+	@Test
+	void calendarCoversTheWholeTimeline() {
+		client.get().uri("/api/v1/calendar").exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.jsonPath("$.length()").isEqualTo(669)
+			.jsonPath("$[0].date").isEqualTo("2025-01-01")
+			.jsonPath("$[0].source").isEqualTo("fact")
+			.jsonPath("$[668].date").isEqualTo("2026-10-31")
+			.jsonPath("$[668].source").isEqualTo("outlook");
 	}
 
 	@Test

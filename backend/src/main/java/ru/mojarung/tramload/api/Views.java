@@ -54,14 +54,14 @@ final class Views {
 	}
 
 	private static PointDto point(Point p) {
-		return new PointDto(p.period(), round(p.p50()), round(p.p10()), round(p.p90()));
+		return new PointDto(p.period(), round(p.p50()), round(p.p10()), round(p.p90()), p.source().code());
 	}
 
 	private static ScenarioPointDto delta(Point scenario, Point baseline) {
 		double delta = scenario.p50() - baseline.p50();
 		Double pct = baseline.p50() > 0 ? round(100.0 * delta / baseline.p50()) : null;
 		return new ScenarioPointDto(scenario.period(), round(scenario.p50()), round(scenario.p10()),
-				round(scenario.p90()), round(baseline.p50()), round(delta), pct);
+				round(scenario.p90()), round(baseline.p50()), round(delta), pct, scenario.source().code());
 	}
 
 	private static EventDto event(ScenarioEvent e) {
