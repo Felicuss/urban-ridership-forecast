@@ -2,7 +2,8 @@
 
 Сервис на Java модели не запускает, он читает эти файлы при старте, сверяет их с manifest.json
 по sha256 и числу строк и пересчитывает прогноз по формуле export_components.recompute.
-По умолчанию это лучший сабмит на лидерборде: s32 = честный вариант s30 + маршрут 5, 0.89950.
+По умолчанию это лучший конкурсный прогноз v6 (0.90553): формула s30/s32 с множителем до v6 в каждой ячейке,
+см. export_components.calibration.
 Контракт описан в docs/research/review_round1.md, п. 7.1, и docs/architecture/backend_brief.md.
 Запуск: uv run python analysis/s40_export_artifacts.py (после s33, если обновлялся трафик)
 """
@@ -20,7 +21,8 @@ import s10_forecast as s10
 from common import FORECAST_END, FORECAST_START, ROOT, ROUTES, TEST_END
 from export_context import build_factors, check as check_factors
 from export_timeline import actuals_frame, check as check_timeline, outlook_frame, timeline_calendar
-from export_components import ROUTE5_SATURDAY, ROUTE5_SUNDAY, build_components, recompute, scenario_coefficients
+from export_components import (ROUTE5_SATURDAY, ROUTE5_SUNDAY, TARGET_SUBMISSION, build_components, recompute,
+                               scenario_coefficients)
 from export_horizons import backtest_frame, intervals_and_metrics, year_forecast
 from export_network import build_stops, network_geojson
 from s30_ex_ante import coefficients as ex_ante_coefficients
@@ -28,8 +30,9 @@ from s34_traffic_probe import city_tram_monthly, novdec_levels
 
 OUT = ROOT / "artifacts"
 GOLDEN = OUT / "golden"
-DEFAULT_SUBMISSION = s10.OUT / "submission_ex_ante_route5.csv"
-LEADERBOARD_SCORE = 0.8995
+DEFAULT_SUBMISSION = TARGET_SUBMISSION
+LEADERBOARD_SCORE = 0.90553
+MODEL_VERSION = "shape_facts_v6"
 SCHEMA_VERSION = 1
 
 
@@ -90,7 +93,7 @@ def coefficient_catalog(c: s10.Coefficients, traffic: dict) -> dict:
         slider("frost_coef", "Мороз ниже -10 °C: поправка на градус", "weather", "number", c.frost_coef,
                "история 2025 года, оценка по двум морозным дням", min=-0.05, max=0.0, step=0.0001),
     ]
-    return {"schema_version": SCHEMA_VERSION, "scenario": "ex_ante_route5", "coefficients": items,
+    return {"schema_version": SCHEMA_VERSION, "scenario": MODEL_VERSION, "coefficients": items,
             "constants": {"traffic_level_nov": traffic["traffic_level_nov"],
                           "traffic_level_dec": traffic["traffic_level_dec"],
                           "route5_saturday_ratio": ROUTE5_SATURDAY, "route5_sunday_ratio": ROUTE5_SUNDAY},
@@ -98,11 +101,12 @@ def coefficient_catalog(c: s10.Coefficients, traffic: dict) -> dict:
 
 
 def golden_scenarios(comp: pd.DataFrame, default: s10.Coefficients) -> tuple[pd.DataFrame, dict]:
-    """Прогноз исходной реализацией s10 на наборах коэффициентов: сервис обязан совпасть с ним."""
+    """Прогноз исходной реализацией s10 на наборах коэффициентов, с тем же множителем до v6: сервис
+    обязан совпасть с ним."""
     table = comp[["route", "date", "hour"]].copy()
     sets = {}
     for name, c in scenario_coefficients(default).items():
-        table[name] = s10.make_forecast(c).prediction.to_numpy()
+        table[name] = s10.make_forecast(c).prediction.to_numpy() * comp.calib.to_numpy()
         changed = {k: v for k, v in dataclasses.asdict(c).items() if v != getattr(default, k) or name == "default"}
         if "route5_start" in changed:
             changed["route5_start"] = changed["route5_start"].replace(" ", "T")
@@ -179,14 +183,15 @@ def main() -> None:
              "timeline_calendar.csv", "actuals.csv", "outlook.csv"]
     manifest = {
         "schema_version": SCHEMA_VERSION,
-        "model_version": "ex_ante_route5",
+        "model_version": MODEL_VERSION,
         "git_commit": git_commit(),
         "generated_at": dt.datetime.now(dt.UTC).isoformat(timespec="seconds"),
         "forecast_origin": TEST_END,
         "horizon": {"from": FORECAST_START, "to": FORECAST_END},
         "routes": ROUTES,
-        "default_scenario": {"name": "ex_ante_route5", "script": "analysis/s32_ex_ante_route5.py",
-                             "submission": "forecasts/submission_ex_ante_route5.csv",
+        "default_scenario": {"name": MODEL_VERSION, "script": "analysis/s64_package_shape_facts.py",
+                             "formula": "analysis/s32_ex_ante_route5.py × calib до v6",
+                             "submission": "forecasts/submission_shape_facts_v6.csv",
                              "submission_sha256_lf": text_sha256(DEFAULT_SUBMISSION),
                              "leaderboard_wape_score": LEADERBOARD_SCORE},
         "files": {name: {"sha256": sha256(OUT / name),

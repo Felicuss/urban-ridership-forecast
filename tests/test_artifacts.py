@@ -32,10 +32,11 @@ def test_components_reproduce_best_submission_in_every_cell(components):
 
 @pytest.mark.parametrize("name", list(scenario_coefficients(s10.Coefficients())))
 def test_formula_matches_original_rules_when_coefficients_move(components, name):
-    """recompute повторяет s10.apply_rules не только в точке по умолчанию: иначе ползунки врут."""
+    """recompute повторяет s10.apply_rules не только в точке по умолчанию: иначе ползунки врут.
+    Множитель до v6 в каждой ячейке один и тот же при любых коэффициентах."""
     c = scenario_coefficients(default_coefficients())[name]
 
-    expected = s10.make_forecast(c).prediction.to_numpy()
+    expected = s10.make_forecast(c).prediction.to_numpy() * components.calib.to_numpy()
 
     np.testing.assert_allclose(recompute(components, c), expected, rtol=1e-12, atol=1e-9)
 

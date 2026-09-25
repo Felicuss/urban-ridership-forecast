@@ -5,7 +5,8 @@ import java.util.List;
 
 /**
  * Пересчёт прогноза по сценарию. Порядок операций повторяет analysis/s10_forecast.py (apply_rules)
- * и analysis/export_components.py (recompute): от него зависит совпадение с сабмитом до последнего знака.
+ * и analysis/export_components.py (recompute): правила, погода, множитель ячейки до лучшего конкурсного
+ * прогноза (v6), события сценария. От порядка зависит совпадение с сабмитом до последнего знака.
  * Эталонные тесты сверяют результат с сабмитом и с Python на пяти наборах коэффициентов.
  */
 public final class ForecastEngine {
@@ -36,7 +37,7 @@ public final class ForecastEngine {
 				for (int h = 0; h < ForecastGrid.HOURS; h++) {
 					int cell = grid.cell(r, d, h);
 					double rules = route == ROUTE_NEW ? route5(cell, date, h, c) : regular(cell, route, date, h, c);
-					double value = weather(cell, rules, c);
+					double value = weather(cell, rules, c) * components.calib(cell);
 					out[cell] = Math.max(events(value, route, date, h, scenario.events()), 0.0);
 				}
 			}

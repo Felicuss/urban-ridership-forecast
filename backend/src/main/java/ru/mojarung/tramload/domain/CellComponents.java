@@ -20,5 +20,6 @@ public record CellComponents(
 		double precipDay,
 		double precipHour,
 		double tempDay,
+		double calib,
 		double prediction) {
 }

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
@@ -54,9 +55,13 @@ class ArtifactLoaderTest {
 	void formulaDriftFromExportStopsStartup() throws IOException {
 		copyArtifacts();
 		Path components = dir.resolve("forecast_components.csv");
-		String text = Files.readString(components, StandardCharsets.UTF_8);
-		// прогноз по умолчанию в файле больше не соответствует базе: так выглядит рассинхрон кода и артефактов
-		Files.writeString(components, text.replaceFirst(",2.1307375\n", ",3.0\n"), StandardCharsets.UTF_8);
+		List<String> lines = Files.readAllLines(components, StandardCharsets.UTF_8);
+		// прогноз по умолчанию в первой ячейке больше не соответствует базе: так выглядит рассинхрон кода
+		// и артефактов; число берётся из файла, чтобы проверка не зависела от версии модели
+		String first = lines.get(1);
+		int cut = first.lastIndexOf(',') + 1;
+		lines.set(1, first.substring(0, cut) + (Double.parseDouble(first.substring(cut)) + 1.0));
+		Files.writeString(components, String.join("\n", lines) + "\n", StandardCharsets.UTF_8);
 		updateSha("forecast_components.csv");
 
 		assertThatThrownBy(() -> ModelConfiguration.selfCheck(new ArtifactLoader().load(dir)))

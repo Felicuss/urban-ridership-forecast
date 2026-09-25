@@ -1,8 +1,8 @@
 {
  "schema_version": 1,
- "model_version": "ex_ante_route5",
- "git_commit": "11a91e3cd64df07faa9548ab1b6619933f490afc",
- "generated_at": "2026-09-25T16:34:31+00:00",
+ "model_version": "shape_facts_v6",
+ "git_commit": "0c30333dd5528ae2f135c81c17f268c55da2fc82",
+ "generated_at": "2026-09-25T22:26:07+00:00",
  "forecast_origin": "2025-10-31",
  "horizon": {
   "from": "2025-11-01",
@@ -21,19 +21,20 @@
   50
  ],
  "default_scenario": {
-  "name": "ex_ante_route5",
-  "script": "analysis/s32_ex_ante_route5.py",
-  "submission": "forecasts/submission_ex_ante_route5.csv",
-  "submission_sha256_lf": "cd3e465e97fa845a932ed6be38f7f752fdf8c709efecf1cee7e271d4a7e468c7",
-  "leaderboard_wape_score": 0.8995
+  "name": "shape_facts_v6",
+  "script": "analysis/s64_package_shape_facts.py",
+  "formula": "analysis/s32_ex_ante_route5.py × calib до v6",
+  "submission": "forecasts/submission_shape_facts_v6.csv",
+  "submission_sha256_lf": "ae13aca28a9c388f69981fd07d9a118c687fbecbcbfafd9df6faf2180d61ea5c",
+  "leaderboard_wape_score": 0.90553
  },
  "files": {
   "forecast_components.csv": {
-   "sha256": "b679b8a54fb0c368f818bfde132b14c3c4273e90a7e81b0b93357389cfb401b5",
+   "sha256": "f9f89065270d020eb81f427fe9c86845e644b17da8a1af907c5ce22ec8acf626",
    "rows": 14640
   },
   "coefficients.json": {
-   "sha256": "229a6557fc78a1019d5352d97d4ffe5969ab4b28dbdf91bf5738311904dffbb4",
+   "sha256": "edd4e63ad5d03b4376b7093a28f6bb514dd0c59a736c93caf01af6cd4b066ac4",
    "rows": null
   },
   "stops.csv": {
@@ -53,11 +54,11 @@
    "rows": null
   },
   "forecast_year.csv": {
-   "sha256": "81500753dfd8ffc89b87ef65d43eda199cefded83db5e0ceb73cca2dd45fb4d3",
+   "sha256": "5c792875c6c4544ee34d6bb385718d93aeba01c5d450211a5da8c196cb3b5d9a",
    "rows": 120
   },
   "backtest_metrics.json": {
-   "sha256": "a75156c2bb346f807a2feec3b7efa22a0eab2a496aeb84e8375706d35733e0d5",
+   "sha256": "43b409df478db89cd9498bb899a94f0ffa2314c174701da89d61de7d8e22605f",
    "rows": null
   },
   "factors.json": {
@@ -73,7 +74,7 @@
    "rows": 72960
   },
   "outlook.csv": {
-   "sha256": "cba2099874d5248a35a494a74edb8c46386b5d9512978a07ddf8bdd0c60d9888",
+   "sha256": "c7134c63f9b3e37550f246fe2f628bd0c476ee596663c61566a396c4f11e8ad6",
    "rows": 72960
   }
  }

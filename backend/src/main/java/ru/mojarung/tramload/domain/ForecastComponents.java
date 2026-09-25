@@ -23,6 +23,7 @@ public final class ForecastComponents {
 	private final double[] precipDay;
 	private final double[] precipHour;
 	private final double[] tempDay;
+	private final double[] calib;
 	private final double[] prediction;
 
 	private ForecastComponents(ForecastGrid grid, List<CellComponents> cells) {
@@ -41,6 +42,7 @@ public final class ForecastComponents {
 		precipDay = new double[n];
 		precipHour = new double[n];
 		tempDay = new double[n];
+		calib = new double[n];
 		prediction = new double[n];
 		boolean[] seen = new boolean[n];
 		for (CellComponents c : cells) {
@@ -74,6 +76,7 @@ public final class ForecastComponents {
 		precipDay[cell] = c.precipDay();
 		precipHour[cell] = c.precipHour();
 		tempDay[cell] = c.tempDay();
+		calib[cell] = c.calib();
 		prediction[cell] = c.prediction();
 	}
 
@@ -132,6 +135,11 @@ public final class ForecastComponents {
 
 	public double precipHour(int cell) {
 		return precipHour[cell];
+	}
+
+	/** Множитель до лучшего конкурсного прогноза (v6) в ячейке: при коэффициентах по умолчанию формула даёт v6. */
+	public double calib(int cell) {
+		return calib[cell];
 	}
 
 	public double tempDay(int cell) {
