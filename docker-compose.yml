@@ -2,6 +2,7 @@
 #   docker compose up -d --build                  интерфейс и API на http://localhost:8080
 #   docker compose up -d --scale api=3            три реплики за тем же адресом
 #   docker compose --profile load run --rm k6     нагрузочный замер, итог в deploy/k6/results/
+#   docker compose --profile agent up -d --build  плюс MCP-сервер для агента на http://localhost:8765/mcp
 name: tram-load
 
 services:
@@ -26,6 +27,23 @@ services:
     image: tram-load-ui:0.1.0
     ports:
       - "${API_PORT:-8080}:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+  mcp:
+    # MCP-сервер для агента диспетчера: инструменты поверх API и команды интерфейсу
+    #   docker compose --profile agent up -d --build   http://localhost:8765/mcp
+    build:
+      context: mcp-server
+    image: tram-load-mcp:0.1.0
+    profiles: ["agent"]
+    environment:
+      TRAM_API_URL: http://api:8080/api/v1
+      TRAM_PUBLIC_URL: http://localhost:${API_PORT:-8080}/api/v1
+    ports:
+      - "${MCP_PORT:-8765}:8765"
     depends_on:
       api:
         condition: service_healthy
