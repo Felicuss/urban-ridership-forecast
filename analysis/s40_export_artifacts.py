@@ -18,6 +18,7 @@ import pandas as pd
 
 import s10_forecast as s10
 from common import FORECAST_END, FORECAST_START, ROOT, ROUTES, TEST_END
+from export_context import build_factors, check as check_factors
 from export_components import ROUTE5_SATURDAY, ROUTE5_SUNDAY, build_components, recompute, scenario_coefficients
 from export_horizons import backtest_frame, intervals_and_metrics, year_forecast
 from export_network import build_stops, network_geojson
@@ -148,12 +149,17 @@ def main() -> None:
     write_json({**metrics, "leaderboard_wape_score": LEADERBOARD_SCORE, "year": year_meta, "stops": stop_stats},
                "backtest_metrics.json")
 
+    factors = build_factors()
+    check_factors(factors)
+    (OUT / "factors.json").write_text(json.dumps(factors, ensure_ascii=False, separators=(",", ":")) + "\n",
+                                      encoding="utf-8")
+
     table, sets = golden_scenarios(comp, c)
     table.to_csv(GOLDEN / "scenarios.csv", index=False, lineterminator="\n")
     (GOLDEN / "scenarios.json").write_text(json.dumps(sets, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
 
     files = ["forecast_components.csv", "coefficients.json", "stops.csv", "route_stops.csv", "network.geojson",
-             "intervals.json", "forecast_year.csv", "backtest_metrics.json"]
+             "intervals.json", "forecast_year.csv", "backtest_metrics.json", "factors.json"]
     manifest = {
         "schema_version": SCHEMA_VERSION,
         "model_version": "ex_ante_route5",

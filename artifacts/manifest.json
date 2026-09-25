@@ -1,8 +1,8 @@
 {
  "schema_version": 1,
  "model_version": "ex_ante_route5",
- "git_commit": "d985906120e16fab848062e561cc8255bff2c3d1",
- "generated_at": "2026-09-25T13:17:56+00:00",
+ "git_commit": "0931238d68f39a82a9b182e91687a51c70487655",
+ "generated_at": "2026-09-25T14:45:22+00:00",
  "forecast_origin": "2025-10-31",
  "horizon": {
   "from": "2025-11-01",
@@ -45,7 +45,7 @@
    "rows": 604
   },
   "network.geojson": {
-   "sha256": "d817896cb5068dbea6bdb2fa5545a61e711f2070e4db9b24b48cbc87c0cef144",
+   "sha256": "96a5fa9b7f7c1c4907a6e7b90666c7f888af96c76b4e29d5be7949935d63aa4d",
    "rows": null
   },
   "intervals.json": {
@@ -58,6 +58,10 @@
   },
   "backtest_metrics.json": {
    "sha256": "3b892d698d11c33aabfcf31b737fa02aab3207de64a5c41f7e00a758ae089c06",
+   "rows": null
+  },
+  "factors.json": {
+   "sha256": "5603c1232dec29f2e687985696289af633ac1e081de5f8ed756d4dde87f6b4e0",
    "rows": null
   }
  }

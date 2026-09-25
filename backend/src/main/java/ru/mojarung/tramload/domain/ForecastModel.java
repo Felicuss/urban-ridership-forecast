@@ -17,10 +17,12 @@ public record ForecastModel(
 		Intervals intervals,
 		YearForecast year,
 		ModelInfo info,
-		ByteBuffer networkGeoJson) {
+		ByteBuffer networkGeoJson,
+		ByteBuffer factorsJson) {
 
 	public ForecastModel {
 		networkGeoJson = networkGeoJson.asReadOnlyBuffer();
+		factorsJson = factorsJson.asReadOnlyBuffer();
 	}
 
 	public ForecastGrid grid() {
@@ -31,6 +33,12 @@ public record ForecastModel(
 	@Override
 	public ByteBuffer networkGeoJson() {
 		return networkGeoJson.duplicate();
+	}
+
+	/** Внешние факторы из factors.json: календарь, погода, трафик, расписание, история посадок, события. */
+	@Override
+	public ByteBuffer factorsJson() {
+		return factorsJson.duplicate();
 	}
 
 }

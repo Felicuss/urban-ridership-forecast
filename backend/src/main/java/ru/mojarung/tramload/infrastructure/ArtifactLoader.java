@@ -47,7 +47,8 @@ public final class ArtifactLoader {
 			return new ForecastModel(components(dir, grid), constants(coefficients),
 					new CoefficientCatalog(CatalogParser.specs(coefficients)), network(dir),
 					intervals(readJson(dir.resolve("intervals.json"))), year(dir), info(dir, manifest),
-					ByteBuffer.wrap(Files.readAllBytes(dir.resolve("network.geojson"))));
+					ByteBuffer.wrap(Files.readAllBytes(dir.resolve("network.geojson"))),
+					ByteBuffer.wrap(Files.readAllBytes(dir.resolve("factors.json"))));
 		}
 		catch (IOException | IllegalArgumentException | ClassCastException ex) {
 			throw new ArtifactValidationException("artifacts/ не разобраны: " + ex.getMessage(), ex);

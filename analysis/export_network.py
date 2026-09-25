@@ -138,6 +138,43 @@ def build_stops() -> tuple[pd.DataFrame, pd.DataFrame, dict]:
     return stops, route_stops, stats
 
 
+def stitch(ways: list[list[list[float]]]) -> list[list[float]]:
+    """Пути отношения OSM в одну линию по ходу рейса: каждый следующий путь разворачиваем к концу предыдущего.
+
+    Члены отношения PTv2 идут по порядку движения, но направление каждого пути в OSM своё.
+    Разрыв между путями (стрелки, развороты) остаётся прямым отрезком.
+    """
+    def gap(a, b):
+        return haversine_m(a[1], a[0], b[1], b[0])
+
+    first, rest = ways[0], ways[1:]
+    if rest and min(gap(first[0], rest[0][0]), gap(first[0], rest[0][-1])) < min(
+            gap(first[-1], rest[0][0]), gap(first[-1], rest[0][-1])):
+        first = first[::-1]
+    line = list(first)
+    for way in rest:
+        way = way if gap(line[-1], way[0]) <= gap(line[-1], way[-1]) else way[::-1]
+        line += way[1:] if gap(line[-1], way[0]) < 1.0 else way
+    return line
+
+
+def route_paths(geo: dict, directions: dict[int, int]) -> list[dict]:
+    """Непрерывная линия маршрута по направлению: по ней фронт ведёт трамвай и считает путь до остановок."""
+    ways: dict[tuple[int, int], list] = {}
+    for f in geo["features"]:
+        p = f["properties"]
+        if p["kind"] == "track":
+            ways.setdefault((int(p["route"]), p["rel"]), []).append(f["geometry"]["coordinates"])
+    features = []
+    for (route, rel), members in sorted(ways.items()):
+        line = [[round(x, 6), round(y, 6)] for x, y in stitch(members)]
+        length = sum(haversine_m(a[1], a[0], b[1], b[0]) for a, b in zip(line, line[1:]))
+        features.append({"type": "Feature", "geometry": {"type": "LineString", "coordinates": line},
+                         "properties": {"kind": "path", "route": route, "direction": directions[rel],
+                                        "osm_relation": rel, "length_m": round(float(length))}})
+    return features
+
+
 def network_geojson(stops: pd.DataFrame) -> dict:
     """Трассы маршрутов по направлениям (MultiLineString из путей OSM) и остановки с их маршрутами."""
     geo = json.loads(OSM.read_text(encoding="utf-8"))
@@ -148,7 +185,7 @@ def network_geojson(stops: pd.DataFrame) -> dict:
         if p["kind"] == "track":
             rels.setdefault((int(p["route"]), p["rel"]), []).append(
                 [[round(x, 6), round(y, 6)] for x, y in f["geometry"]["coordinates"]])
-    features = []
+    features = route_paths(geo, directions)
     for (route, rel), lines in sorted(rels.items()):
         features.append({"type": "Feature", "geometry": {"type": "MultiLineString", "coordinates": lines},
                          "properties": {"kind": "track", "route": route, "direction": directions[rel],

@@ -44,18 +44,23 @@ public class NetworkController {
 		this.model = model;
 		this.loads = loads;
 		this.scenarios = scenarios;
-		this.etag = "\"" + model.info().gitCommit() + "-" + model.info().generatedAt() + "\"";
+		this.etag = etag(model, "network");
 	}
 
 	@GetMapping
 	@Operation(summary = "Трассы по направлениям и остановки (GeoJSON, OSM и справочник организаторов)")
 	public Mono<ResponseEntity<DataBuffer>> network(ServerWebExchange exchange) {
+		return staticJson(exchange, etag, model.networkGeoJson(), GEO_JSON);
+	}
+
+	/** Внешние факторы отдаются тем же способом, что и сеть: байты как есть, ETag по версии артефактов. */
+	static Mono<ResponseEntity<DataBuffer>> staticJson(ServerWebExchange exchange, String etag,
+			java.nio.ByteBuffer bytes, MediaType type) {
 		if (exchange.checkNotModified(etag)) {
 			return Mono.just(ResponseEntity.status(304).eTag(etag).build());
 		}
-		DataBuffer body = DefaultDataBufferFactory.sharedInstance.wrap(model.networkGeoJson());
-		return Mono.just(ResponseEntity.ok().eTag(etag).cacheControl(ReferenceController.STATIC).contentType(GEO_JSON)
-			.body(body));
+		return Mono.just(ResponseEntity.ok().eTag(etag).cacheControl(ReferenceController.STATIC).contentType(type)
+			.body(DefaultDataBufferFactory.sharedInstance.wrap(bytes)));
 	}
 
 	@GetMapping("/load")
@@ -77,6 +82,10 @@ public class NetworkController {
 			return view(loads.load(Params.date(request.date(), "date"), Params.hours(request.hours(), "hours"), scenario),
 					true);
 		});
+	}
+
+	static String etag(ForecastModel model, String name) {
+		return "\"" + name + "-" + model.info().gitCommit() + "-" + model.info().generatedAt() + "\"";
 	}
 
 	private static NetworkLoadResponse view(NetworkLoad load, boolean scenario) {

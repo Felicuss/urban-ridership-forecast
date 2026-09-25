@@ -3,15 +3,19 @@ package ru.mojarung.tramload.api;
 import java.time.Duration;
 import java.util.List;
 
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.CacheControl;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ServerWebExchange;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import reactor.core.publisher.Mono;
 import ru.mojarung.tramload.api.dto.CoefficientDto;
 import ru.mojarung.tramload.api.dto.MetaResponse;
 import ru.mojarung.tramload.api.dto.RouteDto;
@@ -39,10 +43,12 @@ public class ReferenceController {
 
 	private final ForecastModel model;
 	private final ScenarioService scenarios;
+	private final String factorsEtag;
 
 	public ReferenceController(ForecastModel model, ScenarioService scenarios) {
 		this.model = model;
 		this.scenarios = scenarios;
+		this.factorsEtag = NetworkController.etag(model, "factors");
 	}
 
 	@GetMapping("/meta")
@@ -53,6 +59,13 @@ public class ReferenceController {
 		return ResponseEntity.ok().cacheControl(STATIC).body(new MetaResponse(info.modelVersion(), info.gitCommit(),
 				info.generatedAt(), info.forecastOrigin(), grid.start(), grid.end(), grid.routes(), Views.TIMEZONE,
 				info.leaderboardWapeScore(), info.defaultSubmission(), info.metrics(), APPLICABILITY));
+	}
+
+	@GetMapping("/factors")
+	@Operation(summary = "Внешние факторы: календарь, погода по часам, загруженность дорог, пассажиропоток города, "
+			+ "интервалы движения по расписанию, посадки по дням за январь-октябрь 2025, события сети")
+	public Mono<ResponseEntity<DataBuffer>> factors(ServerWebExchange exchange) {
+		return NetworkController.staticJson(exchange, factorsEtag, model.factorsJson(), MediaType.APPLICATION_JSON);
 	}
 
 	@GetMapping("/coefficients")

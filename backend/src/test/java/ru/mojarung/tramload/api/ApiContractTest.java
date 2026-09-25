@@ -132,6 +132,22 @@ class ApiContractTest {
 	}
 
 	@Test
+	void factorsCarryEveryExternalSourceTheUiShows() {
+		client.get().uri("/api/v1/factors").exchange()
+			.expectStatus().isOk()
+			.expectHeader().contentType(MediaType.APPLICATION_JSON)
+			.expectBody()
+			.jsonPath("$.calendar.length()").isEqualTo(61)
+			.jsonPath("$.weather.temp.length()").isEqualTo(61)
+			.jsonPath("$.weather.temp[0].length()").isEqualTo(24)
+			.jsonPath("$.schedule.routes.17.weekday.headway_min.length()").isEqualTo(24)
+			.jsonPath("$.history.routes.17.length()").isEqualTo(304)
+			.jsonPath("$.traffic.source").exists()
+			.jsonPath("$.city_ridership.per_day").isArray()
+			.jsonPath("$.events").isArray();
+	}
+
+	@Test
 	void heatmapFramesCoverEveryRouteAndStop() {
 		NetworkLoadResponse r = get("/api/v1/network/load?date=2025-11-03&hours=7-9", NetworkLoadResponse.class);
 
