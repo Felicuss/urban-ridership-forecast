@@ -30,6 +30,11 @@ public class ApplicationConfiguration {
 	}
 
 	@Bean
+	ExportService exportService(ForecastModel model, QueryResolver resolver, ForecastService forecasts) {
+		return new ExportService(model, resolver, forecasts);
+	}
+
+	@Bean
 	NetworkLoadService networkLoadService(ForecastModel model, ScenarioService scenarios, Aggregator aggregator) {
 		return new NetworkLoadService(model, scenarios, aggregator);
 	}

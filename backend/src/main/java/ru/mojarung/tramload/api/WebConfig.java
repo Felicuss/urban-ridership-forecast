@@ -1,6 +1,8 @@
 package ru.mojarung.tramload.api;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -26,8 +28,14 @@ public class WebConfig implements WebFluxConfigurer {
 		registry.addMapping("/api/**")
 			.allowedOrigins(allowedOrigins.toArray(String[]::new))
 			.allowedMethods("GET", "POST")
-			.exposedHeaders("Content-Disposition", "ETag")
+			.exposedHeaders("Content-Disposition", "ETag", "X-Rows")
 			.maxAge(3600);
+	}
+
+	/** Потоки для записи выгрузок: виртуальные, блокирующая запись в OutputStream их не занимает надолго. */
+	@Bean(destroyMethod = "close")
+	ExecutorService exportExecutor() {
+		return Executors.newVirtualThreadPerTaskExecutor();
 	}
 
 	@Bean
