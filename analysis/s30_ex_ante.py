@@ -45,12 +45,17 @@ def ex_ante_levels() -> tuple[float, float]:
     return round(nov, 4), round(dec, 4)
 
 
-def main() -> None:
+def coefficients() -> s10.Coefficients:
     level_nov, level_dec = ex_ante_levels()
-    coefs = dataclasses.replace(
+    return dataclasses.replace(
         s10.Coefficients(), profile_weeks=2, level_nov=level_nov, level_dec=level_dec,
         weather=False, route5_on=False, t1_route7=1.0,
     )
+
+
+def main() -> None:
+    coefs = coefficients()
+    level_nov, level_dec = coefs.level_nov, coefs.level_dec
     fc = s10.make_forecast(coefs)
     sub = s10.to_submission(fc, s10.OUT / "submission_ex_ante.csv")
     meta = {"origin": "2025-10-31", "past_years": PAST_YEARS, "amplitude": AMPLITUDE, **dataclasses.asdict(coefs),
