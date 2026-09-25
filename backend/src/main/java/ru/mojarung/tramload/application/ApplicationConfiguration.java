@@ -1,0 +1,37 @@
+package ru.mojarung.tramload.application;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import ru.mojarung.tramload.domain.Aggregator;
+import ru.mojarung.tramload.domain.ForecastEngine;
+import ru.mojarung.tramload.domain.ForecastModel;
+
+/** Сценарии использования поверх загруженной модели. Все сервисы без состояния, кроме кэша сценариев. */
+@Configuration(proxyBeanMethods = false)
+public class ApplicationConfiguration {
+
+	@Bean
+	QueryResolver queryResolver(ForecastModel model) {
+		return new QueryResolver(model);
+	}
+
+	@Bean
+	ScenarioService scenarioService(ForecastModel model, ForecastEngine engine,
+			@Value("${tramload.artifacts.scenario-cache-size:256}") int cacheSize) {
+		return new ScenarioService(model, engine, cacheSize);
+	}
+
+	@Bean
+	ForecastService forecastService(ForecastModel model, QueryResolver resolver, ScenarioService scenarios,
+			Aggregator aggregator) {
+		return new ForecastService(model, resolver, scenarios, aggregator);
+	}
+
+	@Bean
+	NetworkLoadService networkLoadService(ForecastModel model, ScenarioService scenarios, Aggregator aggregator) {
+		return new NetworkLoadService(model, scenarios, aggregator);
+	}
+
+}

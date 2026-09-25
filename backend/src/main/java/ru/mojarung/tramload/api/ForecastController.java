@@ -1,0 +1,74 @@
+package ru.mojarung.tramload.api;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import reactor.core.publisher.Mono;
+import ru.mojarung.tramload.api.dto.ForecastQueryDto;
+import ru.mojarung.tramload.api.dto.ForecastResponse;
+import ru.mojarung.tramload.api.dto.ScenarioRequest;
+import ru.mojarung.tramload.api.dto.ScenarioResponse;
+import ru.mojarung.tramload.application.ForecastService;
+import ru.mojarung.tramload.application.ScenarioService;
+import ru.mojarung.tramload.domain.ValidationException;
+
+/**
+ * Прогноз посадок по маршруту, остановке, участку или сети. Расчёт занимает микросекунды и идёт прямо
+ * на потоке Netty: блокирующих вызовов в нём нет, данные уже в памяти.
+ */
+@RestController
+@RequestMapping("/api/v1/forecast")
+@Tag(name = "Прогноз", description = "Ряды посадок по объекту, интервалу и горизонту")
+public class ForecastController {
+
+	private final ForecastService forecasts;
+	private final ScenarioService scenarios;
+
+	public ForecastController(ForecastService forecasts, ScenarioService scenarios) {
+		this.forecasts = forecasts;
+		this.scenarios = scenarios;
+	}
+
+	@GetMapping
+	@Operation(summary = "Прогноз по умолчанию",
+			description = "Горизонт day - сутки по часам, month - месяц по дням, year - ноябрь 2025 - октябрь 2026 по "
+					+ "месяцам. Без горизонта ряд строится от from до to с шагом granularity.")
+	public Mono<ForecastResponse> forecast(
+			@Parameter(description = "route, stop, segment или network", example = "route") @RequestParam(
+					required = false) String level,
+			@Parameter(description = "маршрут (route, segment) или id остановки (stop)", example = "17") @RequestParam(
+					required = false) String id,
+			@RequestParam(required = false) Integer direction, @RequestParam(required = false) String fromStop,
+			@RequestParam(required = false) String toStop,
+			@Parameter(example = "2025-11-03") @RequestParam(required = false) String from,
+			@Parameter(example = "2025-11-03") @RequestParam(required = false) String to,
+			@Parameter(description = "окно часов", example = "7-9") @RequestParam(required = false) String hours,
+			@Parameter(description = "hour, day, month") @RequestParam(required = false) String granularity,
+			@Parameter(description = "day, month, year") @RequestParam(required = false) String horizon) {
+		ForecastQueryDto dto = new ForecastQueryDto(level, id, direction, fromStop, toStop, from, to, hours, granularity,
+				horizon);
+		return Mono.fromCallable(() -> Views.forecast(forecasts.forecast(Requests.query(dto))));
+	}
+
+	@PostMapping("/scenario")
+	@Operation(summary = "Пересчёт по сценарию",
+			description = "Ползунки из /api/v1/coefficients и события. Возвращает ряд сценария, базовый ряд и разницу. "
+					+ "Одинаковые сценарии берутся из кэша.")
+	public Mono<ScenarioResponse> scenario(@RequestBody ScenarioRequest request) {
+		return Mono.fromCallable(() -> {
+			if (request == null) {
+				throw ValidationException.of("body", "пустой запрос");
+			}
+			var scenario = scenarios.resolve(request.coefficients(), Requests.events(request.events()));
+			return Views.scenario(forecasts.compare(Requests.query(request.query()), scenario));
+		});
+	}
+
+}

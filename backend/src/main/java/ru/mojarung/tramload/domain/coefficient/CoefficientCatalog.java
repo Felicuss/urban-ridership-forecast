@@ -108,6 +108,30 @@ public final class CoefficientCatalog {
 				(Boolean) v.get("weather"), num(v, "precip_day_coef"), num(v, "hour_precip_coef"), num(v, "frost_coef"));
 	}
 
+	/** Значения ползунков сценария по ключам каталога: фронт сверяет по ним положение ползунков. */
+	public static Map<String, Object> values(Coefficients c) {
+		Map<String, Object> out = new LinkedHashMap<>();
+		out.put("level_nov", c.levelNov());
+		out.put("level_dec", c.levelDec());
+		out.put("traffic_weight", c.trafficWeight());
+		out.put("holiday_to_sunday", c.holidayToSunday());
+		out.put("working_saturday", c.workingSaturday());
+		out.put("last_workdays_dec", c.lastWorkdaysDec());
+		out.put("dec31_day", c.dec31Day());
+		out.put("dec31_free_from_hour", c.dec31FreeFromHour());
+		out.put("weekend_restore_date", c.weekendRestoreDate().toString());
+		out.put("t1_start", c.t1Start().toString());
+		out.put("t1_route7", c.t1Route7());
+		out.put("route5_on", c.route5On());
+		out.put("route5_start", c.route5Start().toString());
+		out.put("route5_workday", c.route5Workday());
+		out.put("weather", c.weather());
+		out.put("precip_day_coef", c.precipDayCoef());
+		out.put("hour_precip_coef", c.hourPrecipCoef());
+		out.put("frost_coef", c.frostCoef());
+		return out;
+	}
+
 	private static double num(Map<String, Object> v, String key) {
 		return ((Number) v.get(key)).doubleValue();
 	}
