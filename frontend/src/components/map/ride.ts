@@ -1,12 +1,12 @@
 import type { GeoJSONSource, Map as MapLibre } from 'maplibre-gl';
 import type { RouteStop } from '../../api/types';
-import { pointAt, projectOnPath } from '../../lib/geo';
+import { pointAt, projectOnPath, type LngLat } from '../../lib/geo';
 import { SPEED_M_PER_MIN, type Line } from './trams';
 
 // Поездка одного вагона от первой до последней остановки. Сколько сядет на каждой остановке за
 // рейс: посадки маршрута в этот час × доля остановки ÷ число рейсов в час в одну сторону.
 
-const RIDE_ZOOM = 15.6;
+const RIDE_ZOOM = 17.4;
 const RIDE_PITCH = 62;
 
 export interface RideStop {
@@ -25,6 +25,8 @@ export function rideStops(line: Line, stops: RouteStop[], hourLoad: number, head
 }
 
 export interface RideFrame {
+  at: LngLat;
+  bearing: number;
   passed: number;
   boarded: number;
   stopName: string;
@@ -69,7 +71,7 @@ export class RideRunner {
       boarded += s.perTrip;
       stopName = s.name;
     }
-    return { passed, boarded, stopName, finished: meters >= this.line.path.length };
+    return { at, bearing, passed, boarded, stopName, finished: meters >= this.line.path.length };
   }
 
   clear(): void {

@@ -2,20 +2,22 @@ import { useEffect, useRef } from 'react';
 import { Map as MapLibre, setWorkerUrl, type GeoJSONSource, type MapLayerMouseEvent } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
-import type { Factors, NetworkGeoJson, NetworkLoad, RouteStop } from '../../api/types';
+import type { CalendarDay, Factors, NetworkGeoJson, NetworkLoad, RouteStop } from '../../api/types';
+import type { GridPoint } from '../../lib/weatherGrid';
 import { useStore } from '../../state/store';
-import { dayIndex, hourOf, isoDate } from '../../lib/time';
+import { dayIndex, hourOf, sunElevation } from '../../lib/time';
 import { fmtInt } from '../../lib/format';
 import { loadBaseStyle } from './style';
 import { applyDaylight } from './daylight';
 import {
   addNetworkLayers, addTramIcons, ensureMetro, pathFeatures, setHour, setLoadData, setSelection, setVisibility,
-  stopFeatures, withLoad, type Scale,
+  stopFeatures, TRAMS_3D_ZOOM, withLoad, type Scale,
 } from './layers';
-import { buildLines, headway, tramCollection, tramsAt, type Line } from './trams';
+import { buildLines, headway, tramBodies, tramCollection, tramScale, tramsAt, type Line, type TramState } from './trams';
 import { RideRunner, rideStops } from './ride';
-import { addWeatherLayer, loadWeatherDay, setWeatherHour } from './weatherGrid';
+import { addWeatherLayer, setWeatherData, setWeatherHour } from './weatherGrid';
 import { mapHandle } from './mapHandle';
+import { routeColor } from '../../lib/routes';
 import styles from './MapView.module.css';
 
 // MapLibre 6 грузит воркер отдельным модулем: собираем его через Vite и отдаём адрес явно.
@@ -28,23 +30,26 @@ interface Props {
   network: NetworkGeoJson;
   load: NetworkLoad | undefined;
   factors: Factors | undefined;
+  calendar: CalendarDay[] | undefined;
+  weather: GridPoint[] | undefined;
   rideStopsData: RouteStop[] | undefined;
   revealed: boolean;
   onReady: () => void;
 }
 
-export default function MapView({ network, load, factors, rideStopsData, revealed, onReady }: Props) {
+export default function MapView({ network, load, factors, calendar, weather, rideStopsData, revealed, onReady }: Props) {
   const container = useRef<HTMLDivElement>(null);
   const tooltip = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibre | null>(null);
   const ready = useRef(false);
   const scale = useRef<Scale>({ stop: 1, route: 1 });
   const lines = useRef<Line[]>(buildLines(network));
-  const data = useRef({ load, factors, rideStopsData });
+  const data = useRef({ load, factors, calendar, rideStopsData });
+  const rideTram = useRef<TramState | null>(null);
   const onReadyRef = useRef(onReady);
 
   useEffect(() => {
-    data.current = { load, factors, rideStopsData };
+    data.current = { load, factors, calendar, rideStopsData };
     onReadyRef.current = onReady;
   });
 
@@ -54,7 +59,8 @@ export default function MapView({ network, load, factors, rideStopsData, reveale
     loadBaseStyle(abort.signal).then((style) => {
       if (!container.current) return;
       map = new MapLibre({
-        container: container.current, style, center: MOSCOW, zoom: 9.6, pitch: 0, bearing: 0,
+        // положение карты пишется в адрес (#map=zoom/lat/lon/bearing/pitch): ссылкой на вид можно поделиться
+        container: container.current, style, center: MOSCOW, zoom: 9.6, pitch: 0, bearing: 0, hash: 'map',
         maxPitch: 70, minZoom: 8.5, maxZoom: 18.5, attributionControl: { compact: true },
         canvasContextAttributes: { antialias: true },
       });
@@ -66,6 +72,8 @@ export default function MapView({ network, load, factors, rideStopsData, reveale
         addNetworkLayers(map, pathFeatures(network), stopFeatures(network));
         addWeatherLayer(map);
         bindPointer(map, tooltip.current);
+        // вагоны в кадре пересчитываются и без хода времени, когда карту сдвинули или приблизили
+        map.on('moveend', () => drawTrams(map!, useStore.getState().minute));
         ready.current = true;
         syncAll(map);
         onReadyRef.current();
@@ -81,6 +89,8 @@ export default function MapView({ network, load, factors, rideStopsData, reveale
   useEffect(() => {
     const map = mapRef.current;
     if (!revealed || !map) return;
+    // вид из ссылки не перебиваем облётом
+    if (window.location.hash.includes('map=')) return;
     // на узком экране вся сеть видна только с меньшим приближением
     const narrow = map.getContainer().clientWidth < 700;
     map.flyTo({ center: [37.6, 55.765], zoom: narrow ? 10.1 : 11.4, pitch: narrow ? 30 : 48, bearing: -14,
@@ -96,9 +106,15 @@ export default function MapView({ network, load, factors, rideStopsData, reveale
   }, [load, network]);
 
   useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready.current) return;
+    setWeatherData(map, weather);
+    setWeatherHour(map, hourOf(useStore.getState().minute));
+  }, [weather]);
+
+  useEffect(() => {
     let last = -1;
     let lastHour = -1;
-    let lastDay = -1;
     let lastLight = -1;
     let lastTrams = -1;
     let lastLoad: NetworkLoad | undefined;
@@ -117,11 +133,6 @@ export default function MapView({ network, load, factors, rideStopsData, reveale
         setHour(map, hour, scale.current);
         setWeatherHour(map, hour);
       }
-      const day = dayIndex(s.minute);
-      if (day !== lastDay && s.flags.weather) {
-        lastDay = day;
-        loadWeatherDay(map, isoDate(day));
-      }
       if (Math.abs(s.minute - lastLight) >= 5) {
         lastLight = s.minute;
         applyDaylight(map, s.minute, s.flags.daylight);
@@ -135,11 +146,14 @@ export default function MapView({ network, load, factors, rideStopsData, reveale
       const key = s.ride ? `${s.ride.route}:${s.ride.direction}:${s.ride.startedAt}` : '';
       if (key !== runnerKey) {
         runner?.clear();
+        rideTram.current = null;
         runner = s.ride ? makeRunner(map, s.ride.route, s.ride.direction, s.ride.hour, s.ride.speed, s.ride.startedAt) : null;
         runnerKey = key;
       }
       if (runner && s.ride) {
         const f = runner.frame(now, true);
+        rideTram.current = { at: f.at, bearing: f.bearing, route: s.ride.route };
+        if (s.flags.trams && s.flags.buildings && map.getZoom() >= TRAMS_3D_ZOOM) drawTrams(map, s.minute);
         const p = s.rideProgress;
         if (!p || p.passed !== f.passed || p.finished !== f.finished) s.setRideProgress(f);
         if (f.finished) s.stopRide();
@@ -159,15 +173,27 @@ export default function MapView({ network, load, factors, rideStopsData, reveale
       if (s.flags.trams && !prev.flags.trams) drawTrams(map, s.minute);
     }
     if (s.route !== prev.route || s.stop !== prev.stop) setSelection(map, s.route, s.stop);
+    if (s.viewMode !== prev.viewMode) {
+      map.easeTo(s.viewMode === 'top' ? { pitch: 0, bearing: 0, duration: 700 } : { pitch: 55, duration: 700 });
+    }
     if (s.route !== prev.route && s.route != null && !s.ride) fitRoute(map, s.route);
   }), []);
 
   function drawTrams(map: MapLibre, minute: number) {
-    const { load: l, factors: f } = data.current;
-    const day = dayIndex(minute);
-    const dayOff = f?.calendar[day]?.day_off ?? false;
+    const s = useStore.getState();
+    if (!s.flags.trams) return;
+    const { load: l, factors: f, calendar: cal } = data.current;
+    const dayOff = cal?.[dayIndex(minute)]?.dayOff ?? false;
     const trams = tramsAt(lines.current, minute, f, dayOff, l);
     (map.getSource('trams') as GeoJSONSource | undefined)?.setData(tramCollection(trams));
+    // объёмные вагоны только в кадре и только на крупном плане: остальные не видны и не стоят ничего
+    const zoom = map.getZoom();
+    const bodies = zoom >= TRAMS_3D_ZOOM && s.flags.buildings;
+    const bounds = map.getBounds();
+    const visible = bodies ? [...trams, ...(rideTram.current ? [rideTram.current] : [])]
+      .filter((t) => bounds.contains(t.at)).map((t) => ({ ...t, color: routeColor(t.route) })) : [];
+    const night = sunElevation(minute) < -4;
+    (map.getSource('trams-3d') as GeoJSONSource | undefined)?.setData(tramBodies(visible, tramScale(zoom), night));
   }
 
   function makeRunner(map: MapLibre, route: number, direction: number, hour: number, speed: number, startedAt: number) {
@@ -175,7 +201,7 @@ export default function MapView({ network, load, factors, rideStopsData, reveale
     const { load: l, factors: f, rideStopsData: stops } = data.current;
     if (!line || !stops) return null;
     const day = dayIndex(useStore.getState().minute);
-    const h = headway(f, route, f?.calendar[day]?.day_off ?? false, hour) ?? 10;
+    const h = headway(f, route, data.current.calendar?.[day]?.dayOff ?? false, hour) ?? 10;
     const hourLoad = l?.routes.get(route)?.[l.hours.indexOf(hour)] ?? 0;
     return new RideRunner(map, line, rideStops(line, stops, hourLoad, h), speed, startedAt);
   }
@@ -200,6 +226,8 @@ export default function MapView({ network, load, factors, rideStopsData, reveale
       setLoadData(map, ls, points);
     }
     setHour(map, hourOf(s.minute), scale.current);
+    setWeatherData(map, weather);
+    setWeatherHour(map, hourOf(s.minute));
     applyDaylight(map, s.minute, s.flags.daylight);
   }
 

@@ -1,14 +1,14 @@
-import type { Factors, NetworkLoad } from '../../api/types';
+import type { NetworkLoad } from '../../api/types';
+import type { GridPoint } from '../../lib/weatherGrid';
 import { useStops } from '../../api/queries';
 import { FLAG_LABELS, useStore, type Flags } from '../../state/store';
-import { dayIndex, hourOf, sunElevation } from '../../lib/time';
+import { hourOf, sunElevation } from '../../lib/time';
 import { fmtInt } from '../../lib/format';
 import { routeColor, yandexPoint, yandexRouteTo } from '../../lib/routes';
-import { weatherAt } from '../../lib/weather';
 import { Sparkline } from '../charts/Sparkline';
 import { Icon } from '../ui/Icons';
 import { WeatherFx } from './WeatherFx';
-import { flyTo } from './mapHandle';
+import { flyTo, mapHandle } from './mapHandle';
 import styles from './MapOverlay.module.css';
 
 const DOCK: { key: keyof Flags; short: string }[] = [
@@ -21,17 +21,27 @@ const DOCK: { key: keyof Flags; short: string }[] = [
   { key: 'weather', short: 'Погода' },
 ];
 
-export function MapOverlay({ load, factors }: { load: NetworkLoad | undefined; factors: Factors | undefined }) {
+export function MapOverlay({ load, weather }: { load: NetworkLoad | undefined; weather: GridPoint[] | undefined }) {
   const flags = useStore((s) => s.flags);
   const setFlag = useStore((s) => s.setFlag);
-  const day = useStore((s) => dayIndex(s.minute));
   const hour = useStore((s) => hourOf(s.minute));
   const night = useStore((s) => sunElevation(s.minute) < -4);
-  const w = weatherAt(factors?.weather, day, hour);
+  const viewMode = useStore((s) => s.viewMode);
+  const setViewMode = useStore((s) => s.setViewMode);
+  const source = load?.source === 'fact' ? 'факт' : load?.source === 'outlook' ? 'оценка' : 'прогноз';
 
   return (
     <>
-      {flags.weather && w && <WeatherFx weather={w} />}
+      {flags.weather && <WeatherFx grid={weather} hour={hour} />}
+      <div className={styles.view} role="group" aria-label="Вид карты">
+        <button type="button" aria-pressed={viewMode === 'top'} className={viewMode === 'top' ? styles.viewOn : ''}
+          onClick={() => setViewMode('top')} title="Карта сверху, без наклона">Сверху</button>
+        <button type="button" aria-pressed={viewMode === 'perspective'}
+          className={viewMode === 'perspective' ? styles.viewOn : ''} onClick={() => setViewMode('perspective')}
+          title="Наклон камеры; объёмные дома включаются отдельно">Перспектива</button>
+        <button type="button" onClick={() => mapHandle.current?.easeTo({ bearing: 0, duration: 600 })}
+          title="Повернуть карту на север" aria-label="На север">С</button>
+      </div>
       <nav className={styles.dock} aria-label="Слои карты">
         {DOCK.map((d) => (
           <button key={d.key} type="button" aria-pressed={flags[d.key]} title={FLAG_LABELS[d.key].hint}
@@ -42,7 +52,7 @@ export function MapOverlay({ load, factors }: { load: NetworkLoad | undefined; f
       </nav>
       <div className={styles.legend}>
         <div className={styles.legendRow}>
-          <span>Посадки в {hour}:00-{hour + 1}:00</span>
+          <span>Посадки в {hour}:00-{hour + 1}:00, {source}</span>
           <span className={styles.ramp} />
           <span className={styles.rampLabels}><small>мало</small><small>много</small></span>
         </div>

@@ -29,7 +29,7 @@ function extent(values: (number | null)[]): [number, number] {
   return lo === hi ? [lo - 1, hi + 1] : [lo, hi];
 }
 
-export function MiniLine({ values, labels, color = '#3a95ff', mark, height = 70, format }: MiniProps) {
+export function MiniLine({ values, labels, color = '#a1a1aa', mark, height = 70, format }: MiniProps) {
   const [lo, hi] = extent(values);
   const pad = 4;
   const x = (i: number) => pad + (i / Math.max(values.length - 1, 1)) * (W - 2 * pad);
@@ -46,7 +46,7 @@ export function MiniLine({ values, labels, color = '#3a95ff', mark, height = 70,
       <path d={d} fill="none" stroke={color} strokeWidth="1.8" strokeLinejoin="round" />
       {mark != null && markValue != null && (
         <>
-          <line x1={x(mark)} x2={x(mark)} y1={2} y2={height - 14} stroke="#ef4136" strokeWidth="1.2" />
+          <line x1={x(mark)} x2={x(mark)} y1={2} y2={height - 14} stroke="#a1a1aa" strokeWidth="1" strokeDasharray="2 2" />
           <circle cx={x(mark)} cy={y(markValue)} r="3" fill="#fff" stroke={color} />
           <text x={Math.min(x(mark) + 5, W - 40)} y={10} fill="#e9eef5" fontSize="10" fontFamily="JetBrains Mono Variable, monospace">
             {format ? format(markValue) : markValue}
@@ -62,7 +62,7 @@ export function MiniLine({ values, labels, color = '#3a95ff', mark, height = 70,
   );
 }
 
-export function MiniBars({ values, labels, color = '#3a95ff', mark, highlight, height = 70 }: MiniProps) {
+export function MiniBars({ values, labels, color = '#a1a1aa', mark, highlight, height = 70 }: MiniProps) {
   const [, hi] = extent(values);
   const top = Math.max(hi, 0) || 1;
   const bw = (W - 8) / values.length;

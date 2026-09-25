@@ -1,19 +1,27 @@
-import { useEffect, useRef } from 'react';
-import type { Factors } from '../../api/types';
-import { HORIZON_DAYS, weekday } from '../../lib/time';
+import { useEffect, useRef, useState } from 'react';
+import type { CalendarDay } from '../../api/types';
+import { HORIZON_START, MONTHS, TIMELINE_DAYS, dayOf, monthOf, nowOnTimeline, weekday } from '../../lib/time';
+import { Icon } from '../ui/Icons';
 import styles from './DatePopover.module.css';
 
-const MONTHS = [{ name: 'Ноябрь 2025', first: 0, days: 30 }, { name: 'Декабрь 2025', first: 30, days: 31 }];
 const HEAD = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
+const SOURCE_NOTE: Record<string, string> = {
+  fact: 'факт валидаций',
+  forecast: 'прогноз модели',
+  outlook: 'оценка по сезонности',
+};
 
-/** Календарь горизонта: два месяца, выходные светлее, праздники красным, рабочая суббота жёлтым. */
+/** Календарь шкалы: листается по месяцам, выходные светлее, праздники красным, снизу - источник данных месяца. */
 export function DatePopover({ day, onPick, onClose, calendar }: {
   day: number;
   onPick: (day: number) => void;
   onClose: () => void;
-  calendar: Factors['calendar'] | undefined;
+  calendar: CalendarDay[] | undefined;
 }) {
   const box = useRef<HTMLDivElement>(null);
+  const [first, setFirst] = useState(() => monthOf(day).first);
+  const month = monthOf(first);
+
   useEffect(() => {
     const close = (e: MouseEvent) => {
       if (box.current && !box.current.contains(e.target as Node)) onClose();
@@ -27,30 +35,48 @@ export function DatePopover({ day, onPick, onClose, calendar }: {
     };
   }, [onClose]);
 
+  const shift = (months: number) => {
+    const d = new Date(Date.UTC(month.year, month.month + months, 1));
+    const target = dayOf(d.toISOString().slice(0, 10));
+    if (target >= 0 && target < TIMELINE_DAYS) setFirst(target);
+  };
+  const source = calendar?.[first]?.source ?? 'forecast';
+
   return (
-    <div ref={box} className={styles.pop} role="dialog" aria-label="Выбор даты прогноза">
-      {MONTHS.map((m) => (
-        <div key={m.name}>
-          <div className={styles.month}>{m.name}</div>
-          <div className={styles.grid}>
-            {HEAD.map((h) => <span key={h} className={styles.head}>{h}</span>)}
-            {Array.from({ length: weekday(m.first) }, (_, i) => <span key={`e${i}`} />)}
-            {Array.from({ length: m.days }, (_, i) => {
-              const d = m.first + i;
-              const c = calendar?.[d];
-              const cls = [styles.day, d === day ? styles.sel : '', c?.day_off ? styles.off : '',
-                c?.holiday ? styles.hol : '', c && !c.day_off && c.dow === 5 ? styles.work : ''].join(' ');
-              return (
-                <button key={d} type="button" className={cls} disabled={d >= HORIZON_DAYS}
-                  title={c?.holiday ?? undefined} onClick={() => onPick(d)}>
-                  {i + 1}
-                </button>
-              );
-            })}
-          </div>
+    <div ref={box} className={styles.pop} role="dialog" aria-label="Выбор даты">
+      <div className={styles.head}>
+        <button type="button" onClick={() => shift(-1)} aria-label="Предыдущий месяц" disabled={first === 0}><Icon.prev /></button>
+        <div className={styles.month}>
+          {MONTHS[month.month]} {month.year}
+          <small className={styles[source]}>{SOURCE_NOTE[source]}</small>
         </div>
-      ))}
-      <p className={styles.note}>Прогноз построен на 01.11-31.12.2025. Красным - праздники, жёлтым - рабочая суббота 1 ноября.</p>
+        <button type="button" onClick={() => shift(1)} aria-label="Следующий месяц"
+          disabled={first + month.days >= TIMELINE_DAYS}><Icon.next /></button>
+      </div>
+      <div className={styles.grid}>
+        {HEAD.map((h) => <span key={h} className={styles.headDay}>{h}</span>)}
+        {Array.from({ length: weekday(first) }, (_, i) => <span key={`e${i}`} />)}
+        {Array.from({ length: month.days }, (_, i) => {
+          const d = first + i;
+          const c = calendar?.[d];
+          const cls = [styles.day, d === day ? styles.sel : '', c?.dayOff ? styles.off : '', c?.holiday ? styles.hol : '',
+            c && !c.dayOff && c.dayOfWeek >= 5 ? styles.work : ''].join(' ');
+          return (
+            <button key={d} type="button" className={cls} disabled={d >= TIMELINE_DAYS} title={c?.holiday ?? undefined}
+              onClick={() => onPick(d)}>
+              {i + 1}
+            </button>
+          );
+        })}
+      </div>
+      <div className={styles.jumps}>
+        <button type="button" onClick={() => onPick(dayOf(HORIZON_START) + 9)}>Прогноз ноября 2025</button>
+        <button type="button" onClick={() => onPick(Math.floor(nowOnTimeline() / 1440))}>Сегодня</button>
+      </div>
+      <p className={styles.note}>
+        Январь-октябрь 2025 - факт, ноябрь-декабрь 2025 - прогноз модели, 2026 год - оценка по сезонному индексу.
+        Красным - праздники, жёлтым - рабочие выходные.
+      </p>
     </div>
   );
 }

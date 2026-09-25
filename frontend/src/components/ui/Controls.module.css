@@ -65,12 +65,12 @@
 }
 
 .toggle input:checked + .track {
-  background: var(--accent);
+  background: var(--text);
 }
 
 .toggle input:checked + .track .thumb {
   transform: translateX(13px);
-  background: #fff;
+  background: var(--bg);
 }
 
 .toggle input:focus-visible + .track {

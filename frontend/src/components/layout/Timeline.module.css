@@ -12,63 +12,21 @@
 .controls {
   display: grid;
   grid-template-rows: auto 1fr;
-  gap: 10px;
+  gap: 8px;
   min-width: 0;
 }
 
-.row {
+.dayHead {
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-width: 0;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--text-2);
+  font-size: 12px;
 }
 
-.play {
-  display: grid;
-  place-items: center;
-  flex: none;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: var(--accent);
-  color: #fff;
-  box-shadow: 0 6px 18px rgba(58, 149, 255, 0.35);
-  transition: transform 0.2s var(--ease);
-}
-
-.play:hover {
-  transform: scale(1.06);
-}
-
-.speeds {
-  display: flex;
-  gap: 2px;
-  padding: 2px;
-  border-radius: 9px;
-  background: var(--bg-2);
-}
-
-.speed,
-.speedOn {
-  padding: 3px 7px;
-  border-radius: 7px;
-  color: var(--muted);
-  font: 11px var(--mono);
-}
-
-.speedOn {
-  background: var(--surface-3);
+.dayHead b {
   color: var(--text);
-}
-
-.hint {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  color: var(--muted);
-  font-size: 11px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .slider {
@@ -105,10 +63,9 @@
   width: 16px;
   height: 16px;
   margin-top: -6.5px;
-  border: 3px solid var(--red);
+  border: 3px solid var(--text);
   border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 0 12px rgba(239, 65, 54, 0.7);
+  background: var(--bg);
   appearance: none;
 }
 
@@ -121,9 +78,9 @@
 .slider input::-moz-range-thumb {
   width: 12px;
   height: 12px;
-  border: 3px solid var(--red);
+  border: 3px solid var(--text);
   border-radius: 50%;
-  background: #fff;
+  background: var(--bg);
 }
 
 .ticks {
@@ -173,10 +130,10 @@
 
 .months {
   display: grid;
-  grid-template-columns: 30fr 31fr;
   padding-left: 20px;
   color: var(--muted);
   font-size: 10.5px;
+  text-transform: capitalize;
 }
 
 @media (max-width: 1024px) {

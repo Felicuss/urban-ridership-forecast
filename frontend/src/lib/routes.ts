@@ -1,15 +1,15 @@
-// Цвета маршрутов на тёмной карте: различимы между собой и не совпадают с красным акцентом интерфейса.
+// Цвета маршрутов: мягкая пастель (палитра Tokyo Night), различимы между собой на тёмной карте.
 export const ROUTE_COLORS: Record<number, string> = {
-  1: '#4aa3ff',
-  5: '#ff6b8b',
-  7: '#ffb020',
-  11: '#3ddc97',
-  12: '#b98cff',
-  17: '#ff8a4c',
-  25: '#2fd6e6',
-  26: '#e8e36b',
-  28: '#ff9ce0',
-  50: '#9fb8ff',
+  1: '#7aa2f7',
+  5: '#f7768e',
+  7: '#e0af68',
+  11: '#73daca',
+  12: '#bb9af7',
+  17: '#ff9e64',
+  25: '#7dcfff',
+  26: '#b9d98a',
+  28: '#f5a9c8',
+  50: '#a9b1d6',
 };
 
 export function routeColor(route: number | null | undefined): string {

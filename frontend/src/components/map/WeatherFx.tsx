@@ -1,72 +1,87 @@
 import { useEffect, useRef } from 'react';
-import type { HourWeather } from '../../lib/weather';
+import { precipAt, type GridPoint } from '../../lib/weatherGrid';
+import { mapHandle } from './mapHandle';
 
-// Осадки поверх карты в выбранный час: снежинки или струи дождя, плотность по осадкам Open-Meteo,
-// наклон по ветру. Нет осадков - нет холста и нет кадров анимации.
+// Осадки там, где они идут: частица рисуется, только если в её точке карты по сетке Open-Meteo есть дождь
+// или снег, и тем плотнее, чем сильнее осадки. Нет осадков нигде - нет холста и кадров анимации.
 
 interface Particle {
   x: number;
   y: number;
   v: number;
   r: number;
+  seed: number;
 }
 
-export function WeatherFx({ weather }: { weather: HourWeather }) {
+const COUNT = 420;
+const SAMPLE_EVERY = 6;
+
+export function WeatherFx({ grid, hour }: { grid: GridPoint[] | undefined; hour: number }) {
   const canvas = useRef<HTMLCanvasElement>(null);
-  const snow = weather.sky === 'snow' || weather.snow > 0.05;
-  const amount = snow ? Math.max(weather.snow * 4, weather.precip) : weather.precip;
-  const count = amount <= 0.02 ? 0 : Math.round(Math.min(40 + amount * 160, 420));
-  const wind = Math.min((weather.wind ?? 8) / 30, 1);
+  const anyPrecip = Boolean(grid?.some((p) => (p.rain[hour] ?? 0) > 0.05 || (p.snow[hour] ?? 0) > 0.02));
 
   useEffect(() => {
     const el = canvas.current;
     const ctx = el?.getContext('2d');
-    if (!el || !ctx || count === 0) return;
+    if (!el || !ctx || !grid || !anyPrecip) return;
     let raf = 0;
+    let frame = 0;
     let parts: Particle[] = [];
+    const cache = new Map<Particle, { rain: number; snow: number }>();
     const resize = () => {
       el.width = el.clientWidth;
       el.height = el.clientHeight;
-      parts = Array.from({ length: count }, () => ({ x: Math.random() * el.width, y: Math.random() * el.height,
-        v: snow ? 0.4 + Math.random() * 0.8 : 7 + Math.random() * 6, r: snow ? 0.8 + Math.random() * 1.8 : 1 }));
+      parts = Array.from({ length: COUNT }, () => ({ x: Math.random() * el.width, y: Math.random() * el.height,
+        v: 0.6 + Math.random(), r: 0.8 + Math.random() * 1.6, seed: Math.random() }));
+      cache.clear();
     };
     resize();
     const ro = new ResizeObserver(resize);
     ro.observe(el);
-    const frame = () => {
-      raf = requestAnimationFrame(frame);
+    const draw = () => {
+      raf = requestAnimationFrame(draw);
+      frame += 1;
+      const map = mapHandle.current;
+      if (!map) return;
       ctx.clearRect(0, 0, el.width, el.height);
-      ctx.fillStyle = 'rgba(235,242,255,0.75)';
-      ctx.strokeStyle = 'rgba(150,190,255,0.35)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
       for (const p of parts) {
-        p.y += p.v;
-        p.x += snow ? wind * 0.8 + Math.sin(p.y / 30) * 0.3 : wind * 3;
+        if (frame % SAMPLE_EVERY === 0 || !cache.has(p)) {
+          const ll = map.unproject([p.x, p.y]);
+          cache.set(p, precipAt(grid, ll.lng, ll.lat, hour));
+        }
+        const here = cache.get(p)!;
+        const snow = here.snow > 0.02 && here.snow * 3 >= here.rain;
+        const intensity = snow ? Math.min(here.snow * 2.5, 1) : Math.min(here.rain / 1.5, 1);
+        p.y += snow ? p.v * 0.7 : p.v * 9;
+        p.x += snow ? Math.sin((p.y + p.seed * 100) / 28) * 0.35 : 1.2;
         if (p.y > el.height) {
-          p.y = -4;
+          p.y = -6;
           p.x = Math.random() * el.width;
         }
         if (p.x > el.width) p.x -= el.width;
+        if (p.seed > intensity) continue;
         if (snow) {
-          ctx.moveTo(p.x + p.r, p.y);
+          ctx.fillStyle = 'rgba(240,242,248,0.7)';
+          ctx.beginPath();
           ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fill();
         } else {
+          ctx.strokeStyle = 'rgba(170,190,225,0.35)';
+          ctx.beginPath();
           ctx.moveTo(p.x, p.y);
-          ctx.lineTo(p.x - wind * 4, p.y - 12);
+          ctx.lineTo(p.x - 1.5, p.y - 11);
+          ctx.stroke();
         }
       }
-      if (snow) ctx.fill();
-      else ctx.stroke();
     };
-    raf = requestAnimationFrame(frame);
+    raf = requestAnimationFrame(draw);
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
     };
-  }, [count, snow, wind]);
+  }, [grid, hour, anyPrecip]);
 
-  if (count === 0) return null;
+  if (!anyPrecip) return null;
   return <canvas ref={canvas} aria-hidden="true"
     style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 4, pointerEvents: 'none' }} />;
 }

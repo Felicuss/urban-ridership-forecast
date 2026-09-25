@@ -93,7 +93,7 @@
 
 .barOn {
   opacity: 1;
-  box-shadow: 0 0 0 1px #fff;
+  box-shadow: 0 0 0 1px var(--text);
 }
 
 .barsAxis {
@@ -183,16 +183,16 @@
 .range::-webkit-slider-runnable-track {
   height: 4px;
   border-radius: 4px;
-  background: linear-gradient(90deg, var(--accent) var(--fill), var(--surface-3) var(--fill));
+  background: linear-gradient(90deg, var(--text-2) var(--fill), var(--surface-3) var(--fill));
 }
 
 .range::-webkit-slider-thumb {
   width: 14px;
   height: 14px;
   margin-top: -5px;
-  border: 2px solid var(--accent);
+  border: 2px solid var(--text);
   border-radius: 50%;
-  background: #fff;
+  background: var(--bg);
   appearance: none;
   transition: transform 0.15s;
 }
@@ -210,15 +210,15 @@
 .range::-moz-range-progress {
   height: 4px;
   border-radius: 4px;
-  background: var(--accent);
+  background: var(--text-2);
 }
 
 .range::-moz-range-thumb {
   width: 12px;
   height: 12px;
-  border: 2px solid var(--accent);
+  border: 2px solid var(--text);
   border-radius: 50%;
-  background: #fff;
+  background: var(--bg);
 }
 
 .input {
@@ -260,8 +260,9 @@
 
 .btnPrimary {
   border-color: transparent;
-  background: var(--accent);
-  color: #fff;
+  background: var(--text);
+  color: var(--bg);
+  font-weight: 500;
 }
 
 .event {
@@ -357,7 +358,7 @@
   position: absolute;
   inset: 0 auto 0 0;
   border-radius: 4px;
-  background: linear-gradient(90deg, var(--accent), var(--ok));
+  background: var(--text-2);
 }
 
 .gauge b {
@@ -366,4 +367,51 @@
   bottom: -3px;
   width: 2px;
   background: var(--warn);
+}
+
+.source {
+  padding: 1px 7px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-style: normal;
+  font-weight: 500;
+}
+
+.fact {
+  color: var(--text-2);
+}
+
+.forecast {
+  border-color: rgba(122, 162, 247, 0.4);
+  color: var(--accent);
+}
+
+.outlook {
+  border-style: dashed;
+  color: var(--muted);
+}
+
+.advice {
+  display: grid;
+  gap: 4px;
+  margin: 6px 0 0;
+  padding: 0;
+  color: var(--text-2);
+  font-size: 12px;
+  line-height: 1.4;
+  list-style: none;
+}
+
+.advice li {
+  padding-left: 10px;
+  border-left: 2px solid var(--line-strong);
+}
+
+.adviceUp {
+  border-left-color: var(--red) !important;
+}
+
+.adviceDown {
+  border-left-color: var(--ok) !important;
 }

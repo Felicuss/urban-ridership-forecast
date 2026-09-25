@@ -1,0 +1,23 @@
+import { useQuery } from '@tanstack/react-query';
+import { CENTER_INDEX, fetchWeatherGrid, type GridPoint } from '../lib/weatherGrid';
+import { skyOf, type HourWeather } from '../lib/weather';
+
+/** Почасовая погода сетки 5 × 5 за дату. Нет сети или даты в прогнозе - слой погоды просто пустой. */
+export function useWeatherGrid(date: string, enabled = true) {
+  return useQuery({
+    queryKey: ['weather-grid', date],
+    enabled,
+    staleTime: Infinity,
+    gcTime: 30 * 60_000,
+    retry: 0,
+    queryFn: ({ signal }) => fetchWeatherGrid(date, signal),
+  });
+}
+
+/** Погода центра Москвы в час: для шапки и вкладки факторов. */
+export function centerWeather(grid: GridPoint[] | undefined, hour: number): HourWeather | null {
+  const c = grid?.[CENTER_INDEX];
+  if (!c) return null;
+  return { temp: c.temp[hour] ?? null, precip: (c.rain[hour] ?? 0) + (c.snow[hour] ?? 0) * 0.7, snow: c.snow[hour] ?? 0,
+    wind: c.wind[hour] ?? null, sky: skyOf(c.code[hour]) };
+}

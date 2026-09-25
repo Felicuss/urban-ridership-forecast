@@ -203,3 +203,50 @@
   align-items: center;
   gap: 6px;
 }
+
+.segment {
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.segment summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-2);
+  cursor: pointer;
+}
+
+.segment[open] {
+  gap: 6px;
+}
+
+.segment select {
+  width: 100%;
+  min-width: 0;
+  padding: 5px 6px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--bg-2);
+  color: var(--text);
+  font: inherit;
+}
+
+.segRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.segReset {
+  justify-self: start;
+  padding: 4px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  color: var(--text);
+}
+
+.segReset:hover {
+  background: var(--surface-3);
+}

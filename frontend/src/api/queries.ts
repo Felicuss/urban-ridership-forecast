@@ -2,7 +2,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { api, getJson, unwrap, type Schemas } from './client';
 import type {
-  Coefficient, Factors, Granularity, Horizon, Level, Meta, NetworkGeoJson, NetworkLoad, Point, RouteInfo,
+  CalendarDay, Coefficient, Factors, Granularity, Horizon, Level, Meta, NetworkGeoJson, NetworkLoad, Point, RouteInfo,
   RouteStop, Scenario, Series, Stop,
 } from './types';
 import { isDefaultScenario } from '../state/store';
@@ -70,6 +70,15 @@ export function useNetwork() {
   });
 }
 
+/** Календарь шкалы: тип дня, праздник и источник данных на каждый из 669 дней. */
+export function useCalendar() {
+  return useQuery({
+    queryKey: ['calendar'],
+    queryFn: ({ signal }) => getJson<CalendarDay[]>('/api/v1/calendar', signal),
+    ...FOREVER,
+  });
+}
+
 export function useFactors() {
   return useQuery({
     queryKey: ['factors'],
@@ -80,6 +89,7 @@ export function useFactors() {
 
 function toLoad(r: Schemas['NetworkLoadResponse']): NetworkLoad {
   return {
+    source: (r.source ?? 'forecast') as NetworkLoad['source'],
     date: r.date ?? '',
     hours: r.hours ?? [],
     routes: new Map((r.routes ?? []).map((s) => [Number(s.id), s.values ?? []])),
@@ -115,6 +125,9 @@ export function useNetworkLoad(date: string, scenario: Scenario) {
 export interface SeriesQuery {
   level: Level;
   id?: string;
+  direction?: number;
+  fromStop?: string;
+  toStop?: string;
   from?: string;
   to?: string;
   hours?: string;
@@ -125,6 +138,7 @@ export interface SeriesQuery {
 function point(p: Schemas['ScenarioPointDto'] | Schemas['PointDto']): Point {
   const s = p as Schemas['ScenarioPointDto'];
   return {
+    source: (p.source ?? 'forecast') as Point['source'],
     period: p.period ?? '', p50: p.p50 ?? 0, p10: p.p10 ?? 0, p90: p.p90 ?? 0,
     baseline: s.baseline, delta: s.delta, deltaPct: s.deltaPct ?? null,
   };

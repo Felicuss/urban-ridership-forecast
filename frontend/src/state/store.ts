@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { CoefficientValue, Horizon, Scenario, ScenarioEvent } from '../api/types';
-import { HORIZON_MINUTES, MINUTES_PER_DAY, clampMinute, nowInHorizon } from '../lib/time';
+import { HORIZON_START, MINUTES_PER_DAY, TIMELINE_MINUTES, clampMinute, dayOf, nowOnTimeline } from '../lib/time';
 
 // Состояние интерфейса. Время - минуты от 01.11.2025 00:00, из него карта берёт дату и час,
 // трамваи - своё положение на линии. Флаги слоёв и настроек переживают перезагрузку страницы.
@@ -27,8 +27,8 @@ export const FLAG_LABELS: Record<keyof Flags, { label: string; hint: string }> =
   stops: { label: 'Остановки', hint: 'Точки остановок, размер - посадки в час' },
   trams: { label: 'Трамваи', hint: 'Вагоны на линиях с интервалом по расписанию transport.mos.ru' },
   metro: { label: 'Метро', hint: 'Линии и станции метро из OpenStreetMap' },
-  buildings: { label: 'Объёмные дома', hint: 'Высоты зданий из OpenStreetMap при приближении' },
-  weather: { label: 'Погода', hint: 'Температура и осадки в выбранный час по данным Open-Meteo' },
+  buildings: { label: 'Объёмные дома и вагоны', hint: 'Высоты зданий из OpenStreetMap и 3D-трамваи при приближении' },
+  weather: { label: 'Погода', hint: 'Осадки там, где они идут, и температура по районам, Open-Meteo' },
   daylight: { label: 'Свет по времени суток', hint: 'Карта темнеет ночью и светлеет днём по высоте солнца' },
   labels: { label: 'Подписи', hint: 'Названия остановок на карте' },
   motion: { label: 'Анимации', hint: 'Плавные переходы интерфейса' },
@@ -60,6 +60,23 @@ function saveFlags(flags: Flags): void {
 }
 
 export const SPEEDS = [1, 60, 300, 900, 3600] as const;
+
+/** Вид карты: сверху или в перспективе; объёмные дома включаются отдельно. */
+export type ViewMode = 'top' | 'perspective';
+
+/** Участок маршрута: направление и первая и последняя остановки по ходу движения. */
+export interface Segment {
+  direction: number;
+  from: string;
+  to: string;
+}
+
+/** Стартовое время: прогнозная неделя 10-16 ноября 2025 с текущим временем суток и днём недели. */
+function startMinute(): number {
+  const now = nowOnTimeline();
+  const dow = (new Date().getDay() + 6) % 7;
+  return (dayOf(HORIZON_START) + 9 + dow) * MINUTES_PER_DAY + (now % MINUTES_PER_DAY);
+}
 export type Speed = (typeof SPEEDS)[number];
 
 /** Поездка одного трамвая по маршруту: камера следует за ним, на остановках копятся посадки. */
@@ -90,11 +107,14 @@ interface State {
   followNow: boolean;
   route: number | null;
   stop: string | null;
+  segment: Segment | null;
   horizon: Horizon;
   tab: RightTab;
   scenario: Scenario;
   flags: Flags;
   settingsOpen: boolean;
+  viewMode: ViewMode;
+  setViewMode: (v: ViewMode) => void;
   setMinute: (m: number) => void;
   setDay: (day: number) => void;
   setHour: (hour: number) => void;
@@ -103,6 +123,7 @@ interface State {
   setFollowNow: (on: boolean) => void;
   selectRoute: (route: number | null) => void;
   selectStop: (stop: string | null) => void;
+  setSegment: (segment: Segment | null) => void;
   setHorizon: (h: Horizon) => void;
   setTab: (t: RightTab) => void;
   setCoefficient: (key: string, value: CoefficientValue | undefined) => void;
@@ -123,18 +144,21 @@ export const useStore = create<State>((set, get) => ({
   }),
   stopRide: () => set({ ride: null, rideProgress: null }),
   setRideProgress: (rideProgress) => set({ rideProgress }),
-  minute: nowInHorizon(),
+  minute: startMinute(),
   playing: false,
   speed: 60,
   followNow: false,
   route: null,
   stop: null,
+  segment: null,
   horizon: 'day',
   tab: 'forecast',
   scenario: { coefficients: {}, events: [] },
   flags: loadFlags(),
   settingsOpen: false,
-  setMinute: (m) => set({ minute: ((m % HORIZON_MINUTES) + HORIZON_MINUTES) % HORIZON_MINUTES }),
+  viewMode: 'perspective',
+  setViewMode: (viewMode) => set({ viewMode }),
+  setMinute: (m) => set({ minute: ((m % TIMELINE_MINUTES) + TIMELINE_MINUTES) % TIMELINE_MINUTES }),
   setDay: (day) => set({ minute: clampMinute(day * MINUTES_PER_DAY + (get().minute % MINUTES_PER_DAY)),
     followNow: false }),
   setHour: (hour) => set({
@@ -143,10 +167,11 @@ export const useStore = create<State>((set, get) => ({
   }),
   togglePlay: () => set({ playing: !get().playing, followNow: false }),
   setSpeed: (speed) => set({ speed }),
-  setFollowNow: (on) => set(on ? { followNow: true, playing: false, speed: 1, minute: nowInHorizon() }
+  setFollowNow: (on) => set(on ? { followNow: true, playing: false, speed: 1, minute: nowOnTimeline() }
     : { followNow: false }),
-  selectRoute: (route) => set({ route, stop: null }),
-  selectStop: (stop) => set({ stop }),
+  selectRoute: (route) => set({ route, stop: null, segment: null }),
+  selectStop: (stop) => set({ stop, segment: null }),
+  setSegment: (segment) => set({ segment, stop: null }),
   setHorizon: (horizon) => set({ horizon }),
   setTab: (tab) => set({ tab }),
   setCoefficient: (key, value) => {

@@ -1,11 +1,12 @@
 import { Suspense, lazy, useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import {
-  networkLoadQuery, useCoefficients, useFactors, useMeta, useNetwork, useNetworkLoad, useRouteStops,
+  networkLoadQuery, useCalendar, useCoefficients, useFactors, useMeta, useNetwork, useNetworkLoad, useRouteStops,
 } from './api/queries';
+import { useWeatherGrid } from './hooks/useWeather';
 import { useStore } from './state/store';
 import { useClock } from './hooks/useClock';
-import { HORIZON_DAYS, dayIndex, isoDate } from './lib/time';
+import { TIMELINE_DAYS, dayIndex, isoDate } from './lib/time';
 import { TramLoader } from './components/boot/TramLoader';
 import { CloudReveal } from './components/boot/CloudReveal';
 import { TopBar } from './components/layout/TopBar';
@@ -37,6 +38,9 @@ export function App() {
   const factors = useFactors();
   const coefficients = useCoefficients();
   const load = useNetworkLoad(isoDate(day), scenario);
+  const calendar = useCalendar();
+  const weatherOn = useStore((s) => s.flags.weather);
+  const weather = useWeatherGrid(isoDate(day), weatherOn);
   const routeStops = useRouteStops(route);
   const [mapReady, setMapReady] = useState(false);
   const [phase, setPhase] = useState<Phase>(intro ? 'loading' : 'done');
@@ -46,7 +50,7 @@ export function App() {
     document.documentElement.dataset.motion = motion ? 'on' : 'off';
   }, [motion]);
 
-  const dataReady = Boolean(meta.data && network.data && factors.data && load.data);
+  const dataReady = Boolean(meta.data && network.data && factors.data && load.data && calendar.data);
   const failed = meta.error ?? network.error ?? factors.error ?? load.error;
 
   const [minLoader, setMinLoader] = useState(!intro);
@@ -87,13 +91,15 @@ export function App() {
               network={network.data}
               load={load.data}
               factors={factors.data}
+              calendar={calendar.data}
+              weather={weatherOn ? weather.data : undefined}
               rideStopsData={routeStops.data}
               revealed={phase === 'revealing' || phase === 'done'}
               onReady={() => setMapReady(true)}
             />
           </Suspense>
         )}
-        {phase === 'done' || !intro ? <MapOverlay load={load.data} factors={factors.data} /> : null}
+        {phase === 'done' || !intro ? <MapOverlay load={load.data} weather={weatherOn ? weather.data : undefined} /> : null}
       </main>
       <aside className={styles.right}>
         <Suspense fallback={<div className={styles.pending}><TramDots label="Загружаем панель" /></div>}>
@@ -101,7 +107,7 @@ export function App() {
         </Suspense>
       </aside>
       <footer className={styles.bottom}>
-        <Timeline factors={factors.data} />
+        <Timeline />
       </footer>
       {failed && <div className={styles.error}>Сервис прогноза не отвечает: {String(failed.message)}</div>}
       {intro && (phase === 'loading' || phase === 'clouds') && <TramLoader steps={steps} leaving={phase === 'clouds'} />}
@@ -119,7 +125,7 @@ function usePrefetchNeighbours(day: number) {
   useEffect(() => {
     if (Object.keys(scenario.coefficients).length || scenario.events.length) return;
     for (const d of [day - 1, day + 1]) {
-      if (d < 0 || d >= HORIZON_DAYS) continue;
+      if (d < 0 || d >= TIMELINE_DAYS) continue;
       void client.prefetchQuery(networkLoadQuery(isoDate(d)));
     }
   }, [client, day, scenario]);

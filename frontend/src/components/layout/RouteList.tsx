@@ -1,5 +1,5 @@
-import { useRouteStops } from '../../api/queries';
-import type { Factors, NetworkLoad } from '../../api/types';
+import { useCalendar, useRouteStops } from '../../api/queries';
+import type { Factors, NetworkLoad, RouteStop } from '../../api/types';
 import { useStore } from '../../state/store';
 import { dayIndex, hourOf } from '../../lib/time';
 import { fmtCompact, fmtInt } from '../../lib/format';
@@ -9,6 +9,7 @@ import { headway } from '../map/trams';
 import { Sparkline } from '../charts/Sparkline';
 import { InfoTip } from '../ui/Controls';
 import { Icon } from '../ui/Icons';
+import { Search } from './Search';
 import styles from './RouteList.module.css';
 
 const ROUTES = Object.keys(ROUTE_COLORS).map(Number);
@@ -21,6 +22,7 @@ export function RouteList({ load, factors }: { load: NetworkLoad | undefined; fa
   const route = useStore((s) => s.route);
   const selectRoute = useStore((s) => s.selectRoute);
   const hour = useStore((s) => hourOf(s.minute));
+  const sourceLabel = load?.source === 'fact' ? 'факт' : load?.source === 'outlook' ? 'оценка' : 'прогноз';
   const totals = new Map(ROUTES.map((r) => [r, sum(load?.routes.get(r))]));
   const network = [...totals.values()].reduce((a, b) => a + b, 0);
   const networkHours = Array.from({ length: 24 }, (_, h) => ROUTES.reduce((a, r) => a + (load?.routes.get(r)?.[h] ?? 0), 0));
@@ -28,6 +30,7 @@ export function RouteList({ load, factors }: { load: NetworkLoad | undefined; fa
 
   return (
     <div className={styles.panel}>
+      <Search />
       <header className={styles.head}>
         <h2>Маршруты</h2>
         <InfoTip>Посадки - успешные валидации за сутки по прогнозу. Кривая - посадки по часам, точка - выбранный час.
@@ -37,7 +40,7 @@ export function RouteList({ load, factors }: { load: NetworkLoad | undefined; fa
         <span className={styles.badgeAll}>все</span>
         <span className={styles.name}>
           <b>Вся сеть</b>
-          <small>{fmtInt(network)} посадок за сутки</small>
+          <small>{fmtInt(network)} посадок за сутки, {sourceLabel}</small>
         </span>
         <Sparkline values={networkHours} color="#e9eef5" hour={hour} width={78} />
       </button>
@@ -59,7 +62,7 @@ export function RouteList({ load, factors }: { load: NetworkLoad | undefined; fa
           );
         })}
       </div>
-      {route != null && <RouteCard route={route} factors={factors} load={load} hour={hour} />}
+      {route != null && <RouteCard key={route} route={route} factors={factors} load={load} hour={hour} />}
     </div>
   );
 }
@@ -75,7 +78,8 @@ function RouteCard({ route, factors, load, hour }: {
   const startRide = useStore((s) => s.startRide);
   const ride = useStore((s) => s.ride);
   const stopRide = useStore((s) => s.stopRide);
-  const dayOff = factors?.calendar[day]?.day_off ?? false;
+  const calendar = useCalendar().data;
+  const dayOff = calendar?.[day]?.dayOff ?? false;
   const h = headway(factors, route, dayOff, hour);
   const hourLoad = load?.routes.get(route)?.[hour] ?? 0;
   const perTrip = h ? hourLoad / (2 * (60 / h)) : null;
@@ -121,6 +125,7 @@ function RouteCard({ route, factors, load, hour }: {
           ))
         )}
       </div>
+      <SegmentPicker stops={stops} />
       <div className={styles.links}>
         {schedule?.page && <a href={schedule.page} target="_blank" rel="noopener noreferrer">
           Расписание на transport.mos.ru <Icon.external /></a>}
@@ -128,5 +133,54 @@ function RouteCard({ route, factors, load, hour }: {
           Маршрут в Яндекс Картах <Icon.external /></a>}
       </div>
     </section>
+  );
+}
+
+/** Участок маршрута: прогноз посадок на остановках между двумя выбранными по ходу движения. */
+function SegmentPicker({ stops }: { stops: RouteStop[] | undefined }) {
+  const segment = useStore((s) => s.segment);
+  const setSegment = useStore((s) => s.setSegment);
+  const direction = segment?.direction ?? 0;
+  const list = (stops ?? []).filter((s) => s.direction === direction).sort((a, b) => a.seq - b.seq);
+  const last = (d: number) => {
+    const s = (stops ?? []).filter((x) => x.direction === d);
+    return s.length ? s.reduce((a, b) => (b.seq > a.seq ? b : a)).name : '';
+  };
+  if (list.length < 2) return null;
+  const from = segment?.from ?? list[0]!.stopId;
+  const to = segment?.to ?? list[list.length - 1]!.stopId;
+  const pick = (d: number, a: string, b: string) => {
+    const own = (stops ?? []).filter((s) => s.direction === d).sort((x, y) => x.seq - y.seq);
+    const i = Math.max(own.findIndex((s) => s.stopId === a), 0);
+    const j = own.findIndex((s) => s.stopId === b);
+    const k = j < 0 ? own.length - 1 : j;
+    setSegment({ direction: d, from: own[Math.min(i, k)]!.stopId, to: own[Math.max(i, k)]!.stopId });
+  };
+  return (
+    <details className={styles.segment} open={segment != null}>
+      <summary>
+        Участок маршрута
+        <InfoTip>Посадки на остановках между двумя выбранными по ходу движения: прогноз маршрута делится по долям
+          остановок. Прогноз и графики справа переключаются на участок.</InfoTip>
+      </summary>
+      <select aria-label="Направление" value={direction}
+        onChange={(e) => pick(Number(e.target.value), '', '')}>
+        <option value={0}>в сторону «{last(0)}»</option>
+        <option value={1}>в сторону «{last(1)}»</option>
+      </select>
+      <div className={styles.segRow}>
+        <select aria-label="Первая остановка участка" value={from} onChange={(e) => pick(direction, e.target.value, to)}>
+          {list.map((s) => <option key={s.stopId} value={s.stopId}>{s.seq}. {s.name}</option>)}
+        </select>
+        <select aria-label="Последняя остановка участка" value={to} onChange={(e) => pick(direction, from, e.target.value)}>
+          {list.map((s) => <option key={s.stopId} value={s.stopId}>{s.seq}. {s.name}</option>)}
+        </select>
+      </div>
+      {segment ? (
+        <button type="button" className={styles.segReset} onClick={() => setSegment(null)}>Весь маршрут</button>
+      ) : (
+        <button type="button" className={styles.segReset} onClick={() => pick(direction, from, to)}>Показать прогноз участка</button>
+      )}
+    </details>
   );
 }

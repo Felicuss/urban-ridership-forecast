@@ -33,19 +33,19 @@ export function applyDaylight(map: MapLibre, minute: number, enabled: boolean): 
   }
   const azimuth = sunAzimuth(minute);
   const polar = 90 - Math.max(sunElevation(minute), 8);
-  map.setLight({ anchor: 'map', position: [1.4, azimuth, polar], color: t > 0.3 ? '#fff4e0' : '#9db6ff',
-    intensity: 0.25 + 0.35 * t });
+  map.setLight({ anchor: 'map', position: [1.4, azimuth, polar], color: t > 0.3 ? '#fff6ea' : '#c9d2e3',
+    intensity: 0.25 + 0.3 * t });
   map.setSky({
-    'sky-color': mix('#05080f', '#2a4a78', t),
-    'horizon-color': mix('#0d1726', '#9fb8d8', t),
-    'fog-color': mix('#070b12', '#3a5270', t),
+    'sky-color': mix('#08090b', '#3d4b62', t),
+    'horizon-color': mix('#121418', '#a3adbd', t),
+    'fog-color': mix('#0b0c0f', '#4a5260', t),
     'sky-horizon-blend': 0.5,
     'horizon-fog-blend': 0.6,
     'fog-ground-blend': 0.2,
     'atmosphere-blend': 0.6,
   });
   const root = document.documentElement.style;
-  root.setProperty('--sky-a', mix('#0b1422', '#1d3350', t));
-  root.setProperty('--sky-glow', `rgba(${t > 0.4 ? '255,200,120' : '58,149,255'},${(0.05 + 0.08 * t).toFixed(3)})`);
+  root.setProperty('--sky-a', mix('#0e0f12', '#1c2029', t));
+  root.setProperty('--sky-glow', `rgba(${t > 0.4 ? '255,214,160' : '122,162,247'},${(0.02 + 0.04 * t).toFixed(3)})`);
   return t;
 }

@@ -4,7 +4,7 @@
   grid-area: top;
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 14px;
   padding: 0 4px;
   background: linear-gradient(180deg, var(--sky-a), transparent);
   transition: background 1s;
@@ -19,7 +19,6 @@
 
 .logo {
   display: grid;
-  filter: drop-shadow(0 4px 12px rgba(45, 130, 230, 0.35));
 }
 
 .title {
@@ -139,13 +138,13 @@
 
 .nowOn i {
   background: var(--red);
-  box-shadow: 0 0 0 0 rgba(239, 65, 54, 0.6);
+  box-shadow: 0 0 0 0 rgba(229, 115, 125, 0.35);
   animation: pulse 1.6s infinite;
 }
 
 @keyframes pulse {
-  70% { box-shadow: 0 0 0 8px rgba(239, 65, 54, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(239, 65, 54, 0); }
+  70% { box-shadow: 0 0 0 8px rgba(229, 115, 125, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(229, 115, 125, 0); }
 }
 
 .weather {
@@ -219,7 +218,66 @@
   color: var(--text);
 }
 
-@media (max-width: 1280px) {
+.source {
+  padding: 2px 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.fact {
+  color: var(--text-2);
+}
+
+.forecast {
+  border-color: rgba(122, 162, 247, 0.4);
+  color: var(--accent);
+}
+
+.outlook {
+  border-style: dashed;
+  color: var(--muted);
+}
+
+.play {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--text);
+  color: var(--bg);
+  transition: transform 0.2s var(--ease);
+}
+
+.play:hover {
+  transform: scale(1.06);
+}
+
+.speeds {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+}
+
+.speed,
+.speedOn {
+  padding: 3px 6px;
+  border-radius: 7px;
+  color: var(--muted);
+  font: 11px var(--mono);
+}
+
+.speedOn {
+  background: var(--surface-3);
+  color: var(--text);
+}
+
+@media (max-width: 1500px) {
   .subtitle,
   .wlabel {
     display: none;
@@ -248,5 +306,29 @@
 
   .actions {
     margin-left: 0;
+  }
+}
+
+/* Телефон: дата рядом с логотипом и сокращается, часы со скоростями переносятся, ничего не уходит за край. */
+@media (max-width: 560px) {
+  .when {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .date {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .date span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .clock {
+    flex-wrap: wrap;
+    row-gap: 6px;
   }
 }

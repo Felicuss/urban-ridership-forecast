@@ -5,7 +5,20 @@ export type Level = 'route' | 'stop' | 'segment' | 'network';
 export type Granularity = 'hour' | 'day' | 'month';
 export type Horizon = 'day' | 'month' | 'year';
 
+export type Source = 'fact' | 'forecast' | 'outlook';
+
+export interface CalendarDay {
+  date: string;
+  dayOfWeek: number;
+  dayType: 'workday' | 'saturday' | 'sunday' | 'holiday';
+  kind: string;
+  dayOff: boolean;
+  holiday: string | null;
+  source: Source;
+}
+
 export interface Point {
+  source: Source;
   period: string;
   p50: number;
   p10: number;
@@ -81,6 +94,7 @@ export interface RouteStop {
 }
 
 export interface NetworkLoad {
+  source: Source;
   date: string;
   hours: number[];
   routes: Map<number, number[]>;
@@ -94,6 +108,8 @@ export interface Meta {
   forecastOrigin: string;
   horizonFrom: string;
   horizonTo: string;
+  timelineFrom: string;
+  timelineTo: string;
   routes: number[];
   leaderboardWapeScore: number;
   defaultSubmission: string;

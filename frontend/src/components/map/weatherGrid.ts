@@ -1,72 +1,56 @@
 import type { GeoJSONSource, Map as MapLibre } from 'maplibre-gl';
+import type { GridPoint } from '../../lib/weatherGrid';
 import { FONT } from './style';
 
-// Погода по районам: сетка 3 × 3 точек над Москвой, почасовой архив Open-Meteo за выбранные сутки.
-// Запрос идёт из браузера напрямую (Open-Meteo отдаёт CORS), результат кэшируется по дате.
-// Нет сети - слой просто пустой, в шапке остаётся погода центра из данных сервиса.
+// Погода на карте там, где она есть: радар дождя и снега по узлам сетки 5 × 5 (Open-Meteo) и температура
+// по районам. Значения по 24 часам лежат в свойствах точек, смена часа - только новое выражение стиля.
 
-const LATS = [55.61, 55.75, 55.89];
-const LONS = [37.42, 37.62, 37.82];
-const cache = new Map<string, Promise<GeoJSON.FeatureCollection>>();
+const LABEL_ROWS = new Set([0, 2, 4]);
 
-interface OpenMeteoPoint {
-  latitude: number;
-  longitude: number;
-  hourly: { temperature_2m: (number | null)[]; precipitation: (number | null)[]; snowfall: (number | null)[] };
-}
-
-function label(t: number | null | undefined, p: number | null | undefined, s: number | null | undefined): string {
+function label(t: number | null | undefined): string {
   if (t == null) return '';
   const r = Math.round(t);
-  const temp = `${r > 0 ? '+' : ''}${r}°`;
-  if ((s ?? 0) > 0.05) return `${temp} снег`;
-  if ((p ?? 0) > 0.1) return `${temp} дождь`;
-  return temp;
-}
-
-async function fetchGrid(date: string): Promise<GeoJSON.FeatureCollection> {
-  const points = LATS.flatMap((lat) => LONS.map((lon) => [lat, lon] as const));
-  const params = new URLSearchParams({
-    latitude: points.map((p) => p[0]).join(','),
-    longitude: points.map((p) => p[1]).join(','),
-    start_date: date,
-    end_date: date,
-    hourly: 'temperature_2m,precipitation,snowfall',
-    timezone: 'Europe/Moscow',
-  });
-  const res = await fetch(`https://archive-api.open-meteo.com/v1/archive?${params}`);
-  if (!res.ok) throw new Error(`Open-Meteo: ${res.status}`);
-  const body = (await res.json()) as OpenMeteoPoint[] | OpenMeteoPoint;
-  const list = Array.isArray(body) ? body : [body];
-  return {
-    type: 'FeatureCollection',
-    features: list.map((pt, i) => {
-      const props: Record<string, string> = {};
-      for (let h = 0; h < 24; h++) {
-        props[`w${h}`] = label(pt.hourly.temperature_2m[h], pt.hourly.precipitation[h], pt.hourly.snowfall[h]);
-      }
-      const [lat, lon] = points[i] ?? [pt.latitude, pt.longitude];
-      return { type: 'Feature', geometry: { type: 'Point', coordinates: [lon, lat] }, properties: props };
-    }),
-  };
+  return `${r > 0 ? '+' : ''}${r}°`;
 }
 
 export function addWeatherLayer(map: MapLibre): void {
   map.addSource('weather-grid', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
-  map.addLayer({ id: 'weather-grid', type: 'symbol', source: 'weather-grid', maxzoom: 13.5, layout: {
-    'text-field': ['get', 'w0'], 'text-font': FONT, 'text-size': 12.5, 'text-allow-overlap': true,
-    'text-ignore-placement': true },
-  paint: { 'text-color': '#ffe3b0', 'text-halo-color': 'rgba(4,7,12,0.95)', 'text-halo-width': 1.6,
-    'text-opacity': ['interpolate', ['linear'], ['zoom'], 12.5, 0.9, 13.5, 0] } });
+  const radius = ['interpolate', ['exponential', 2], ['zoom'], 9, 34, 11, 130, 13, 520] as const;
+  map.addLayer({ id: 'rain-radar', type: 'heatmap', source: 'weather-grid', maxzoom: 15, paint: {
+    'heatmap-weight': 0, 'heatmap-radius': radius as never, 'heatmap-intensity': 0.9,
+    'heatmap-color': ['interpolate', ['linear'], ['heatmap-density'], 0, 'rgba(90,140,220,0)', 0.25,
+      'rgba(110,160,230,0.16)', 0.6, 'rgba(120,170,240,0.28)', 1, 'rgba(150,190,255,0.4)'],
+    'heatmap-opacity': 0.9 } });
+  map.addLayer({ id: 'snow-radar', type: 'heatmap', source: 'weather-grid', maxzoom: 15, paint: {
+    'heatmap-weight': 0, 'heatmap-radius': radius as never, 'heatmap-intensity': 0.9,
+    'heatmap-color': ['interpolate', ['linear'], ['heatmap-density'], 0, 'rgba(230,236,250,0)', 0.25,
+      'rgba(230,236,250,0.12)', 0.6, 'rgba(235,240,252,0.22)', 1, 'rgba(245,248,255,0.34)'],
+    'heatmap-opacity': 0.9 } });
+  map.addLayer({ id: 'weather-temp', type: 'symbol', source: 'weather-grid', maxzoom: 13.5,
+    filter: ['==', ['get', 'label'], true], layout: {
+      'text-field': ['get', 't0'], 'text-font': FONT, 'text-size': 12, 'text-allow-overlap': true,
+      'text-ignore-placement': true },
+    paint: { 'text-color': '#e7dcc4', 'text-halo-color': 'rgba(10,10,12,0.9)', 'text-halo-width': 1.5,
+      'text-opacity': ['interpolate', ['linear'], ['zoom'], 12.5, 0.85, 13.5, 0] } });
+}
+
+export function setWeatherData(map: MapLibre, grid: GridPoint[] | undefined): void {
+  const features = (grid ?? []).map((p, i) => {
+    const props: Record<string, unknown> = { label: LABEL_ROWS.has(Math.floor(i / 5)) && LABEL_ROWS.has(i % 5) };
+    for (let h = 0; h < 24; h++) {
+      props[`t${h}`] = label(p.temp[h]);
+      props[`r${h}`] = p.rain[h] ?? 0;
+      props[`s${h}`] = p.snow[h] ?? 0;
+    }
+    return { type: 'Feature' as const, geometry: { type: 'Point' as const, coordinates: [p.lon, p.lat] }, properties: props };
+  });
+  (map.getSource('weather-grid') as GeoJSONSource | undefined)?.setData({ type: 'FeatureCollection', features });
 }
 
 export function setWeatherHour(map: MapLibre, hour: number): void {
-  if (map.getLayer('weather-grid')) map.setLayoutProperty('weather-grid', 'text-field', ['get', `w${hour}`]);
-}
-
-export function loadWeatherDay(map: MapLibre, date: string): void {
-  if (!cache.has(date)) cache.set(date, fetchGrid(date));
-  cache.get(date)!
-    .then((data) => (map.getSource('weather-grid') as GeoJSONSource | undefined)?.setData(data))
-    .catch(() => cache.delete(date));
+  if (!map.getLayer('weather-temp')) return;
+  map.setLayoutProperty('weather-temp', 'text-field', ['get', `t${hour}`]);
+  // 2 мм/ч дождя и 1 см/ч снега - полная насыщенность радара
+  map.setPaintProperty('rain-radar', 'heatmap-weight', ['min', ['/', ['coalesce', ['get', `r${hour}`], 0], 2], 1]);
+  map.setPaintProperty('snow-radar', 'heatmap-weight', ['min', ['/', ['coalesce', ['get', `s${hour}`], 0], 1], 1]);
 }

@@ -202,6 +202,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/calendar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Календарь шкалы: тип дня, праздник и источник данных (fact, forecast, outlook) на каждый день */
+        get: operations["calendar"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -245,6 +262,7 @@ export interface components {
         NetworkLoadResponse: {
             /** Format: date */
             date?: string;
+            source?: string;
             hours?: number[];
             timezone?: string;
             scenario?: boolean;
@@ -324,6 +342,7 @@ export interface components {
             delta?: number;
             /** Format: double */
             deltaPct?: number;
+            source?: string;
         };
         ScenarioResponse: {
             target?: components["schemas"]["TargetDto"];
@@ -417,6 +436,10 @@ export interface components {
             horizonFrom?: string;
             /** Format: date */
             horizonTo?: string;
+            /** Format: date */
+            timelineFrom?: string;
+            /** Format: date */
+            timelineTo?: string;
             routes?: number[];
             timezone?: string;
             /** Format: double */
@@ -450,6 +473,7 @@ export interface components {
             p10?: number;
             /** Format: double */
             p90?: number;
+            source?: string;
         };
         CoefficientDto: {
             key?: string;
@@ -461,6 +485,17 @@ export interface components {
             max?: unknown;
             /** Format: double */
             step?: number;
+            source?: string;
+        };
+        CalendarDayDto: {
+            /** Format: date */
+            date?: string;
+            /** Format: int32 */
+            dayOfWeek?: number;
+            dayType?: string;
+            kind?: string;
+            dayOff?: boolean;
+            holiday?: string;
             source?: string;
         };
     };
@@ -792,6 +827,26 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["CoefficientDto"][];
+                };
+            };
+        };
+    };
+    calendar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CalendarDayDto"][];
                 };
             };
         };

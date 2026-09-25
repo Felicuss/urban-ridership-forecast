@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useStore } from '../state/store';
-import { nowInHorizon } from '../lib/time';
+import { nowOnTimeline } from '../lib/time';
 
 /**
  * Часы симуляции. При проигрывании время идёт в speed раз быстрее настоящего: ×60 - минута за секунду,
@@ -19,7 +19,7 @@ export function useClock(): void {
       if (s.followNow) {
         if (t - lastNow > 1000) {
           lastNow = t;
-          s.setMinute(nowInHorizon());
+          s.setMinute(nowOnTimeline());
         }
         return;
       }

@@ -22,8 +22,7 @@
   left: -1px;
   width: 2px;
   border-radius: 2px;
-  background: var(--red);
-  box-shadow: 0 0 10px var(--red);
+  background: var(--text-2);
   pointer-events: none;
   transition: transform 0.25s var(--ease);
 }

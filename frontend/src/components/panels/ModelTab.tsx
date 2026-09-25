@@ -4,7 +4,8 @@ import { fmt1 } from '../../lib/format';
 import { Card, Kpi, TramDots } from '../ui/Controls';
 import styles from './Panels.module.css';
 
-// Проверки факторов на лидерборде 25.09.2026: разница скора с фактором и без него (docs/analysis/README.md, п. 5.2).
+// Проверки факторов на эталоне организаторов 25.09.2026: разница точности с фактором и без него
+// (docs/analysis/README.md, п. 5.2).
 const EVIDENCE = [
   { factor: 'Выходные 7 и 50 снова по полной трассе с 15.11', effect: 1.16 },
   { factor: 'Запуск маршрута 5 16.12 около 18:00', effect: 0.41 },
@@ -29,15 +30,15 @@ export default function ModelTab() {
 
   return (
     <div className={styles.stack}>
-      <Card title="Точность на лидерборде"
-        info="WAPE-score = 1 - Σ|факт - прогноз| / Σ факт по маршрутам и часам ноября-декабря 2025. Выше 0,88 критерий точности даёт максимум баллов.">
+      <Card title="Точность на проверке организаторов"
+        info="Организаторы сравнили прогноз с фактом за ноябрь-декабрь 2025 по каждому маршруту и часу: точность = 1 - сумма ошибок / сумма посадок (WAPE-score). Выше 0,88 критерий точности даёт максимум баллов.">
         <div className={styles.big}>{score.toFixed(4)}</div>
         <div className={styles.gauge}><i style={{ width: pos(score) }} /><b style={{ left: pos(0.88) }} /></div>
         <p className={styles.note}>Шкала 0,80-0,92, жёлтая отметка - порог 0,88. Прогноз построен от {meta.forecastOrigin} только
           на том, что было известно на эту дату, плюс запуск маршрута 5.</p>
       </Card>
 
-      <Card title="Что дало точность" info="Разница скора на эталоне организаторов между вариантами с фактором и без него, в процентных пунктах.">
+      <Card title="Что дало точность" info="Насколько выросла или упала точность на проверке организаторов, когда фактор включали и выключали, в процентных пунктах.">
         <table className={styles.table}>
           <tbody>
             {EVIDENCE.map((e) => (
@@ -51,7 +52,7 @@ export default function ModelTab() {
         </table>
       </Card>
 
-      <Card title="Бэктест схемы" info={`${q.scheme}. Пять периодов по 1-2 месяца, прогноз от даты отсечки без подглядывания вперёд.`}>
+      <Card title="Проверка на прошлых месяцах" info={`${q.scheme}. Модель строила прогноз от даты в прошлом, зная только то, что было до неё, и сравнивалась с фактом следующих 1-2 месяцев. Точность от 0 до 1, чем ближе к 1, тем лучше.`}>
         <table className={styles.table}>
           <thead>
             <tr><th>период</th>{GRANULARITY.map((g) => <th key={g.key}>{g.label}</th>)}</tr>
@@ -59,7 +60,7 @@ export default function ModelTab() {
           <tbody>
             {folds.map((f) => (
               <tr key={f}>
-                <td title={q.folds[f]}>{q.folds[f]?.split(': ')[1] ?? f}</td>
+                <td title={q.folds[f]}>{q.folds[f]?.split(': ')[1]?.replace(' -> ', ', прогноз на ') ?? f}</td>
                 {GRANULARITY.map((g) => <td key={g.key} className="num">{q.wape_score[g.key][f]?.toFixed(3)}</td>)}
               </tr>
             ))}
@@ -70,10 +71,10 @@ export default function ModelTab() {
       <div className={styles.split}>
         {GRANULARITY.map((g) => (
           <Kpi key={g.key} label={`Коридор ${g.label}`} value={`${Math.round(q.interval_coverage_leave_one_fold_out[g.key] * 100)} %`}
-            sub={`номинал ${Math.round(q.interval_nominal * 100)} %`}
-            info="Доля фактов внутри коридора p10-p90 на периоде, который не участвовал в расчёте коридора." />
+            sub={`ожидалось ${Math.round(q.interval_nominal * 100)} %`}
+            info="Как часто факт попадал в коридор прогноза на месяцах, по которым коридор не считали." />
         ))}
-        <Kpi label="Годовой индекс" value={`${fmt1(check.mape_pct)} %`} sub={`MAPE на ${check.months} мес., макс. ${fmt1(check.max_abs_error_pct)} %`}
+        <Kpi label="Ошибка годового прогноза" value={`${fmt1(check.mape_pct)} %`} sub={`в среднем за ${check.months} мес., максимум ${fmt1(check.max_abs_error_pct)} %`}
           info="Насколько сезонный индекс угадал городской трамвай в ноябре 2025 - августе 2026 (данные data.mos.ru вышли позже прогноза)." />
       </div>
 
@@ -86,7 +87,7 @@ export default function ModelTab() {
       </Card>
 
       <p className={styles.note}>Модель {meta.modelVersion}, коммит {meta.gitCommit.slice(0, 7)}, артефакты от {meta.generatedAt.slice(0, 10)}.
-        Сабмит по умолчанию: {meta.defaultSubmission}.</p>
+        Файл прогноза по умолчанию: {meta.defaultSubmission}.</p>
     </div>
   );
 }

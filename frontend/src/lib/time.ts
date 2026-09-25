@@ -1,23 +1,27 @@
-// Время прогноза. Горизонт - 61 сутки с 01.11.2025, внутри приложения время хранится как минуты
-// от начала горизонта: так проигрывание, перемотка и положение трамваев считаются одной арифметикой.
+// Время интерфейса. Шкала - 01.01.2025-31.10.2026: факт, прогноз ноября-декабря 2025 и оценка 2026.
+// Внутри приложения время хранится как минуты от начала шкалы: проигрывание, перемотка и положение
+// трамваев считаются одной арифметикой.
 
+export const TIMELINE_START = '2025-01-01';
+export const TIMELINE_END = '2026-10-31';
 export const HORIZON_START = '2025-11-01';
-export const HORIZON_DAYS = 61;
+export const HORIZON_END = '2025-12-31';
 export const MINUTES_PER_DAY = 1440;
-export const HORIZON_MINUTES = HORIZON_DAYS * MINUTES_PER_DAY;
 
-const START_UTC = Date.UTC(2025, 10, 1);
+const START_UTC = Date.UTC(2025, 0, 1);
 const DAY_MS = 86_400_000;
+export const TIMELINE_DAYS = Math.round((Date.UTC(2026, 9, 31) - START_UTC) / DAY_MS) + 1;
+export const TIMELINE_MINUTES = TIMELINE_DAYS * MINUTES_PER_DAY;
 
 const WEEKDAYS = ['понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота', 'воскресенье'];
 const WEEKDAYS_SHORT = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
 const MONTHS_GEN = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября',
   'октября', 'ноября', 'декабря'];
-const MONTHS = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь',
+export const MONTHS = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь',
   'ноябрь', 'декабрь'];
 
 export function clampMinute(m: number): number {
-  return Math.min(Math.max(m, 0), HORIZON_MINUTES - 1);
+  return Math.min(Math.max(m, 0), TIMELINE_MINUTES - 1);
 }
 
 export function dayIndex(minute: number): number {
@@ -28,7 +32,7 @@ export function hourOf(minute: number): number {
   return Math.floor((clampMinute(minute) % MINUTES_PER_DAY) / 60);
 }
 
-/** Дата дня горизонта в ISO: 2025-11-03. */
+/** Дата дня шкалы в ISO: 2025-11-03. */
 export function isoDate(day: number): string {
   return new Date(START_UTC + day * DAY_MS).toISOString().slice(0, 10);
 }
@@ -46,10 +50,10 @@ export function weekdayName(day: number, short = false): string {
   return (short ? WEEKDAYS_SHORT : WEEKDAYS)[weekday(day)] ?? '';
 }
 
-/** «3 ноября, понедельник». */
-export function dayLabel(day: number): string {
+/** «3 ноября 2025, понедельник». */
+export function dayLabel(day: number, withYear = true): string {
   const d = new Date(START_UTC + day * DAY_MS);
-  return `${d.getUTCDate()} ${MONTHS_GEN[d.getUTCMonth()]}, ${weekdayName(day)}`;
+  return `${d.getUTCDate()} ${MONTHS_GEN[d.getUTCMonth()]}${withYear ? ` ${d.getUTCFullYear()}` : ''}, ${weekdayName(day)}`;
 }
 
 export function shortDate(iso: string): string {
@@ -67,27 +71,36 @@ export function clock(minute: number): string {
   return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(Math.floor(m % 60)).padStart(2, '0')}`;
 }
 
-/**
- * Режим «Сейчас»: прогноз построен на ноябрь-декабрь 2025, поэтому берём текущее время суток и такой же
- * день недели во второй неделе горизонта (10-16 ноября, без праздников и событий по выходным).
- */
-export function nowInHorizon(now = new Date()): number {
-  const moscow = new Date(now.getTime() + (180 + now.getTimezoneOffset()) * 60_000);
-  const dow = (moscow.getDay() + 6) % 7;
-  const day = 9 + dow; // 10.11.2025 - понедельник, индекс 9
-  return day * MINUTES_PER_DAY + moscow.getHours() * 60 + moscow.getMinutes();
+/** Первый день месяца и число дней в нём для дня шкалы. */
+export function monthOf(day: number): { first: number; days: number; year: number; month: number } {
+  const d = new Date(START_UTC + day * DAY_MS);
+  const year = d.getUTCFullYear();
+  const month = d.getUTCMonth();
+  const first = dayOf(`${year}-${String(month + 1).padStart(2, '0')}-01`);
+  const days = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+  return { first, days, year, month };
 }
 
-/** Высота солнца над горизонтом в градусах для Москвы: по ней меняется свет карты. */
+/** Режим «Сейчас»: московское время сегодня. Шкала доходит до 31.10.2026, поэтому дата настоящая. */
+export function nowOnTimeline(now = new Date()): number {
+  const moscow = new Date(now.getTime() + 3 * 3_600_000);
+  const iso = moscow.toISOString().slice(0, 10);
+  const minutes = moscow.getUTCHours() * 60 + moscow.getUTCMinutes();
+  return clampMinute(dayOf(iso) * MINUTES_PER_DAY + minutes);
+}
+
+function dayOfYear(day: number): number {
+  const d = new Date(START_UTC + day * DAY_MS);
+  return Math.round((d.getTime() - Date.UTC(d.getUTCFullYear(), 0, 1)) / DAY_MS) + 1;
+}
+
+/** Высота солнца над Москвой в градусах: по ней меняется свет карты. */
 export function sunElevation(minute: number): number {
-  const day = dayIndex(minute);
-  const doy = 305 + day; // 1 ноября - 305-й день года
+  const doy = dayOfYear(dayIndex(minute));
   const hoursUtc = (clampMinute(minute) % MINUTES_PER_DAY) / 60 - 3;
   const decl = -23.44 * Math.cos(((2 * Math.PI) / 365) * (doy + 10));
   const lat = 55.75;
-  const lon = 37.62;
-  const solarTime = hoursUtc + lon / 15;
-  const hourAngle = (solarTime - 12) * 15;
+  const hourAngle = (hoursUtc + 37.62 / 15 - 12) * 15;
   const rad = Math.PI / 180;
   const sinEl = Math.sin(lat * rad) * Math.sin(decl * rad)
     + Math.cos(lat * rad) * Math.cos(decl * rad) * Math.cos(hourAngle * rad);
