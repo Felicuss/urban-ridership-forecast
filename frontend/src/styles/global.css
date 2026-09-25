@@ -1,0 +1,127 @@
+/* Тёмная тема диспетчерской. Цвета трамвая «Витязь-М»: белый кузов, синяя юбка, чёрная маска,
+   красный акцент Московского транспорта. Небо (--sky-*) меняется по времени суток из JS. */
+:root {
+  color-scheme: dark;
+  --bg: #070b12;
+  --bg-2: #0a0f18;
+  --surface: #0e1520;
+  --surface-2: #131c29;
+  --surface-3: #1a2534;
+  --line: rgba(160, 190, 230, 0.09);
+  --line-strong: rgba(160, 190, 230, 0.18);
+  --text: #e9eef5;
+  --text-2: #a6b3c4;
+  --muted: #6b7a8f;
+  --accent: #3a95ff;
+  --accent-2: #7cc0ff;
+  --accent-soft: rgba(58, 149, 255, 0.14);
+  --red: #ef4136;
+  --red-soft: rgba(239, 65, 54, 0.14);
+  --ok: #3ddc97;
+  --warn: #ffb547;
+  --heat-1: #1e3a8a;
+  --heat-2: #3a95ff;
+  --heat-3: #3ddc97;
+  --heat-4: #ffd166;
+  --heat-5: #ff7a45;
+  --heat-6: #ef4136;
+  --sky-a: #0b1422;
+  --sky-b: #070b12;
+  --sky-glow: rgba(58, 149, 255, 0.08);
+  --radius: 14px;
+  --radius-sm: 9px;
+  --gap: 10px;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --font: 'Onest Variable', 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, 'Cascadia Mono', monospace;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 13px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  font-feature-settings: 'tnum' 1;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: 0;
+  padding: 0;
+}
+
+a {
+  color: var(--accent-2);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+::selection {
+  background: var(--accent-soft);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--surface-3) transparent;
+}
+
+.num {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* data-motion="off" ставит флаг «Анимации» в настройках */
+:root[data-motion='off'] *,
+:root[data-motion='off'] *::before,
+:root[data-motion='off'] *::after {
+  animation-duration: 0.01ms !important;
+  transition-duration: 0.01ms !important;
+}

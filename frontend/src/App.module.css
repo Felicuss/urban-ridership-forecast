@@ -1,0 +1,94 @@
+/* Один экран без прокрутки страницы: верхняя строка, слева маршруты, в центре карта, справа
+   прогноз и сценарии, снизу время и тепловая карта по дням и часам. */
+.app {
+  display: grid;
+  grid-template-columns: minmax(250px, 290px) minmax(0, 1fr) minmax(340px, 400px);
+  grid-template-rows: 56px minmax(0, 1fr) 164px;
+  grid-template-areas:
+    'top top top'
+    'left map right'
+    'left bottom right';
+  gap: var(--gap);
+  height: 100dvh;
+  padding: 0 var(--gap) var(--gap);
+  background:
+    radial-gradient(900px 400px at 50% -10%, var(--sky-glow), transparent 70%),
+    var(--bg);
+}
+
+.left {
+  grid-area: left;
+  min-height: 0;
+}
+
+.map {
+  position: relative;
+  grid-area: map;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #05080e;
+}
+
+.right {
+  grid-area: right;
+  min-height: 0;
+}
+
+.bottom {
+  grid-area: bottom;
+  min-height: 0;
+}
+
+.pending {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.error {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  z-index: 60;
+  padding: 10px 14px;
+  border: 1px solid rgba(239, 65, 54, 0.4);
+  border-radius: 12px;
+  background: #1c0d10;
+  color: #ffc9c4;
+  transform: translateX(-50%);
+}
+
+@media (max-width: 1280px) {
+  .app {
+    grid-template-columns: 240px minmax(0, 1fr) 340px;
+  }
+}
+
+/* Планшет и телефон: карта сверху, панели под ней, страница прокручивается. */
+@media (max-width: 1024px) {
+  .app {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 58dvh auto auto auto;
+    grid-template-areas: 'top' 'map' 'bottom' 'right' 'left';
+    height: auto;
+    min-height: 100dvh;
+  }
+
+  :global(body) {
+    overflow: auto;
+  }
+
+  .bottom {
+    min-height: 170px;
+  }
+
+  .right,
+  .left {
+    min-height: 480px;
+  }
+}

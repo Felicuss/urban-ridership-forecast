@@ -1,0 +1,249 @@
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 28px;
+  background:
+    radial-gradient(1200px 600px at 50% 60%, rgba(58, 149, 255, 0.1), transparent 60%),
+    linear-gradient(180deg, #0a1322 0%, #070b12 70%);
+  transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
+}
+
+.leaving {
+  opacity: 0;
+  transform: scale(1.03);
+  pointer-events: none;
+}
+
+.scene {
+  position: relative;
+  width: min(560px, 88vw);
+  aspect-ratio: 440 / 190;
+}
+
+.city {
+  position: absolute;
+  left: -20%;
+  right: -20%;
+  bottom: 18%;
+  width: 140%;
+  height: 55%;
+  fill: rgba(120, 150, 190, 0.07);
+  animation: city 9s linear infinite;
+}
+
+@keyframes city {
+  from { transform: translateX(0); }
+  to { transform: translateX(-18%); }
+}
+
+.tram {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.wire {
+  stroke: rgba(170, 190, 220, 0.35);
+  stroke-width: 1.2;
+}
+
+.body {
+  animation: bob 0.9s ease-in-out infinite;
+}
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(1.2px); }
+}
+
+.pantograph {
+  fill: none;
+  stroke: #ef4136;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.spark {
+  fill: #bfe3ff;
+  opacity: 0;
+  filter: drop-shadow(0 0 6px #7cc0ff);
+  animation: spark 2.6s steps(1) infinite;
+}
+
+@keyframes spark {
+  0%, 88%, 100% { opacity: 0; }
+  90%, 94% { opacity: 1; }
+  92% { opacity: 0.2; }
+}
+
+.roof {
+  fill: #d9e1ea;
+}
+
+.shell {
+  fill: #f4f7fb;
+}
+
+.mask {
+  fill: #0d1117;
+}
+
+.glass {
+  fill: #1c2b3d;
+}
+
+.skirt {
+  fill: #2d82e6;
+}
+
+.wave {
+  fill: none;
+  stroke: #1b2735;
+  stroke-width: 1.4;
+  opacity: 0.55;
+}
+
+.window {
+  fill: #16202c;
+}
+
+.door {
+  fill: #1b2633;
+  stroke: #f2c230;
+  stroke-width: 1.2;
+}
+
+.doorLine {
+  stroke: #0e151e;
+  stroke-width: 1;
+}
+
+.number {
+  font: 700 9px var(--mono);
+  fill: #e8f1ff;
+}
+
+.headlight {
+  fill: #fff6d6;
+  filter: drop-shadow(0 0 5px #fff1b8);
+}
+
+.beam {
+  fill: rgba(255, 244, 200, 0.12);
+}
+
+.logo {
+  fill: #ef4136;
+}
+
+.logoMark {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 1.6;
+}
+
+.wheel circle {
+  fill: #0f141b;
+  stroke: #3a4655;
+  stroke-width: 2;
+}
+
+.wheel line {
+  stroke: #5f6f82;
+  stroke-width: 2;
+}
+
+.wheel {
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.rail {
+  stroke: #56657a;
+  stroke-width: 2.5;
+}
+
+.sleepers {
+  stroke: #2a3442;
+  stroke-width: 6;
+  stroke-dasharray: 5 16;
+  animation: sleepers 0.45s linear infinite;
+}
+
+@keyframes sleepers {
+  to { stroke-dashoffset: 21; }
+}
+
+.caption {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  width: min(420px, 86vw);
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.track {
+  width: 100%;
+  height: 3px;
+  border-radius: 3px;
+  background: rgba(160, 190, 230, 0.12);
+  overflow: hidden;
+}
+
+.progress {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transition: width 0.4s var(--ease);
+}
+
+.steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 16px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.steps li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.3s;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+.done {
+  color: var(--text-2);
+}
+
+.done .dot {
+  background: var(--ok);
+  opacity: 1;
+  box-shadow: 0 0 8px var(--ok);
+}

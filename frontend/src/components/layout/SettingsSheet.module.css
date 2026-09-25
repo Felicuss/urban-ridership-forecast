@@ -1,0 +1,56 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  display: flex;
+  justify-content: flex-end;
+  background: rgba(3, 6, 10, 0.45);
+  animation: fade 0.2s;
+}
+
+@keyframes fade {
+  from { opacity: 0; }
+}
+
+.sheet {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  width: min(360px, 92vw);
+  height: 100%;
+  padding: 18px 20px;
+  overflow-y: auto;
+  border-left: 1px solid var(--line-strong);
+  background: #0a0f18;
+  animation: slide 0.28s var(--ease);
+}
+
+@keyframes slide {
+  from { transform: translateX(40px); opacity: 0; }
+}
+
+.sheet header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sheet h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.sheet h3 {
+  margin: 4px 0 2px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.sheet p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11.5px;
+}

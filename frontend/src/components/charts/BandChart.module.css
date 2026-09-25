@@ -1,0 +1,43 @@
+.wrap {
+  position: relative;
+  width: 100%;
+}
+
+.chart {
+  width: 100%;
+}
+
+.chart :global(.u-over) {
+  cursor: crosshair;
+}
+
+.chart :global(.u-cursor-x) {
+  border-right: 1px dashed rgba(233, 238, 245, 0.35) !important;
+}
+
+.now {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -1px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--red);
+  box-shadow: 0 0 10px var(--red);
+  pointer-events: none;
+  transition: transform 0.25s var(--ease);
+}
+
+.tip {
+  position: absolute;
+  right: 4px;
+  top: -2px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: rgba(10, 15, 24, 0.9);
+  color: var(--text-2);
+  font: 11px var(--mono);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.1s;
+}

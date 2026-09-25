@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#070b12" />
+    <meta name="description" content="Прогноз посадок на трамвайных маршрутах Москвы по часам: карта, сценарии, выгрузка" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://tiles.openfreemap.org" crossorigin />
+    <title>Трамвай. Прогноз посадок</title>
+    <style>
+      html,body{background:#070b12;margin:0;height:100%}
+      #boot{position:fixed;inset:0;display:grid;place-items:center;align-content:center;gap:18px;
+        background:radial-gradient(1200px 600px at 50% 60%,rgba(58,149,255,.1),transparent 60%),linear-gradient(180deg,#0a1322,#070b12 70%);
+        color:#a6b3c4;font:600 16px system-ui,sans-serif;transition:opacity .4s}
+      #boot svg{width:min(420px,80vw);overflow:visible}
+      #boot .rail{stroke:#2a3442;stroke-width:6;stroke-dasharray:5 16;animation:r .45s linear infinite}
+      #boot .car{animation:b .9s ease-in-out infinite}
+      @keyframes r{to{stroke-dashoffset:21}}
+      @keyframes b{50%{transform:translateY(1.2px)}}
+    </style>
+  </head>
+  <body>
+    <div id="boot" aria-hidden="true">
+      <svg viewBox="0 0 440 150"><line x1="-40" y1="14" x2="480" y2="14" stroke="rgba(170,190,220,.35)"/>
+        <g class="car"><path d="M232 42 L214 26 L236 16 M214 26 L246 16" stroke="#ef4136" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M22 54 h348 q28 0 44 30 l6 26 q2 12 -10 12 H22 q-10 0 -10 -10 V64 q0 -10 10 -10z" fill="#f4f7fb"/>
+        <path d="M372 56 q24 2 38 30 l7 24 q1 8 -8 8 h-26 z" fill="#0d1117"/>
+        <path d="M12 104 H414 l2 6 q2 12 -10 12 H22 q-10 0 -10 -10z" fill="#2d82e6"/>
+        <rect x="36" y="70" width="44" height="26" rx="4" fill="#16202c"/><rect x="92" y="70" width="44" height="26" rx="4" fill="#16202c"/>
+        <rect x="150" y="70" width="44" height="26" rx="4" fill="#16202c"/><rect x="250" y="70" width="44" height="26" rx="4" fill="#16202c"/>
+        <rect x="306" y="70" width="44" height="26" rx="4" fill="#16202c"/></g>
+        <line x1="-40" y1="138" x2="480" y2="138" stroke="#56657a" stroke-width="2.5"/><line class="rail" x1="-40" y1="144" x2="480" y2="144"/>
+      </svg>
+      <div>Трамвай. Прогноз посадок</div>
+    </div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
