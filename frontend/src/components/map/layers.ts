@@ -110,7 +110,7 @@ export function addNetworkLayers(map: MapLibre, paths: Feature[], stops: Feature
   map.addLayer({ id: 'trams', type: 'symbol', source: 'trams', layout: {
     'icon-image': ['concat', 'tram-', ['to-string', ['get', 'route']]], 'icon-rotate': ['get', 'bearing'],
     'icon-rotation-alignment': 'map', 'icon-allow-overlap': true, 'icon-ignore-placement': true,
-    'icon-size': 0.8 } });
+    'icon-size': 0.64 } });
   map.addLayer({ id: 'trams-3d', type: 'fill-extrusion', source: 'trams-3d', minzoom: TRAMS_3D_ZOOM - 0.5, paint: {
     'fill-extrusion-color': ['get', 'c'], 'fill-extrusion-height': ['get', 'h'], 'fill-extrusion-base': ['get', 'b'],
     'fill-extrusion-opacity': 1, 'fill-extrusion-vertical-gradient': true } });

@@ -70,7 +70,7 @@ export function tramCollection(trams: TramState[]): GeoJSON.FeatureCollection {
 
 // Объёмные вагоны для крупного плана: три секции «Витязя-М» (34 м) слоями fill-extrusion - юбка в цвете
 // маршрута, белый кузов, полоса окон (тёмная днём, светится после заката), крыша и тёмная маска спереди.
-// Вагон на любом приближении одной длины на экране, около 35 пикселей, как плоский значок: при приближении
+// Вагон на любом приближении одной длины на экране, около 28 пикселей, как плоский значок: при приближении
 // он не растёт и не прыгает. До zoom 14 модель упрощённая (юбка, кузов, окна, крыша без маски), чтобы сотня
 // вагонов на общем плане не тормозила; ширина у обеих моделей одна.
 
@@ -104,7 +104,7 @@ function rect(at: LngLat, bearing: number, from: number, to: number, half: numbe
   return [...ring, ring[0]!];
 }
 
-const TRAM_SCREEN_PX = 35;
+const TRAM_SCREEN_PX = 28;
 /** Метров в пикселе на zoom 0 на широте Москвы. */
 const M_PER_PX_Z0 = 156_543.03 * Math.cos((55.75 * Math.PI) / 180);
 const TRAM_LENGTH_M = 3 * CAR + 2 * GAP;
@@ -122,7 +122,7 @@ const LITE_LAYERS: { b: number; h: number; c?: string }[] = [
   { b: 2.9, h: 3.6, c: '#d9dee6' },
 ];
 /** Вагон шире настоящего, чтобы читался над линией маршрута. */
-const WIDTH_BOOST = 1.8;
+const WIDTH_BOOST = 1.5;
 
 export function tramBodies(trams: { at: LngLat; bearing: number; color: string }[], scale = 1,
   night = false, lite = false): GeoJSON.FeatureCollection {
