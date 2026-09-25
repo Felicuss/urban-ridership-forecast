@@ -13,7 +13,9 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 
-from common import DATASET, FORECAST_END, FORECAST_START, ROOT, ROUTES, TEST_END, TRAIN_START, load_labels
+from common import (
+    ACTIVE_ROUTES, DATASET, FORECAST_END, FORECAST_START, ROOT, ROUTES, TEST_END, TRAIN_START, load_labels,
+)
 from models import add_calendar, add_weather
 
 OUT = ROOT / "forecasts"
@@ -164,19 +166,83 @@ def fm_forecasts(hist: pd.DataFrame, grid: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def ensemble_base(hist: pd.DataFrame, grid: pd.DataFrame, members: tuple[str, ...]) -> np.ndarray:
+DAILY_CACHE = ROOT / "data" / "fm_daily_novdec.parquet"
+
+
+def daily_fm_forecasts(hist: pd.DataFrame, grid: pd.DataFrame) -> pd.DataFrame:
+    """Chronos-2 и t0-beta на дневных суммах маршрута (горизонт 61 шаг), см. s17."""
+    if DAILY_CACHE.exists():
+        return pd.read_parquet(DAILY_CACHE)
+    from s17_daily_fm import chronos, daily_frame, t0
+
+    full = pd.concat([hist, grid.assign(boardings=np.nan)], ignore_index=True)
+    d = daily_frame(full)
+    origin, end = hist.date.max(), grid.date.max()
+    dates = pd.date_range(origin + pd.Timedelta(days=1), end)
+    parts = []
+    for name, fn in (("daily_chronos2", chronos), ("daily_t0", t0)):
+        pred = np.clip(fn(d, origin, end), 0, None)
+        for i, route in enumerate(ACTIVE_ROUTES):
+            parts.append(pd.DataFrame({"route": route, "date": dates, "model": name, "pred": pred[i]}))
+    out = pd.concat(parts, ignore_index=True)
+    out.to_parquet(DAILY_CACHE)
+    return out
+
+
+@dataclass(frozen=True)
+class Mix:
+    """Из чего собрана база прогноза до правил событий.
+
+    profile: none - без профиля; plain - профиль 2 нед, все участники с равным весом (как в
+    бэктесте s11); external_level - профиль 2 нед × уровень ноября/декабря из городской
+    статистики, и он весит столько же, сколько среднее всех FM (смесь двух оценок уровня).
+    members: почасовые FM (chronos2, t0, timesfm3) и дневные (daily_chronos2, daily_t0),
+    дневные раскладываются по часам долями профиля.
+    """
+
+    profile: str = "plain"
+    members: tuple[str, ...] = ()
+
+
+def ensemble_base(hist: pd.DataFrame, grid: pd.DataFrame, mix: Mix, c: Coefficients) -> np.ndarray:
     prof = base_profile(hist, grid, weeks=2)
-    fm = fm_forecasts(hist, grid).pivot_table(index=["route", "ts"], columns="model", values="pred")
-    fm = fm.reindex(pd.MultiIndex.from_arrays([grid.route, grid.ts])).fillna(0)
-    cols = [prof] + [fm[m].to_numpy() for m in members]
-    return np.mean(cols, axis=0)
+    fm_parts = []
+    hourly = [m for m in mix.members if not m.startswith("daily_")]
+    daily = [m for m in mix.members if m.startswith("daily_")]
+    if hourly:
+        fm = fm_forecasts(hist, grid).pivot_table(index=["route", "ts"], columns="model", values="pred")
+        fm = fm.reindex(pd.MultiIndex.from_arrays([grid.route, grid.ts])).fillna(0)
+        fm_parts += [fm[m].to_numpy() for m in hourly]
+    if daily:
+        day_sum = pd.Series(prof).groupby([grid.route.to_numpy(), grid.date.to_numpy()]).transform("sum").to_numpy()
+        share = np.where(day_sum > 0, prof / np.where(day_sum > 0, day_sum, 1), 0)
+        dfc = daily_fm_forecasts(hist, grid).pivot_table(index=["route", "date"], columns="model", values="pred")
+        dfc = dfc.reindex(pd.MultiIndex.from_arrays([grid.route, grid.date])).fillna(0)
+        fm_parts += [share * dfc[m].to_numpy() for m in daily]
+    parts = list(fm_parts)
+    if mix.profile != "none":
+        p = prof
+        if mix.profile == "external_level":
+            p = prof * np.where(grid.date.dt.month.to_numpy() == 11, c.level_nov, c.level_dec)
+        if mix.profile == "external_level" and fm_parts:
+            parts = [p, np.mean(fm_parts, axis=0)]
+        else:
+            parts = [p, *fm_parts]
+    return np.mean(parts, axis=0)
 
 
-def make_forecast(c: Coefficients, members: tuple[str, ...] = ()) -> pd.DataFrame:
+def make_forecast(c: Coefficients, mix: Mix | None = None) -> pd.DataFrame:
     hist = load_history()
     grid = forecast_grid()
-    base = ensemble_base(hist, grid, members) if members else base_profile(hist, grid, c.profile_weeks)
-    pred = apply_rules(hist, grid, base, c)
+    if mix is None:
+        base = base_profile(hist, grid, c.profile_weeks)
+        pred = apply_rules(hist, grid, base, c)
+    else:
+        base = ensemble_base(hist, grid, mix, c)
+        # plain: внешний уровень умножается на весь ансамбль, как в раунде 1;
+        # none и external_level: уровень уже внутри базы (у FM свой, у профиля внешний)
+        rules = c if mix.profile == "plain" else dataclasses.replace(c, level_nov=1.0, level_dec=1.0)
+        pred = apply_rules(hist, grid, base, rules)
     return grid.assign(base=base, prediction=pred)
 
 
@@ -195,17 +261,21 @@ def to_submission(fc: pd.DataFrame, path) -> pd.DataFrame:
 NO_EXTERNAL = Coefficients(level_nov=1.0, level_dec=1.0, holiday_to_sunday=1.0, working_saturday=1.0,
                            last_workdays_dec=1.0, dec31_day=1.0, dec31_free_from_hour=24,
                            weekend_restore_date="2099-01-01", t1_route7=1.0, weather=False)
-# В ансамбле foundation-модели сами видят праздники через ковариаты, а профиль берёт для них
+# В ансамблях foundation-модели сами видят праздники через ковариаты, а профиль берёт для них
 # воскресенье, поэтому общий множитель праздника отключаем, чтобы не учесть его дважды.
 ENSEMBLE_RULES = Coefficients(holiday_to_sunday=1.0)
+DAILY_FM = ("daily_chronos2", "daily_t0")
 VARIANTS = {
-    "profile_only": (NO_EXTERNAL, ()),
-    "external_all": (Coefficients(), ()),
-    "external_all_route5": (Coefficients(route5_on=True), ()),
-    "ensemble_external": (ENSEMBLE_RULES, ("chronos2", "t0")),
-    "ensemble_external_route5": (dataclasses.replace(ENSEMBLE_RULES, route5_on=True), ("chronos2", "t0")),
+    "profile_only": (NO_EXTERNAL, None),
+    "external_all": (Coefficients(), None),
+    "external_all_route5": (Coefficients(route5_on=True), None),
+    "ensemble_external": (ENSEMBLE_RULES, Mix("plain", ("chronos2", "t0"))),
+    # раунд 2: дневные FM (s17) лучше почасовых на бэктесте и почти не уводят уровень
+    "daily_fm_external": (ENSEMBLE_RULES, Mix("none", DAILY_FM)),
+    "blend_external": (ENSEMBLE_RULES, Mix("external_level", DAILY_FM)),
+    "blend_external_route5": (dataclasses.replace(ENSEMBLE_RULES, route5_on=True), Mix("external_level", DAILY_FM)),
     # TimesFM 3.0: веса под некоммерческой лицензией, вариант только для сравнения
-    "ensemble_timesfm_external_NONCOMMERCIAL": (ENSEMBLE_RULES, ("t0", "timesfm3")),
+    "ensemble_timesfm_external_NONCOMMERCIAL": (ENSEMBLE_RULES, Mix("plain", ("t0", "timesfm3"))),
 }
 
 
@@ -213,10 +283,10 @@ def main() -> None:
     OUT.mkdir(exist_ok=True)
     hist_oct = load_labels()
     oct_total = hist_oct[hist_oct.date.dt.month == 10].boardings.sum()
-    for name, (coefs, members) in VARIANTS.items():
-        fc = make_forecast(coefs, members)
+    for name, (coefs, mix) in VARIANTS.items():
+        fc = make_forecast(coefs, mix)
         sub = to_submission(fc, OUT / f"submission_{name}.csv")
-        meta = {"members": ["profile_2w", *members] if members else [f"profile_{coefs.profile_weeks}w"],
+        meta = {"mix": dataclasses.asdict(mix) if mix else {"profile": f"{coefs.profile_weeks}w", "members": []},
                 **dataclasses.asdict(coefs)}
         (OUT / f"coefficients_{name}.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
         tot = fc.groupby(fc.date.dt.month).prediction.sum()

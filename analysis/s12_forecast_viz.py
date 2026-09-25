@@ -19,7 +19,8 @@ MAP_TS = pd.Timestamp("2025-11-18 08:00")  # вторник, утренний п
 
 
 def load_fc() -> pd.DataFrame:
-    return pd.read_parquet(DATA / "forecast_external_all.parquet")
+    # основной вариант после раунда 2 (s18): профиль × городской уровень + дневные FM, правила событий
+    return pd.read_parquet(DATA / "forecast_blend_external.parquet")
 
 
 def heatmap(fc: pd.DataFrame) -> None:
@@ -55,7 +56,7 @@ def daily_with_history(fc: pd.DataFrame) -> None:
     b = fc[fc.route.isin(ACTIVE_ROUTES)].groupby("date")["base"].sum() / 1000
     fig, ax = plt.subplots(figsize=(15, 4.8))
     ax.plot(h.index, h.values, color=SERIES[0], lw=1.2, label="факт (январь-октябрь)")
-    ax.plot(b.index, b.values, color=MUTED, lw=1.2, label="профиль октября без внешних факторов")
+    ax.plot(b.index, b.values, color=MUTED, lw=1.2, label="база смеси до правил событий и погоды")
     ax.plot(f.index, f.values, color=SERIES[1], lw=1.6, label="прогноз с внешними факторами")
     ax.set_ylabel("тыс. посадок в сутки, 9 маршрутов")
     ax.set_ylim(bottom=0)

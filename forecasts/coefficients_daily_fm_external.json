@@ -1,9 +1,9 @@
 {
   "mix": {
-    "profile": "plain",
+    "profile": "none",
     "members": [
-      "chronos2",
-      "t0"
+      "daily_chronos2",
+      "daily_t0"
     ]
   },
   "profile_weeks": 4,

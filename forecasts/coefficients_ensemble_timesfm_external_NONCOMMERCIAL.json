@@ -1,9 +1,11 @@
 {
-  "members": [
-    "profile_2w",
-    "t0",
-    "timesfm3"
-  ],
+  "mix": {
+    "profile": "plain",
+    "members": [
+      "t0",
+      "timesfm3"
+    ]
+  },
   "profile_weeks": 4,
   "level_nov": 1.015,
   "level_dec": 1.02,
