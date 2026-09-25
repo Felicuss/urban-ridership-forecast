@@ -105,6 +105,8 @@ interface State {
   playing: boolean;
   speed: Speed;
   followNow: boolean;
+  /** Когда «Сейчас» выключился из-за ручного выбора времени: по нему показывается плашка. */
+  nowNotice: number | null;
   route: number | null;
   stop: string | null;
   segment: Segment | null;
@@ -115,7 +117,11 @@ interface State {
   settingsOpen: boolean;
   viewMode: ViewMode;
   setViewMode: (v: ViewMode) => void;
+  /** Ручной выбор минуты: выключает режим «Сейчас». */
   setMinute: (m: number) => void;
+  /** Ход часов симуляции: режим «Сейчас» не трогает. */
+  tick: (m: number) => void;
+  dismissNowNotice: () => void;
   setDay: (day: number) => void;
   setHour: (hour: number) => void;
   togglePlay: () => void;
@@ -134,64 +140,72 @@ interface State {
   setSettingsOpen: (open: boolean) => void;
 }
 
-export const useStore = create<State>((set, get) => ({
-  ride: null,
-  rideProgress: null,
-  startRide: (route, direction, speed = 40) => set({
-    ride: { route, direction, speed, startedAt: performance.now(), hour: Math.floor((get().minute % 1440) / 60) },
-    rideProgress: { passed: 0, boarded: 0, stopName: '', finished: false },
-    route,
-  }),
-  stopRide: () => set({ ride: null, rideProgress: null }),
-  setRideProgress: (rideProgress) => set({ rideProgress }),
-  minute: startMinute(),
-  playing: false,
-  speed: 60,
-  followNow: false,
-  route: null,
-  stop: null,
-  segment: null,
-  horizon: 'day',
-  tab: 'forecast',
-  scenario: { coefficients: {}, events: [] },
-  flags: loadFlags(),
-  settingsOpen: false,
-  viewMode: 'perspective',
-  setViewMode: (viewMode) => set({ viewMode }),
-  setMinute: (m) => set({ minute: ((m % TIMELINE_MINUTES) + TIMELINE_MINUTES) % TIMELINE_MINUTES }),
-  setDay: (day) => set({ minute: clampMinute(day * MINUTES_PER_DAY + (get().minute % MINUTES_PER_DAY)),
-    followNow: false }),
-  setHour: (hour) => set({
-    minute: clampMinute(Math.floor(get().minute / MINUTES_PER_DAY) * MINUTES_PER_DAY + hour * 60),
+const wrapMinute = (m: number) => ((m % TIMELINE_MINUTES) + TIMELINE_MINUTES) % TIMELINE_MINUTES;
+
+export const useStore = create<State>((set, get) => {
+  // любой ручной выбор времени выключает «Сейчас», и интерфейс об этом говорит
+  const manual = (patch: Partial<State>): Partial<State> =>
+    get().followNow ? { ...patch, followNow: false, nowNotice: Date.now() } : patch;
+  return {
+    ride: null,
+    rideProgress: null,
+    startRide: (route, direction, speed = 40) => set({
+      ride: { route, direction, speed, startedAt: performance.now(), hour: Math.floor((get().minute % 1440) / 60) },
+      rideProgress: { passed: 0, boarded: 0, stopName: '', finished: false },
+      route,
+    }),
+    stopRide: () => set({ ride: null, rideProgress: null }),
+    setRideProgress: (rideProgress) => set({ rideProgress }),
+    minute: startMinute(),
+    playing: false,
+    speed: 60,
     followNow: false,
-  }),
-  togglePlay: () => set({ playing: !get().playing, followNow: false }),
-  setSpeed: (speed) => set({ speed }),
-  setFollowNow: (on) => set(on ? { followNow: true, playing: false, speed: 1, minute: nowOnTimeline() }
-    : { followNow: false }),
-  selectRoute: (route) => set({ route, stop: null, segment: null }),
-  selectStop: (stop) => set({ stop, segment: null }),
-  setSegment: (segment) => set({ segment, stop: null }),
-  setHorizon: (horizon) => set({ horizon }),
-  setTab: (tab) => set({ tab }),
-  setCoefficient: (key, value) => {
-    const next = { ...get().scenario.coefficients };
-    if (value === undefined) delete next[key];
-    else next[key] = value;
-    set({ scenario: { ...get().scenario, coefficients: next } });
-  },
-  addEvent: (e) => set({ scenario: { ...get().scenario, events: [...get().scenario.events, e] } }),
-  removeEvent: (index) => set({
-    scenario: { ...get().scenario, events: get().scenario.events.filter((_, i) => i !== index) },
-  }),
-  resetScenario: () => set({ scenario: { coefficients: {}, events: [] } }),
-  setFlag: (key, value) => {
-    const flags = { ...get().flags, [key]: value };
-    saveFlags(flags);
-    set({ flags });
-  },
-  setSettingsOpen: (settingsOpen) => set({ settingsOpen }),
-}));
+    nowNotice: null,
+    route: null,
+    stop: null,
+    segment: null,
+    horizon: 'day',
+    tab: 'forecast',
+    scenario: { coefficients: {}, events: [] },
+    flags: loadFlags(),
+    settingsOpen: false,
+    viewMode: 'perspective',
+    setViewMode: (viewMode) => set({ viewMode }),
+    setMinute: (m) => set(manual({ minute: wrapMinute(m) })),
+    tick: (m) => set({ minute: wrapMinute(m) }),
+    dismissNowNotice: () => set({ nowNotice: null }),
+    setDay: (day) => set(manual({ minute: clampMinute(day * MINUTES_PER_DAY + (get().minute % MINUTES_PER_DAY)) })),
+    setHour: (hour) => set(manual({
+      minute: clampMinute(Math.floor(get().minute / MINUTES_PER_DAY) * MINUTES_PER_DAY + hour * 60),
+    })),
+    togglePlay: () => set(manual({ playing: !get().playing })),
+    setSpeed: (speed) => set(manual({ speed })),
+    setFollowNow: (on) => set(on ? { followNow: true, playing: false, speed: 1, minute: nowOnTimeline(), nowNotice: null }
+      : { followNow: false }),
+    selectRoute: (route) => set({ route, stop: null, segment: null }),
+    selectStop: (stop) => set({ stop, segment: null }),
+    setSegment: (segment) => set({ segment, stop: null }),
+    setHorizon: (horizon) => set({ horizon }),
+    setTab: (tab) => set({ tab }),
+    setCoefficient: (key, value) => {
+      const next = { ...get().scenario.coefficients };
+      if (value === undefined) delete next[key];
+      else next[key] = value;
+      set({ scenario: { ...get().scenario, coefficients: next } });
+    },
+    addEvent: (e) => set({ scenario: { ...get().scenario, events: [...get().scenario.events, e] } }),
+    removeEvent: (index) => set({
+      scenario: { ...get().scenario, events: get().scenario.events.filter((_, i) => i !== index) },
+    }),
+    resetScenario: () => set({ scenario: { coefficients: {}, events: [] } }),
+    setFlag: (key, value) => {
+      const flags = { ...get().flags, [key]: value };
+      saveFlags(flags);
+      set({ flags });
+    },
+    setSettingsOpen: (settingsOpen) => set({ settingsOpen }),
+  };
+});
 
 export function isDefaultScenario(s: Scenario): boolean {
   return Object.keys(s.coefficients).length === 0 && s.events.length === 0;

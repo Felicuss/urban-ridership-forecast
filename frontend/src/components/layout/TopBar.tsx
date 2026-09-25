@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { download, useCalendar, useFactors } from '../../api/queries';
 import { SPEEDS, isDefaultScenario, useStore, type Speed } from '../../state/store';
 import { TIMELINE_DAYS, clock, dayIndex, dayLabel, hourOf, isoDate, sunElevation } from '../../lib/time';
@@ -90,15 +90,16 @@ export function TopBar() {
 
       <div className={styles.when}>
         <button type="button" className={styles.icon} aria-label="Предыдущий день" disabled={day === 0}
-          onClick={() => setDay(day - 1)}><Icon.prev /></button>
-        <button type="button" className={styles.date} onClick={() => setDateOpen((v) => !v)} aria-expanded={dateOpen}>
+          title={followNow ? 'Выбор другого времени выключит режим «Сейчас»' : undefined} onClick={() => setDay(day - 1)}><Icon.prev /></button>
+        <button type="button" className={styles.date} onClick={() => setDateOpen((v) => !v)} aria-expanded={dateOpen}
+          title={followNow ? 'Выбор другого времени выключит режим «Сейчас»' : undefined}>
           <Icon.calendar />
           <span>{dayLabel(day)}</span>
           {cal?.dayOff && <em className={cal.holiday ? styles.holiday : styles.dayoff}>{cal.holiday ? 'праздник' : 'выходной'}</em>}
           {cal && !cal.dayOff && cal.dayOfWeek >= 5 && <em className={styles.work}>рабочий выходной</em>}
         </button>
         <button type="button" className={styles.icon} aria-label="Следующий день" disabled={day === TIMELINE_DAYS - 1}
-          onClick={() => setDay(day + 1)}><Icon.next /></button>
+          title={followNow ? 'Выбор другого времени выключит режим «Сейчас»' : undefined} onClick={() => setDay(day + 1)}><Icon.next /></button>
         {badge && <span className={`${styles.source} ${styles[cal?.source ?? 'forecast']}`} title={badge.hint}>{badge.label}</span>}
         {dateOpen && <DatePopover day={day} calendar={calendar} onPick={(d) => { setDay(d); setDateOpen(false); }}
           onClose={() => setDateOpen(false)} />}
@@ -107,7 +108,8 @@ export function TopBar() {
       <div className={styles.clock}>
         <span className="num">{clock(minute)}</span>
         <button type="button" className={styles.play} onClick={togglePlay} aria-label={playing ? 'Пауза' : 'Пустить время'}
-          title={playing ? 'Пауза' : `Пустить время, ${SPEED_HINT[speed]}`}>
+          title={playing ? 'Пауза' : followNow ? 'Пустить время: режим «Сейчас» выключится'
+            : `Пустить время, ${SPEED_HINT[speed]}`}>
           {playing ? <Icon.pause /> : <Icon.play />}
         </button>
         <div className={styles.speeds} role="radiogroup" aria-label="Скорость времени">
@@ -117,7 +119,9 @@ export function TopBar() {
           ))}
         </div>
         <button type="button" className={followNow ? styles.nowOn : styles.now} onClick={() => setFollowNow(!followNow)}
-          title="Текущие дата и время по Москве">
+          aria-pressed={followNow} title={followNow
+            ? 'Идёт настоящее время по Москве. Другая дата, час или запуск времени выключат этот режим'
+            : 'Текущие дата и время по Москве'}>
           <i />Сейчас
         </button>
       </div>
@@ -152,6 +156,29 @@ export function TopBar() {
         </button>
       </div>
       {settingsOpen && <SettingsSheet onClose={() => setSettingsOpen(false)} />}
+      <NowNotice />
     </header>
   );
 }
+
+/** Плашка после ручного выбора времени: режим «Сейчас» выключен, его можно вернуть одной кнопкой. */
+function NowNotice() {
+  const at = useStore((s) => s.nowNotice);
+  const dismiss = useStore((s) => s.dismissNowNotice);
+  const setFollowNow = useStore((s) => s.setFollowNow);
+  useEffect(() => {
+    if (at == null) return undefined;
+    const t = setTimeout(dismiss, NOTICE_MS);
+    return () => clearTimeout(t);
+  }, [at, dismiss]);
+  if (at == null) return null;
+  return (
+    <div key={at} className={styles.notice} role="status">
+      <span>Режим «Сейчас» выключен: выбрано другое время.</span>
+      <button type="button" className={styles.noticeBack} onClick={() => setFollowNow(true)}>Вернуть «Сейчас»</button>
+      <button type="button" className={styles.noticeClose} aria-label="Закрыть" onClick={dismiss}><Icon.close /></button>
+    </div>
+  );
+}
+
+const NOTICE_MS = 6000;

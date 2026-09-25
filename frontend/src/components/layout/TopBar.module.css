@@ -341,3 +341,62 @@
     row-gap: 6px;
   }
 }
+
+/* Плашка «Режим „Сейчас“ выключен» под верхней строкой */
+.notice {
+  position: fixed;
+  top: 62px;
+  left: 50%;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: calc(100vw - 24px);
+  padding: 8px 8px 8px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  background: var(--surface-2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  color: var(--text);
+  font-size: 13px;
+  transform: translateX(-50%);
+  animation: notice-in 0.25s var(--ease);
+}
+
+@keyframes notice-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -6px);
+  }
+}
+
+.noticeBack {
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: var(--text);
+  color: var(--bg);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.noticeClose {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  color: var(--muted);
+}
+
+.noticeClose:hover {
+  background: var(--surface-3);
+  color: var(--text);
+}
+
+@media (max-width: 560px) {
+  .notice {
+    top: auto;
+    bottom: 12px;
+    font-size: 12px;
+  }
+}

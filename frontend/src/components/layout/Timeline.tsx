@@ -24,6 +24,7 @@ export function Timeline() {
   const calendar = useCalendar().data;
   const target = useTarget();
   const first = windowStart(day);
+  const followNow = useStore((s) => s.followNow);
   const query = useMemo(() => ({ ...targetQuery(target), from: isoDate(first),
     to: isoDate(first + WINDOW - 1), granularity: 'hour' as const }), [target, first]);
   const series = useSeries(query, scenario);
@@ -60,6 +61,7 @@ export function Timeline() {
           </svg>
           <input type="range" min={0} max={MINUTES_PER_DAY - 1} step={1} value={minuteOfDay} aria-label="Время суток"
             onChange={(e) => setMinute(day * MINUTES_PER_DAY + Number(e.target.value))} />
+            title={followNow ? 'Выбор другого времени выключит режим «Сейчас»' : undefined}
           <div className={styles.ticks}>
             {[0, 3, 6, 9, 12, 15, 18, 21, 24].map((t) => <span key={t}>{t}</span>)}
           </div>
