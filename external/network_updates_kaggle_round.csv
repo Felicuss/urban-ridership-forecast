@@ -1,0 +1,3 @@
+event_id,routes,start_date,end_date,day_filter,start_hour,type,source_url,supersedes,forecast_policy
+night_restore_20251125,7;50,2025-11-25,,all,22,restore,https://t.me/DtOperativno/23760,https://t.me/DtOperativno/23293,Confirmed restoration; do not apply an additional reduction after this date
+night_work_20251213,7;50,2025-12-13,,weekends,23,night_limit,https://t.me/DtOperativno/24106,https://t.me/DtOperativno/24097,Corrected announcement says weekends only; no separately validated magnitude; excluded from primary candidate

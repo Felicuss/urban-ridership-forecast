@@ -1,0 +1,24 @@
+{
+  "file": "residual_with_weather_25_incidents.csv",
+  "sha256": "fd4b02f32eb93ddb281f0eac2a313417ad01162d6f642002c574b68c387b3ce9",
+  "description": "residual_with_weather_25 + paired official incident exposure; shrinkage alpha=0.25.",
+  "anchor": "submission_ex_ante_route5.csv",
+  "anchor_leaderboard_score": 0.8995,
+  "leaderboard_score": null,
+  "changed_rows": 10687,
+  "sum_prediction": 12743637,
+  "difference_from_anchor": -36300,
+  "absolute_difference": 287450,
+  "route_changes": {
+    "1": 8811,
+    "5": 0,
+    "7": -6475,
+    "11": 28955,
+    "12": -8950,
+    "17": 1999,
+    "25": 1510,
+    "26": -693,
+    "28": -4978,
+    "50": -56479
+  }
+}

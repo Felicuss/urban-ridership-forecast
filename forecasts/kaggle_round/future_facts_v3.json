@@ -1,0 +1,58 @@
+{
+  "status": "scored_rejected",
+  "file": "submission_future_facts_v3.csv",
+  "sha256": "9c469e17734008a7a08266203c2b021a5cf61dc0cc32d90cd88ebc34726a0474",
+  "anchor": "submission_kaggle_unified_v2.csv",
+  "anchor_score": 0.90358,
+  "anchor_sha256": "dcf149b828e1272a2b7004705e239abaf7d1291c4a645480c16f53d616eb334b",
+  "information_policy": "Intentional permitted post-cutoff public facts; no hidden hourly target labels.",
+  "strength": 0.75,
+  "selection_rule": ">=5/6 gains; worst >=-0.002; maximize mean gain; 20 source/strength combinations",
+  "development": {
+    "mean_gain": 0.0022479514974285335,
+    "worst_gain": -0.0014755747634963,
+    "wins": 5.0
+  },
+  "monthly": [
+    {
+      "month": 11,
+      "city_observed": 19342888,
+      "t1_gross_estimate": 1109737.632162903,
+      "replaced90_estimate": 246608.36270286737,
+      "route5_removed_estimate": 0.0,
+      "city_anomaly_unadjusted": 1.0397352612901245,
+      "city_anomaly_network_adjusted": 0.9933396074193487,
+      "deployed_multiplier": 0.995000535151907
+    },
+    {
+      "month": 12,
+      "city_observed": 21255322,
+      "t1_gross_estimate": 1971117.46847481,
+      "replaced90_estimate": 407146.5573840755,
+      "route5_removed_estimate": 84426.0,
+      "city_anomaly_unadjusted": 0.9884610141695431,
+      "city_anomaly_network_adjusted": 0.9118036912416341,
+      "deployed_multiplier": 0.9330953163725813
+    }
+  ],
+  "route5": {
+    "scale": 1.3115614138632041,
+    "reference_window_start": "2025-12-16 18:00",
+    "reference_window_end_exclusive": "2025-12-23 18:00",
+    "baseline_in_reference_window": 30498,
+    "reported_first_week": 40000,
+    "prediction_first_week": 39995,
+    "cutoff_uncertainty": "Press report gives first week, not exact timestamps; 16–22 versus 17–23 December imply different factors."
+  },
+  "caveats": [
+    "Development scores validate only aggregate anomaly transfer, not November network adjustment or route 5.",
+    "T1 gross and replaced route 90 counterfactual are estimates from rounded public totals.",
+    "Published passenger trips are not proven identical to paid successful validations.",
+    "Same temporal folds reused for model development; no independent holdout."
+  ],
+  "changed_rows": 10667,
+  "sum_difference": -457076,
+  "absolute_difference": 497174,
+  "leaderboard_score": 0.89817,
+  "evidence": "User reported 0.89817 in response to the single future_facts_v3 candidate"
+}

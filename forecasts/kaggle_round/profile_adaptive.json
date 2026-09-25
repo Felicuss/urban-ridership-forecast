@@ -1,0 +1,24 @@
+{
+  "file": "profile_adaptive.csv",
+  "sha256": "6639d54fd9c272e779b4ee190bde72c5c3e6a9bae99136ffbccbb9c487e85e33",
+  "description": "Only profile changed: adaptive; same s32 seasonal/calendar/network rules.",
+  "anchor": "submission_ex_ante_route5.csv",
+  "anchor_leaderboard_score": 0.8995,
+  "leaderboard_score": null,
+  "changed_rows": 10504,
+  "sum_prediction": 12753867,
+  "difference_from_anchor": -26070,
+  "absolute_difference": 260272,
+  "route_changes": {
+    "1": 6035,
+    "5": 0,
+    "7": 5709,
+    "11": 23223,
+    "12": -7886,
+    "17": 3730,
+    "25": -3685,
+    "26": -3845,
+    "28": -8106,
+    "50": -41245
+  }
+}

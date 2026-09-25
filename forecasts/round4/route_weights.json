@@ -1,0 +1,79 @@
+{
+  "file": "route_weights.csv",
+  "status": "unscored",
+  "anchor": "submission_kaggle_unified_v2.csv",
+  "anchor_score": 0.90358,
+  "sha256": "d290a2b5bde31c22fa1fefb964a70606448bd5138bf92b2e8b27bd3db2a8bf73",
+  "changed_rows": 5198,
+  "absolute_difference": 26414,
+  "sum_difference": -14672,
+  "route_changes": {
+    "1": 344,
+    "5": 0,
+    "7": -7636,
+    "11": 0,
+    "12": 0,
+    "17": 0,
+    "25": -868,
+    "26": -892,
+    "28": -55,
+    "50": -5565
+  },
+  "caveat": "Reused development periods; local scores are not leaderboard results.",
+  "method": "Forward selected route ensemble, 50% shrink to v2, movement penalty .15",
+  "selection": {
+    "10": {
+      "index": 7,
+      "name": "direct_weightx0.6",
+      "relative_gain": 0.001866344599802139
+    },
+    "70": {
+      "index": 9,
+      "name": "direct_weightx1.4",
+      "relative_gain": 0.01624756285764868
+    },
+    "110": {
+      "index": 0,
+      "name": "v2",
+      "relative_gain": 0.0
+    },
+    "120": {
+      "index": 0,
+      "name": "v2",
+      "relative_gain": 0.0
+    },
+    "170": {
+      "index": 0,
+      "name": "v2",
+      "relative_gain": 0.0
+    },
+    "250": {
+      "index": 10,
+      "name": "rich_direct_weightx0.6",
+      "relative_gain": 0.0011439334013059075
+    },
+    "260": {
+      "index": 7,
+      "name": "direct_weightx0.6",
+      "relative_gain": 0.0018264487449116814
+    },
+    "280": {
+      "index": 7,
+      "name": "direct_weightx0.6",
+      "relative_gain": 0.0018239156943199875
+    },
+    "500": {
+      "index": 2,
+      "name": "old_weightx1.0",
+      "relative_gain": 0.0006279336074816856
+    }
+  },
+  "validation": "Only source folds whose last target date precedes current first target date.",
+  "development_summary": {
+    "mean_gain": 0.0007795296411539001,
+    "worst_gain": -0.0002131840006557,
+    "wins": 3.0,
+    "active_folds": 4.0,
+    "october_gain": -0.0002131840006557
+  }
+}

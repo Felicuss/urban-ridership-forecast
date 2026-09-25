@@ -1,0 +1,24 @@
+{
+  "file": "profile_median_windows_incidents.csv",
+  "sha256": "4f3343c3b10b9a1ba6a7a500eb88f6cd843219a0b30c09eaddab04c82b9c7e8b",
+  "description": "profile_median_windows + paired official incident exposure; shrinkage alpha=0.25.",
+  "anchor": "submission_ex_ante_route5.csv",
+  "anchor_leaderboard_score": 0.8995,
+  "leaderboard_score": null,
+  "changed_rows": 7688,
+  "sum_prediction": 12792981,
+  "difference_from_anchor": 13044,
+  "absolute_difference": 238194,
+  "route_changes": {
+    "1": 9883,
+    "5": 0,
+    "7": 12065,
+    "11": 32979,
+    "12": -6068,
+    "17": 12995,
+    "25": -327,
+    "26": -2890,
+    "28": -4018,
+    "50": -41575
+  }
+}

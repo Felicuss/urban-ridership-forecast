@@ -1,0 +1,10 @@
+{
+  "historical_events": 15,
+  "hour_cells": 48,
+  "raw_alpha": 0.5,
+  "deployed_alpha": 0.25,
+  "baseline_absolute_error": 19874.137899722846,
+  "leave_event_out_absolute_error": 9813.454473639364,
+  "relative_error_reduction": 0.5062198660815261,
+  "evaluation": "Event-cell diagnostic with same-day unaffected-hour controls; NOT a full forecast backtest."
+}

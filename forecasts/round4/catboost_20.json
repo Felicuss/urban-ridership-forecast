@@ -1,0 +1,36 @@
+{
+  "file": "catboost_20.csv",
+  "status": "scored",
+  "anchor": "submission_kaggle_unified_v2.csv",
+  "anchor_score": 0.90358,
+  "sha256": "7797a5502ad8b6288c2addd7326e2954589c65daac76602411a606ae8bfab745",
+  "changed_rows": 9139,
+  "absolute_difference": 79732,
+  "sum_difference": -5964,
+  "route_changes": {
+    "1": 1383,
+    "5": 0,
+    "7": -6981,
+    "11": 2973,
+    "12": 1088,
+    "17": -438,
+    "25": 2703,
+    "26": 3429,
+    "28": -1537,
+    "50": -8584
+  },
+  "caveat": "Reused development periods; local scores are not leaderboard results.",
+  "method": "CatBoost MAE with categorical interactions",
+  "catboost_weight": 0.2,
+  "training_cutoff": "2025-10-31",
+  "protected": "route 5 and nonworkdays of 7/50",
+  "development_summary": {
+    "mean_gain": 0.00020991658459676663,
+    "worst_gain": -0.0018718547343953,
+    "wins": 3.0,
+    "active_folds": 6.0,
+    "october_gain": 0.0004465186984022
+  },
+  "leaderboard_score": 0.90343,
+  "evidence": "User screenshot of six results and explicit confirmation that upload order was 01 through 06; platform newest first."
+}

@@ -1,0 +1,33 @@
+{
+  "file": "combined_models.csv",
+  "status": "scored",
+  "anchor": "submission_kaggle_unified_v2.csv",
+  "anchor_score": 0.90358,
+  "sha256": "1319a2f351136e61f8266b0efbfe3ad7e2120bd650b62b4393d2012b80ec4dfb",
+  "changed_rows": 5589,
+  "absolute_difference": 18087,
+  "sum_difference": -1607,
+  "route_changes": {
+    "1": 211,
+    "5": 0,
+    "7": 1348,
+    "11": 1268,
+    "12": 283,
+    "17": -1197,
+    "25": -391,
+    "26": -429,
+    "28": 77,
+    "50": -2777
+  },
+  "caveat": "Reused development periods; local scores are not leaderboard results.",
+  "method": "50% route/day-kind ensemble + 50% selectively added models; exact mixture checked on folds",
+  "development_summary": {
+    "mean_gain": 0.0005370471934033049,
+    "worst_gain": -7.4416583456971e-05,
+    "wins": 3.0,
+    "active_folds": 4.0,
+    "october_gain": -7.4416583456971e-05
+  },
+  "leaderboard_score": 0.90347,
+  "evidence": "User screenshot of six results and explicit confirmation that upload order was 01 through 06; platform newest first."
+}

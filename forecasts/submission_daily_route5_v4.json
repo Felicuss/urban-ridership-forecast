@@ -1,0 +1,37 @@
+{
+  "file": "submission_daily_route5_v4.csv",
+  "status": "scored",
+  "leaderboard_score": 0.90418,
+  "sha256": "718acf30fb2d84e3684902f660b5485370acbc8ce2b039122c410f3b5ae302eb",
+  "sources": [
+    {
+      "file": "submission_kaggle_unified_v2.csv",
+      "sha256": "dcf149b828e1272a2b7004705e239abaf7d1291c4a645480c16f53d616eb334b",
+      "score": 0.90358
+    },
+    {
+      "file": "round4/submit/05_daily_optimal_25.csv",
+      "sha256": "a30c072c2e4dc18ef2d1b89dcfc278ec4ea17c829aa8c7d61e2a946cff7a7b91",
+      "score": 0.90394
+    },
+    {
+      "file": "round4/submit/03_route5_weekly_fact.csv",
+      "sha256": "48c2304599a2b9fb42d93e0ed5773e03fda9a2d8e1aedeac61ef2d77b0639397",
+      "score": 0.90382
+    }
+  ],
+  "method": "Daily correction on old routes plus the isolated route 5 weekly-total correction",
+  "changed_daily_cells": 8731,
+  "changed_route5_cells": 302,
+  "overlap_cells": 0,
+  "changed_total_cells": 9033,
+  "implied_score": 0.90418,
+  "implied_score_interval": [
+    0.904165,
+    0.904195
+  ],
+  "derivation": "S(combined) = S(daily) + S(route5) - S(v2): cellwise L1 errors add on disjoint supports.",
+  "assumptions": "Same full target and global WAPE denominator; scores rounded to 5 decimals; no score clipping active.",
+  "caveat": "Implied score is derived separately; leaderboard_score is the user-reported result. Source CSVs are preserved.",
+  "evidence": "User reported 0.90418 in direct response to the single combined daily_route5_v4 candidate; matches the previously calculated additive score."
+}

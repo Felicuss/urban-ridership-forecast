@@ -1,0 +1,148 @@
+{
+  "researched_on": "2026-09-25",
+  "report": "kaggle_transfer_2026-09-25.md",
+  "downloaded_code_executed": false,
+  "notes": [
+    "Only public primary sources support the report.",
+    "Downloaded third-party source files remain in temporary storage, not the repository. Hashes identify the inspected versions.",
+    "Kaggle indexed writeups were read through search results where the page returned an empty JavaScript shell. This is distinguished from reading downloaded code.",
+    "No new model training, forecast modification or leaderboard submission was performed."
+  ],
+  "downloaded_artifacts": [
+    {
+      "solution": "Web Traffic, 1st",
+      "url": "https://raw.githubusercontent.com/Arturus/kaggle-web-traffic/master/how_it_works.md",
+      "local_research_filename": "web-traffic.md",
+      "bytes": 14065,
+      "sha256": "d8bd8c40bbc3495c5b4dfc891800cfbc2db41a188a00fd49ced922e62f4a228a",
+      "access": "downloaded_and_read",
+      "scope": "Author explanation"
+    },
+    {
+      "solution": "Recruit, 8th",
+      "url": "https://raw.githubusercontent.com/MaxHalford/kaggle-recruit-restaurant/master/README.md",
+      "local_research_filename": "recruit8-readme.md",
+      "bytes": 825,
+      "sha256": "54dbdebbd1101623e52b841aa6a2c788d4fea63daaa594368d2a1d75e315a42d",
+      "access": "downloaded_and_read",
+      "scope": "Rank and repository overview"
+    },
+    {
+      "solution": "Recruit, 8th",
+      "url": "https://raw.githubusercontent.com/MaxHalford/kaggle-recruit-restaurant/master/Solution.ipynb",
+      "local_research_filename": "recruit8.ipynb",
+      "bytes": 146490,
+      "sha256": "aeb0151293d47bceb2105e81dfbcbbd34c922294feb62dff50c098c5535a2873",
+      "access": "downloaded_and_read",
+      "scope": "Notebook source; EWM, calendar, weather"
+    },
+    {
+      "solution": "Rossmann, 1st",
+      "url": "https://storage.googleapis.com/kaggle-forum-message-attachments/102102/3454/Rossmann_nr1_doc.pdf",
+      "local_research_filename": "rossmann1.pdf",
+      "bytes": 148051,
+      "sha256": "6e4927ea8c94bfe71dbc2add2a3ea359bd376aa8ca9c0da1b529ead3c6ba15dd",
+      "access": "downloaded_and_read",
+      "scope": "Author PDF, 7 pages"
+    },
+    {
+      "solution": "M5, 2nd",
+      "url": "https://raw.githubusercontent.com/Mcompetitions/M5-methods/master/Code%20of%20Winning%20Methods/A2/Documentation_v01.pdf",
+      "local_research_filename": "m5-a2.pdf",
+      "bytes": 29412,
+      "sha256": "d13f7e0106a7292b36c989b70facb0b6a6bf8979abcb5cb3c4f8c4d8150c2988",
+      "access": "downloaded_and_read",
+      "scope": "Author PDF, 3 pages"
+    },
+    {
+      "solution": "M5, 2nd",
+      "url": "https://raw.githubusercontent.com/Mcompetitions/M5-methods/master/Code%20of%20Winning%20Methods/A2/m5-alignandsubmit.py",
+      "local_research_filename": "m5-a2-align.py",
+      "bytes": 10507,
+      "sha256": "dad5038ef28cb5eb7870e47c19c4439932562b57427ebbc9943f0ccc9ece666c",
+      "access": "downloaded_and_read",
+      "scope": "Alignment and submission code"
+    },
+    {
+      "solution": "M5, 1st",
+      "url": "https://raw.githubusercontent.com/Mcompetitions/M5-methods/master/Code%20of%20Winning%20Methods/A1/3.%20code/3.%20predict/3-1.%20Final%20ensemble.py",
+      "local_research_filename": "m5-a1-ensemble.py",
+      "bytes": 1698,
+      "sha256": "6fc879d24ddf726771bef2b7f35fedef5d638f57d19eddad55f0d518c3f61164",
+      "access": "downloaded_and_read",
+      "scope": "Final six-component ensemble"
+    },
+    {
+      "solution": "M5, 1st",
+      "url": "https://raw.githubusercontent.com/Mcompetitions/M5-methods/master/Code%20of%20Winning%20Methods/A1/3.%20code/2.%20train/2-1.%20nonrecursive_store_TRAIN.py",
+      "local_research_filename": "m5-a1-train.py",
+      "bytes": 7797,
+      "sha256": "7e414f5c886362cf4beee4c8f76ed4130274428d288e9977595f3263662b79bb",
+      "access": "downloaded_and_read",
+      "scope": "Selected sections: direct forecast training and loss"
+    },
+    {
+      "solution": "ASHRAE, 1st",
+      "url": "https://raw.githubusercontent.com/buds-lab/ashrae-great-energy-predictor-3-solution-analysis/master/solutions/rank-1/README.md",
+      "local_research_filename": "ashrae1-readme.md",
+      "bytes": 22069,
+      "sha256": "7d89edebd4a29660e21229d17067d8f311647094b23ba25b7fe1ed46d30c4075",
+      "access": "downloaded_and_read",
+      "scope": "Rank and reproduction overview"
+    },
+    {
+      "solution": "ASHRAE, 1st",
+      "url": "https://raw.githubusercontent.com/buds-lab/ashrae-great-energy-predictor-3-solution-analysis/master/solutions/rank-1/scripts/02_preprocess_data.py",
+      "local_research_filename": "ashrae1-preprocess.py",
+      "bytes": 8594,
+      "sha256": "e44a99c219f673ffd310f64cab223d3c0b4cc690c7cba1243c28d6d07426d784",
+      "access": "downloaded_and_read",
+      "scope": "Weather and calendar preprocessing"
+    },
+    {
+      "solution": "ASHRAE, 1st",
+      "url": "https://raw.githubusercontent.com/buds-lab/ashrae-great-energy-predictor-3-solution-analysis/master/solutions/rank-1/cleanup_model/utils.py",
+      "local_research_filename": "ashrae1-clean.py",
+      "bytes": 11780,
+      "sha256": "614aad808a61f34c78ff85e583c6a08ce79f959883bb3e8d8ca9c25a66175614",
+      "access": "downloaded_and_read",
+      "scope": "Selected sections: zero streaks, weather smoothing and derivatives"
+    },
+    {
+      "solution": "Recruit, 1st-place LightGBM component",
+      "url": "https://www.kaggle.com/code/pureheart/1st-place-lgb-model-public-0-470-private-0-502",
+      "retrieval_url": "https://www.kaggle.com/api/v1/kernels/pull/pureheart/1st-place-lgb-model-public-0-470-private-0-502",
+      "local_research_filename": "metro-recruit-winner.py",
+      "bytes": 25749,
+      "sha256": "faf515817dc0ecbbc573f192e63afbcd65803727f7b209be8f5b73cb731a19c6",
+      "access": "kernel_source_extracted_and_read",
+      "scope": "Windows, exponential weights, holidays, weekly origins, forecast horizon"
+    }
+  ],
+  "indexed_discussions": [
+    {
+      "solution": "Rohlik Orders, 2nd",
+      "url": "https://www.kaggle.com/competitions/rohlik-orders-forecasting-challenge/writeups/techniquetwice-2nd-place-solution-single-lgbm-mode",
+      "access": "indexed_author_text",
+      "scope": "Indexed author writeup: LightGBM, holidays, public/private results"
+    },
+    {
+      "solution": "Rohlik Orders, 8th",
+      "url": "https://www.kaggle.com/competitions/rohlik-orders-forecasting-challenge/discussion/530139",
+      "access": "indexed_author_text",
+      "scope": "Indexed author discussion: days since holiday; potential 5th is post-competition estimate"
+    },
+    {
+      "solution": "Rohlik Sales v2, 1st",
+      "url": "https://www.kaggle.com/competitions/rohlik-sales-forecasting-challenge-v2/discussion/563215",
+      "access": "indexed_author_text",
+      "scope": "Indexed author writeup: direct horizons, feature engineering, failed experiments; code not obtained"
+    },
+    {
+      "solution": "ASHRAE external data discussion",
+      "url": "https://www.kaggle.com/competitions/ashrae-energy-prediction/discussion/116773",
+      "access": "indexed_author_text",
+      "scope": "Indexed discussion: public building measurements; not evidence of matching tram targets"
+    }
+  ]
+}

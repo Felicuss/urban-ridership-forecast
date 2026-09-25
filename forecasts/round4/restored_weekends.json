@@ -1,0 +1,53 @@
+{
+  "file": "restored_weekends.csv",
+  "status": "scored",
+  "anchor": "submission_kaggle_unified_v2.csv",
+  "anchor_score": 0.90358,
+  "sha256": "e8a21eb2315dc23d4c9115be05d12212dd72c7159bc69077ec17b2a256fdd508",
+  "changed_rows": 554,
+  "absolute_difference": 7099,
+  "sum_difference": -5197,
+  "route_changes": {
+    "1": 0,
+    "5": 0,
+    "7": -4168,
+    "11": 0,
+    "12": 0,
+    "17": 0,
+    "25": 0,
+    "26": 0,
+    "28": 0,
+    "50": -1029
+  },
+  "caveat": "Reused development periods; local scores are not leaderboard results.",
+  "method": "Matched normal-service weekend/hour ratios; 35% blend; daily level movement capped before blending",
+  "historical_profiles": {
+    "7_1": {
+      "observations": 27,
+      "weekend_to_workday": 0.5990003708871267
+    },
+    "7_2": {
+      "observations": 27,
+      "weekend_to_workday": 0.5173260335875209
+    },
+    "50_1": {
+      "observations": 27,
+      "weekend_to_workday": 0.42773745055113876
+    },
+    "50_2": {
+      "observations": 27,
+      "weekend_to_workday": 0.36270984535968764
+    }
+  },
+  "changed_route_days": 28,
+  "caveat_regime": "Historical test covers normal-service weekends, not an identical November restoration.",
+  "development_summary": {
+    "mean_gain": 5.8499333391924877e-05,
+    "worst_gain": -0.0002218544460437,
+    "wins": 2.0,
+    "active_folds": 4.0,
+    "october_gain": 0.0
+  },
+  "leaderboard_score": 0.90354,
+  "evidence": "User screenshot of six results and explicit confirmation that upload order was 01 through 06; platform newest first."
+}

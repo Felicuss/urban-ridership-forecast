@@ -1,0 +1,24 @@
+{
+  "file": "profile_ew_median_14d.csv",
+  "sha256": "7604afffe17c7c8d121ea96ad980f6eb93b29155ac6e7b9183ed133fd4a3ae93",
+  "description": "Only profile changed: ew_median_14d; same s32 seasonal/calendar/network rules.",
+  "anchor": "submission_ex_ante_route5.csv",
+  "anchor_leaderboard_score": 0.8995,
+  "leaderboard_score": null,
+  "changed_rows": 10482,
+  "sum_prediction": 12712137,
+  "difference_from_anchor": -67800,
+  "absolute_difference": 285550,
+  "route_changes": {
+    "1": 2169,
+    "5": 0,
+    "7": -658,
+    "11": 13090,
+    "12": -10177,
+    "17": -6579,
+    "25": -7131,
+    "26": -4945,
+    "28": -12203,
+    "50": -41366
+  }
+}

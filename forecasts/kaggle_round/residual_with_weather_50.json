@@ -1,0 +1,24 @@
+{
+  "file": "residual_with_weather_50.csv",
+  "sha256": "c14d2946e415b450671a6c9a13af074d2fddb2ab34c80826d54145ff67ad5322",
+  "description": "Experimental residual with_weather, weight=0.5; protected restored weekends and route5. See local scores.",
+  "anchor": "submission_ex_ante_route5.csv",
+  "anchor_leaderboard_score": 0.8995,
+  "leaderboard_score": null,
+  "changed_rows": 10839,
+  "sum_prediction": 12697222,
+  "difference_from_anchor": -82715,
+  "absolute_difference": 352171,
+  "route_changes": {
+    "1": 7921,
+    "5": 0,
+    "7": -24763,
+    "11": 25349,
+    "12": -11517,
+    "17": -7856,
+    "25": 3501,
+    "26": 1478,
+    "28": -5927,
+    "50": -70901
+  }
+}

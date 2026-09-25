@@ -6,6 +6,8 @@
 Запуск: uv run python analysis/s10_forecast.py
 """
 
+from __future__ import annotations
+
 import dataclasses
 import json
 from dataclasses import dataclass

@@ -1,0 +1,24 @@
+{
+  "file": "anchor_incidents_only.csv",
+  "sha256": "724fe5d61e753d0b304ff5bf9b538771688a07aa1830a49a98afa663c0dfe8a8",
+  "description": "Registered best + incident exposure only; shrinkage alpha=0.25.",
+  "anchor": "submission_ex_ante_route5.csv",
+  "anchor_leaderboard_score": 0.8995,
+  "leaderboard_score": null,
+  "changed_rows": 35,
+  "sum_prediction": 12777132,
+  "difference_from_anchor": -2805,
+  "absolute_difference": 2805,
+  "route_changes": {
+    "1": -139,
+    "5": 0,
+    "7": -169,
+    "11": -448,
+    "12": -355,
+    "17": -1028,
+    "25": -150,
+    "26": -18,
+    "28": -19,
+    "50": -479
+  }
+}

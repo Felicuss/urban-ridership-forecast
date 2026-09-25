@@ -1,0 +1,30 @@
+{
+  "file": "route5_weekly_fact.csv",
+  "status": "scored",
+  "anchor": "submission_kaggle_unified_v2.csv",
+  "anchor_score": 0.90358,
+  "sha256": "48c2304599a2b9fb42d93e0ed5773e03fda9a2d8e1aedeac61ef2d77b0639397",
+  "changed_rows": 302,
+  "absolute_difference": 20049,
+  "sum_difference": 20049,
+  "route_changes": {
+    "1": 0,
+    "5": 20049,
+    "7": 0,
+    "11": 0,
+    "12": 0,
+    "17": 0,
+    "25": 0,
+    "26": 0,
+    "28": 0,
+    "50": 0
+  },
+  "caveat": "Reused development periods; local scores are not leaderboard results.",
+  "method": "Only route 5 first-week press-total correction from v3; every other route remains exactly v2",
+  "factor": 1.3115614138632041,
+  "source": "https://transport.mos.ru/mostrans/all_news/127782",
+  "validation": "No route 5 observations in historical labels; effect is unidentified by the v3 score.",
+  "caveat_source": "Rounded trip count and assumed reporting window; not proven identical to paid validations.",
+  "leaderboard_score": 0.90382,
+  "evidence": "User screenshot of six results and explicit confirmation that upload order was 01 through 06; platform newest first."
+}

@@ -1,0 +1,171 @@
+{
+  "file": "route_kind_weights.csv",
+  "status": "scored",
+  "anchor": "submission_kaggle_unified_v2.csv",
+  "anchor_score": 0.90358,
+  "sha256": "16535f120344bd58c18025b52bbefd9704197aecba09b5ef77bf0e9df5a020e7",
+  "changed_rows": 6503,
+  "absolute_difference": 36565,
+  "sum_difference": -13607,
+  "route_changes": {
+    "1": 441,
+    "5": 0,
+    "7": -7636,
+    "11": 2536,
+    "12": 575,
+    "17": -2388,
+    "25": -793,
+    "26": -892,
+    "28": 115,
+    "50": -5565
+  },
+  "caveat": "Reused development periods; local scores are not leaderboard results.",
+  "method": "Forward selected route ensemble, 50% shrink to v2, movement penalty .15",
+  "selection": {
+    "10": {
+      "index": 7,
+      "name": "direct_weightx0.6",
+      "relative_gain": 0.002211168154664652
+    },
+    "11": {
+      "index": 10,
+      "name": "rich_direct_weightx0.6",
+      "relative_gain": 0.0009218303990013905
+    },
+    "12": {
+      "index": 0,
+      "name": "v2",
+      "relative_gain": 0.0
+    },
+    "70": {
+      "index": 9,
+      "name": "direct_weightx1.4",
+      "relative_gain": 0.01964938014925694
+    },
+    "71": {
+      "index": 0,
+      "name": "v2",
+      "relative_gain": 0.0
+    },
+    "72": {
+      "index": 0,
+      "name": "v2",
+      "relative_gain": 0.0
+    },
+    "110": {
+      "index": 9,
+      "name": "direct_weightx1.4",
+      "relative_gain": 0.0009812488163602657
+    },
+    "111": {
+      "index": 0,
+      "name": "v2",
+      "relative_gain": 0.0
+    },
+    "112": {
+      "index": 15,
+      "name": "v2_mix_weightx1.4",
+      "relative_gain": 0.0013538393819406882
+    },
+    "120": {
+      "index": 0,
+      "name": "v2",
+      "relative_gain": 0.0
+    },
+    "121": {
+      "index": 2,
+      "name": "old_weightx1.0",
+      "relative_gain": 0.0004981980477211071
+    },
+    "122": {
+      "index": 3,
+      "name": "old_weightx1.4",
+      "relative_gain": 0.0015964661714111827
+    },
+    "170": {
+      "index": 0,
+      "name": "v2",
+      "relative_gain": 0.0
+    },
+    "171": {
+      "index": 8,
+      "name": "direct_weightx1.0",
+      "relative_gain": 0.0016149483666543464
+    },
+    "172": {
+      "index": 9,
+      "name": "direct_weightx1.4",
+      "relative_gain": 0.0045694154801773235
+    },
+    "250": {
+      "index": 7,
+      "name": "direct_weightx0.6",
+      "relative_gain": 0.001441967371468576
+    },
+    "251": {
+      "index": 0,
+      "name": "v2",
+      "relative_gain": 0.0
+    },
+    "252": {
+      "index": 1,
+      "name": "old_weightx0.6",
+      "relative_gain": 0.002949694716628627
+    },
+    "260": {
+      "index": 7,
+      "name": "direct_weightx0.6",
+      "relative_gain": 0.0016897828249250854
+    },
+    "261": {
+      "index": 7,
+      "name": "direct_weightx0.6",
+      "relative_gain": 0.0025495423646288047
+    },
+    "262": {
+      "index": 7,
+      "name": "direct_weightx0.6",
+      "relative_gain": 0.00219751399268635
+    },
+    "280": {
+      "index": 7,
+      "name": "direct_weightx0.6",
+      "relative_gain": 0.0020519818179220656
+    },
+    "281": {
+      "index": 2,
+      "name": "old_weightx1.0",
+      "relative_gain": 0.0007682211302648425
+    },
+    "282": {
+      "index": 0,
+      "name": "v2",
+      "relative_gain": 0.0
+    },
+    "500": {
+      "index": 2,
+      "name": "old_weightx1.0",
+      "relative_gain": 0.0007136910720988553
+    },
+    "501": {
+      "index": 0,
+      "name": "v2",
+      "relative_gain": 0.0
+    },
+    "502": {
+      "index": 0,
+      "name": "v2",
+      "relative_gain": 0.0
+    }
+  },
+  "validation": "Only source folds whose last target date precedes current first target date.",
+  "development_summary": {
+    "mean_gain": 0.0008136884383618667,
+    "worst_gain": -0.0001959323350773,
+    "wins": 3.0,
+    "active_folds": 4.0,
+    "october_gain": -0.0001959323350773
+  },
+  "leaderboard_score": 0.90344,
+  "evidence": "User screenshot of six results and explicit confirmation that upload order was 01 through 06; platform newest first."
+}

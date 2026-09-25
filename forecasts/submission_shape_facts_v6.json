@@ -1,0 +1,79 @@
+{
+  "file": "submission_shape_facts_v6.csv",
+  "status": "scored",
+  "leaderboard_score": 0.90553,
+  "sha256": "ae13aca28a9c388f69981fd07d9a118c687fbecbcbfafd9df6faf2180d61ea5c",
+  "anchor": "submission_daily_route5_v4.csv",
+  "anchor_sha256": "718acf30fb2d84e3684902f660b5485370acbc8ce2b039122c410f3b5ae302eb",
+  "anchor_score": 0.90418,
+  "method": "35% normalized hourly share ensemble (50/50 direct/residual L1 LightGBM), plus 25% log city tram anomaly",
+  "daily_weight": 0.25,
+  "shape_weight": 0.35,
+  "city_weight": 0.25,
+  "city_factor_clip": [
+    0.97,
+    1.03
+  ],
+  "city_factors": {
+    "11": 1.009789134238291,
+    "12": 0.9971026862052208
+  },
+  "external_information": "Actual target-month city ridership and weather; previously deployed route/network facts. Not an ex-ante forecast.",
+  "new_exact_route_labels_found": false,
+  "validation": {
+    "city_only": {
+      "mean_gain": 0.0010096670975497934,
+      "worst_gain": -0.000515632047622061,
+      "wins": 5,
+      "folds": 6,
+      "october_gain": 0.0001674306279527693
+    },
+    "combined": {
+      "mean_gain": 0.0017932937710911645,
+      "worst_gain": 0.0005279346896082115,
+      "wins": 6,
+      "folds": 6,
+      "october_gain": 0.0014286515689795332
+    },
+    "shape_only": {
+      "mean_gain": 0.0007669566846493225,
+      "worst_gain": -0.0009754292293117084,
+      "wins": 5,
+      "folds": 6,
+      "october_gain": 0.0012725076271010716
+    }
+  },
+  "changed_rows": 9490,
+  "absolute_difference": 90057,
+  "sum_difference": 38145,
+  "protected_scored_files": 14,
+  "route_sum_difference": {
+    "1": 3434,
+    "5": 0,
+    "7": 3267,
+    "11": 5837,
+    "12": 6075,
+    "17": 9693,
+    "25": 1468,
+    "26": 3332,
+    "28": 1917,
+    "50": 3122
+  },
+  "provenance_sha256": {
+    "analysis/s62_hourly_shape.py": "91f65418ef1c02553fda047126a8c7f24cd5b68efffb71839eb0c7bb3ee9a3da",
+    "analysis/s63_external_level_probe.py": "fb37924727fe33e6af688e2639c0fb8083e4c862634536eaa62c3ded339a17be",
+    "analysis/s64_package_shape_facts.py": "6c239f9d5abbdc3bc7fab6460db98eabe505072b582d85a52fcebd65be71a3a4",
+    "external/datamos_62521_monthly_ridership.csv": "d929d5fbf0c81e43541ef24c60be08aa0e7744faf3ae572875e7bee22ed81580",
+    "data/round4/shape_round6/direct.txt": "9c7cca104c5f379b63e58b36aead565333f7428c73e1b07c702c2d2e7331aae3",
+    "data/round4/shape_round6/residual.txt": "a280c7504a77b0c6dab7d64fe9b950d0a44780a3bf11ae6f946e6b0d69c3013e"
+  },
+  "caveats": [
+    "Overlapping historical periods were reused to develop and select this candidate, not untouched test folds.",
+    "Historical comparisons use the v4 core analogue. Future-specific network and fare rules only enter final assembly.",
+    "Rounded daily ridership statements for routes 11/12/17 are not exact paid-validation targets and were not used as equalities.",
+    "The city index includes routes outside these ten and cannot identify route-specific target levels.",
+    "Local gains do not establish any particular leaderboard score."
+  ],
+  "leaderboard_delta": 0.00135,
+  "evidence": "User reported 0.90553 in direct response to the single shape_facts_v6 submission."
+}

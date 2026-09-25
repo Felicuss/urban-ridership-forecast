@@ -1,0 +1,37 @@
+{
+  "file": "daily_optimal_50.csv",
+  "status": "unscored",
+  "anchor": "submission_kaggle_unified_v2.csv",
+  "anchor_score": 0.90358,
+  "sha256": "97448893b6f5237b53b415ca12057be325623047dfdc8251245cdd5783b1198d",
+  "changed_rows": 9263,
+  "absolute_difference": 155204,
+  "sum_difference": -2434,
+  "route_changes": {
+    "1": -673,
+    "5": 0,
+    "7": 20673,
+    "11": -3883,
+    "12": -8426,
+    "17": -30324,
+    "25": -7465,
+    "26": 11873,
+    "28": -4166,
+    "50": 19957
+  },
+  "caveat": "Reused development periods; local scores are not leaderboard results.",
+  "method": "Learned daily route-level correction",
+  "daily_target": "optimal",
+  "weight": 0.5,
+  "raw_ratio_clip": [
+    0.6,
+    1.4
+  ],
+  "development_summary": {
+    "mean_gain": -0.0015519416448289784,
+    "worst_gain": -0.0111438278078166,
+    "wins": 3.0,
+    "active_folds": 6.0,
+    "october_gain": 9.185827060242956e-05
+  }
+}

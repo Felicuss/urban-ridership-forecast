@@ -1,0 +1,18 @@
+{
+  "metric": "max(0,1-sum_absolute_error/sum_target)",
+  "v2_score": 0.90358,
+  "v3_score": 0.89817,
+  "score_rounding_half_width": 5e-06,
+  "reference_prediction_sum": 12756678,
+  "target_sum_lower_bound": 11634793.077501882,
+  "route5_absolute_prediction_change": 20049,
+  "november_other_routes_absolute_prediction_change": 29991,
+  "route5_absolute_score_effect_upper_bound": 0.001723193516760398,
+  "other_routes_score_deterioration_lower_bound": 0.0036768064832395624,
+  "december_other_routes_score_deterioration_lower_bound": 0.0010991070088936551,
+  "assumptions": [
+    "Both results use the same full November-December target and declared global WAPE metric.",
+    "Displayed scores round to nearest 0.00001; uncertainty is included."
+  ],
+  "conclusion": "The common level adjustment definitely harmed the score; route 5 effect is unidentified."
+}

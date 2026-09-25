@@ -1,0 +1,13 @@
+{
+  "retrieved_on": "2026-09-25",
+  "information_policy": "Post-2025-10-31 public facts permitted according to organizer replies supplied by the team.",
+  "facts": [
+    {"id":"route5_first_week","route":"5","published":"2025-12-23","value":40000,"unit":"passenger_trips","period_description":"first week since opening on December 16; exact reporting cutoff unspecified","source_url":"https://transport.mos.ru/mostrans/all_news/127782","telegram_url":"https://t.me/DtRoad/55667","precision":"rounded","target_identity":"not established: published trips may differ from successful validations"},
+    {"id":"route7_daily","route":"7","published":"2025-12-28","value":25000,"unit":"passenger_trips_per_day","period_description":"daily; weekday versus all-day average unspecified","source_url":"https://t.me/DtRoad/55873","precision":"more than, rounded","use":"sanity check only; no exact daily-label substitution"},
+    {"id":"t1_first_week","route":"T1","published":"2025-11-19","value":360000,"unit":"passenger_trips","period_description":"first week since November 12","source_url":"https://t.me/DtRoad/54402","precision":"more than, rounded"},
+    {"id":"t1_first_month","route":"T1","published":"2025-12-12","value":1800000,"unit":"passenger_trips","period_description":"first month since November 12","source_url":"https://t.me/DtRoad/55234","precision":"more than, rounded"},
+    {"id":"t1_weekday_january_report","route":"T1","published":"2026-01-08","value":77000,"unit":"passenger_trips_per_workday","period_description":"2025 retrospective; precise measurement window unspecified","source_url":"https://www.sobyanin.ru/kakim-byl-2025-god-dlya-moskovskogo-tramvaya","precision":"approximately","use":"estimate December level; not an exact December observation"},
+    {"id":"route90_first_month","route":"90","value":400000,"unit":"passenger_trips","period_description":"first month since September 10","source_url":"https://pk-ts.org/sobytiya1/bolee-400-tys-passazhirov-perevezli-avtonomnye-tramvai-ot-pk-transportnye-sistemy-za-pervyj-mesyac-raboty/","precision":"more than, rounded","use":"estimate counterfactual route 90 service replaced by T1"},
+    {"id":"route5_later_total","route":"5","published":"2026-01-22","value":160000,"unit":"passenger_trips","period_description":"since launch; report says more than one month, exact cutoff unspecified","source_url":"https://t.me/DtRoad/56578","precision":"more than, rounded","use":"sanity check only"}
+  ]
+}

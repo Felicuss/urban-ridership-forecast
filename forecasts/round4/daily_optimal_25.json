@@ -1,0 +1,39 @@
+{
+  "file": "daily_optimal_25.csv",
+  "status": "scored",
+  "anchor": "submission_kaggle_unified_v2.csv",
+  "anchor_score": 0.90358,
+  "sha256": "a30c072c2e4dc18ef2d1b89dcfc278ec4ea17c829aa8c7d61e2a946cff7a7b91",
+  "changed_rows": 8731,
+  "absolute_difference": 77618,
+  "sum_difference": -1222,
+  "route_changes": {
+    "1": -336,
+    "5": 0,
+    "7": 10341,
+    "11": -1929,
+    "12": -4218,
+    "17": -15178,
+    "25": -3746,
+    "26": 5927,
+    "28": -2067,
+    "50": 9984
+  },
+  "caveat": "Reused development periods; local scores are not leaderboard results.",
+  "method": "Learned daily route-level correction",
+  "daily_target": "optimal",
+  "weight": 0.25,
+  "raw_ratio_clip": [
+    0.6,
+    1.4
+  ],
+  "development_summary": {
+    "mean_gain": -0.00024118243352029998,
+    "worst_gain": -0.0044907508158423,
+    "wins": 3.0,
+    "active_folds": 6.0,
+    "october_gain": 0.0002878430524543
+  },
+  "leaderboard_score": 0.90394,
+  "evidence": "User screenshot of six results and explicit confirmation that upload order was 01 through 06; platform newest first."
+}

@@ -1,0 +1,39 @@
+{
+  "status": "scored",
+  "configuration": {
+    "name": "mix_0.25_0.5_0.25_0.35_0.5",
+    "old": 0.25,
+    "rich": 0.5,
+    "direct": 0.25,
+    "near": 0.35,
+    "far": 0.5
+  },
+  "compared_configurations": 21,
+  "development_mean": 0.8610109686140482,
+  "development_mean_gain": 0.002848280969510212,
+  "development_min_gain": -0.0002613407626086417,
+  "development_folds_won": 5,
+  "selection_rule": "At least 5/6 folds improved; each deterioration <=0.0003; mean gain >0.00015; maximize mean among eligible.",
+  "caveat": "Overlapping, reused development folds; not an independent holdout.",
+  "file": "submission_kaggle_unified_v2.csv",
+  "sha256": "dcf149b828e1272a2b7004705e239abaf7d1291c4a645480c16f53d616eb334b",
+  "anchor": "submission_kaggle_v1_weather.csv",
+  "anchor_score": 0.90236,
+  "leaderboard_score": 0.90358,
+  "changed_rows": 9284,
+  "sum_difference": 13041,
+  "absolute_difference": 79481,
+  "route_changes": {
+    "1": 3937,
+    "5": 0,
+    "7": 5046,
+    "11": 546,
+    "12": -1136,
+    "17": -6581,
+    "25": 3271,
+    "26": 6061,
+    "28": 1231,
+    "50": 666
+  },
+  "evidence": "User reported 0.90358 in response to the single unified_v2 candidate"
+}

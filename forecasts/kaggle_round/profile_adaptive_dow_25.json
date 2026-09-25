@@ -1,0 +1,24 @@
+{
+  "file": "profile_adaptive_dow_25.csv",
+  "sha256": "18c5a8a05498a44f3e79e9fa7ecc9e07387439bb3bdacf923a1e9ff8aa4fc92f",
+  "description": "Only profile changed: adaptive_dow_25; same s32 seasonal/calendar/network rules.",
+  "anchor": "submission_ex_ante_route5.csv",
+  "anchor_leaderboard_score": 0.8995,
+  "leaderboard_score": null,
+  "changed_rows": 10782,
+  "sum_prediction": 12756508,
+  "difference_from_anchor": -23429,
+  "absolute_difference": 289333,
+  "route_changes": {
+    "1": 6031,
+    "5": 0,
+    "7": 5324,
+    "11": 23268,
+    "12": -7753,
+    "17": 3968,
+    "25": -3607,
+    "26": -3294,
+    "28": -8150,
+    "50": -39216
+  }
+}

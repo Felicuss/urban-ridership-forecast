@@ -1,0 +1,24 @@
+{
+  "file": "profile_median_windows.csv",
+  "sha256": "332e1dc7b4fbd59a2ac4b0b3324190bd03b0e57c42347e0912196dbbfea80377",
+  "description": "Only profile changed: median_windows; same s32 seasonal/calendar/network rules.",
+  "anchor": "submission_ex_ante_route5.csv",
+  "anchor_leaderboard_score": 0.8995,
+  "leaderboard_score": null,
+  "changed_rows": 7676,
+  "sum_prediction": 12795803,
+  "difference_from_anchor": 15866,
+  "absolute_difference": 236226,
+  "route_changes": {
+    "1": 10035,
+    "5": 0,
+    "7": 12237,
+    "11": 33431,
+    "12": -5713,
+    "17": 14032,
+    "25": -177,
+    "26": -2872,
+    "28": -3999,
+    "50": -41108
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "file": "residual_calendar_profiles_events_25.csv",
+  "sha256": "54b2fd4b911cb709d851535c01d15c8ccafdcd40a75f026265bbe01d4bce160e",
+  "description": "Experimental residual calendar_profiles_events, weight=0.25; protected restored weekends and route5. See local scores.",
+  "anchor": "submission_ex_ante_route5.csv",
+  "anchor_leaderboard_score": 0.8995,
+  "leaderboard_score": null,
+  "changed_rows": 10694,
+  "sum_prediction": 12741247,
+  "difference_from_anchor": -38690,
+  "absolute_difference": 291202,
+  "route_changes": {
+    "1": 9425,
+    "5": 0,
+    "7": -10727,
+    "11": 29818,
+    "12": -7920,
+    "17": 6728,
+    "25": 2342,
+    "26": -1030,
+    "28": -5107,
+    "50": -62219
+  }
+}

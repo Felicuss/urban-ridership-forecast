@@ -1,0 +1,24 @@
+{
+  "file": "residual_calendar_profiles_events_25_incidents.csv",
+  "sha256": "8ceb3898b7c3a037264b21a8d3f6202e0efbce9e3e879d0c5c2544791e533624",
+  "description": "residual_calendar_profiles_events_25 + paired official incident exposure; shrinkage alpha=0.25.",
+  "anchor": "submission_ex_ante_route5.csv",
+  "anchor_leaderboard_score": 0.8995,
+  "leaderboard_score": null,
+  "changed_rows": 10696,
+  "sum_prediction": 12738427,
+  "difference_from_anchor": -41510,
+  "absolute_difference": 293098,
+  "route_changes": {
+    "1": 9273,
+    "5": 0,
+    "7": -10898,
+    "11": 29369,
+    "12": -8276,
+    "17": 5685,
+    "25": 2192,
+    "26": -1048,
+    "28": -5126,
+    "50": -62681
+  }
+}

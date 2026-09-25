@@ -1,0 +1,34 @@
+{
+  "file": "catboost_40.csv",
+  "status": "unscored",
+  "anchor": "submission_kaggle_unified_v2.csv",
+  "anchor_score": 0.90358,
+  "sha256": "b240056e1006983bd4f2b5ec6a2fe70d30f5717d7543d7007b1a7668474d6207",
+  "changed_rows": 9605,
+  "absolute_difference": 159513,
+  "sum_difference": -11955,
+  "route_changes": {
+    "1": 2763,
+    "5": 0,
+    "7": -13951,
+    "11": 5927,
+    "12": 2195,
+    "17": -887,
+    "25": 5439,
+    "26": 6832,
+    "28": -3085,
+    "50": -17188
+  },
+  "caveat": "Reused development periods; local scores are not leaderboard results.",
+  "method": "CatBoost MAE with categorical interactions",
+  "catboost_weight": 0.4,
+  "training_cutoff": "2025-10-31",
+  "protected": "route 5 and nonworkdays of 7/50",
+  "development_summary": {
+    "mean_gain": -0.0003632565322551667,
+    "worst_gain": -0.0047050705916563,
+    "wins": 3.0,
+    "active_folds": 6.0,
+    "october_gain": 0.000304694179067
+  }
+}
