@@ -11,8 +11,8 @@
 
 .controls {
   display: grid;
-  grid-template-rows: auto 1fr;
-  gap: 8px;
+  grid-template-rows: auto 1fr auto;
+  gap: 6px;
   min-width: 0;
 }
 

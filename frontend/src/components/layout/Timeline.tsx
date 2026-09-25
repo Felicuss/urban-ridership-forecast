@@ -6,6 +6,7 @@ import { fmtCompact, fmtInt } from '../../lib/format';
 import { targetQuery, useTarget } from '../../hooks/useTarget';
 import { HeatMatrix } from '../charts/HeatMatrix';
 import { InfoTip } from '../ui/Controls';
+import { DayWeather } from './DayWeather';
 import styles from './Timeline.module.css';
 
 const WINDOW = 61;
@@ -23,8 +24,8 @@ export function Timeline() {
   const scenario = useStore((s) => s.scenario);
   const calendar = useCalendar().data;
   const target = useTarget();
-  const first = windowStart(day);
   const followNow = useStore((s) => s.followNow);
+  const first = windowStart(day);
   const query = useMemo(() => ({ ...targetQuery(target), from: isoDate(first),
     to: isoDate(first + WINDOW - 1), granularity: 'hour' as const }), [target, first]);
   const series = useSeries(query, scenario);
@@ -60,12 +61,13 @@ export function Timeline() {
             <path d={area} fill={`${target.color}2a`} stroke={target.color} strokeWidth="1.6" vectorEffect="non-scaling-stroke" />
           </svg>
           <input type="range" min={0} max={MINUTES_PER_DAY - 1} step={1} value={minuteOfDay} aria-label="Время суток"
-            onChange={(e) => setMinute(day * MINUTES_PER_DAY + Number(e.target.value))} />
             title={followNow ? 'Выбор другого времени выключит режим «Сейчас»' : undefined}
+            onChange={(e) => setMinute(day * MINUTES_PER_DAY + Number(e.target.value))} />
           <div className={styles.ticks}>
             {[0, 3, 6, 9, 12, 15, 18, 21, 24].map((t) => <span key={t}>{t}</span>)}
           </div>
         </div>
+        <DayWeather day={day} hour={hour} />
       </div>
       <div className={styles.matrix}>
         <div className={styles.matrixHead}>
