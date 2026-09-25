@@ -79,7 +79,7 @@ const GAP = 0.6;
 const HALF_WIDTH = 2.1;
 const NOSE = 2.2;
 const WINDOWS_DAY = '#29303b';
-const WINDOWS_NIGHT = '#f3d79b';
+const WINDOWS_NIGHT = '#ffc93d';
 const LAYERS: { b: number; h: number; c?: string }[] = [
   { b: 0.25, h: 1.05 },
   { b: 1.05, h: 2.0, c: '#e8ebf0' },
