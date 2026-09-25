@@ -97,9 +97,6 @@ def apply_rules(hist: pd.DataFrame, grid: pd.DataFrame, base: np.ndarray, c: Coe
     pred *= np.where(working_sat, c.working_saturday, 1.0)
     last_days = g.date.isin(pd.to_datetime(["2025-12-29", "2025-12-30"])).to_numpy()
     pred *= np.where(last_days, c.last_workdays_dec, 1.0)
-    dec31 = (g.date == pd.Timestamp("2025-12-31")).to_numpy()
-    pred *= np.where(dec31, c.dec31_day, 1.0)
-    pred = np.where(dec31 & (g.hour >= c.dec31_free_from_hour).to_numpy(), 0.0, pred)
 
     # выходные 7 и 50 после восстановления трассы: уровень будней октября × весеннее отношение
     wd_daily = pd.Series(base, index=g.index)[g.kind == "workday"].groupby([g.route, g.date]).sum()
@@ -115,6 +112,11 @@ def apply_rules(hist: pd.DataFrame, grid: pd.DataFrame, base: np.ndarray, c: Coe
         mult = np.where(month[sel] == 11, c.level_nov, c.level_dec)
         mult = mult * np.where(g.is_holiday[sel].to_numpy(), c.holiday_to_sunday, 1.0)
         pred[sel] = day_total * sh * mult
+
+    # 31.12 после возврата выходных: для 7 и 50 это нерабочий день, и блок выше его перезаписал бы
+    dec31 = (g.date == pd.Timestamp("2025-12-31")).to_numpy()
+    pred *= np.where(dec31, c.dec31_day, 1.0)
+    pred = np.where(dec31 & (g.hour >= c.dec31_free_from_hour).to_numpy(), 0.0, pred)
 
     # Т1 и маршрут 7
     t1 = ((g.route == 7) & (g.date >= pd.Timestamp(c.t1_start))).to_numpy()
