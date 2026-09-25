@@ -66,20 +66,41 @@ def fetch_daylight() -> pd.DataFrame:
     return df
 
 
+OVERPASS_MIRRORS = ["https://overpass-api.de/api/interpreter", "https://overpass.private.coffee/api/interpreter"]
+
+
+def overpass(query: str) -> dict:
+    """Запрос к Overpass: основной сервер под нагрузкой отвечает 504, тогда идём на зеркало."""
+    headers = {**UA, "Accept": "application/json"}  # без Accept Overpass отвечает 406 или пустым ответом
+    errors = []
+    for url in OVERPASS_MIRRORS:
+        try:
+            resp = requests.post(url, data={"data": query}, headers=headers, timeout=240)
+            resp.raise_for_status()
+            return resp.json()
+        except requests.RequestException as exc:
+            errors.append(f"{url}: {exc}")
+    raise RuntimeError("; ".join(errors))
+
+
 def fetch_osm_routes() -> dict:
-    """Отношения route=tram с нужными номерами в пределах Москвы: линии путей и остановки."""
+    """Отношения route=tram с нужными номерами в пределах Москвы: линии путей и остановки.
+
+    Остановки идут в порядке членов отношения, то есть по ходу рейса. Названия берём из тегов
+    самих узлов: в ответе `out geom` у членов отношения тегов нет, поэтому узлы запрашиваем отдельно.
+    """
     refs = "|".join(str(r) for r in ROUTES)
     query = f"""
     [out:json][timeout:180];
-    relation["type"="route"]["route"="tram"]["ref"~"^({refs})$"](55.55,37.35,55.95,37.90);
-    out geom;
+    relation["type"="route"]["route"="tram"]["ref"~"^({refs})$"](55.55,37.35,55.95,37.90)->.r;
+    .r out geom;
+    node(r.r);
+    out tags;
     """
-    headers = {**UA, "Accept": "application/json"}  # без Accept Overpass отвечает 406 или пустым ответом
-    resp = requests.post("https://overpass-api.de/api/interpreter", data={"data": query}, headers=headers, timeout=240)
-    resp.raise_for_status()
-    data = resp.json()
+    data = overpass(query)
+    names = {el["id"]: el.get("tags", {}).get("name") for el in data.get("elements", []) if el["type"] == "node"}
     features = []
-    for rel in data.get("elements", []):
+    for rel in (el for el in data.get("elements", []) if el["type"] == "relation"):
         tags = rel.get("tags", {})
         for m in rel.get("members", []):
             if m["type"] == "way" and m.get("role", "") in ("", "forward", "backward") and "geometry" in m:
@@ -90,7 +111,8 @@ def fetch_osm_routes() -> dict:
             elif m["type"] == "node" and m.get("role", "").startswith(("stop", "platform")) and "lat" in m:
                 features.append({"type": "Feature", "geometry": {"type": "Point", "coordinates": [m["lon"], m["lat"]]},
                                  "properties": {"route": tags.get("ref"), "kind": "stop", "rel": rel["id"],
-                                                "role": m.get("role")}})
+                                                "role": m.get("role"), "node": m["ref"],
+                                                "name": names.get(m["ref"])}})
     geo = {"type": "FeatureCollection", "features": features,
            "attribution": "© OpenStreetMap contributors, ODbL 1.0"}
     (EXT / "osm_tram_routes.geojson").write_text(json.dumps(geo, ensure_ascii=False), encoding="utf-8")
