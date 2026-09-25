@@ -195,7 +195,8 @@ export async function ensureMetro(map: MapLibre): Promise<void> {
     minzoom: 10.5, paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 10.5, 1.8, 15, 4.5],
       'circle-color': '#f4f7fb', 'circle-stroke-color': '#070b12', 'circle-stroke-width': 1 } }, b);
   map.addLayer({ id: 'metro-labels', type: 'symbol', source: 'metro', filter: ['==', ['get', 'kind'], 'station'],
-    minzoom: 13, layout: { 'text-field': ['concat', 'М ', ['get', 'name']], 'text-font': FONT, 'text-size': 10.5,
+    minzoom: 13, layout: { 'text-field': ['concat', ['case', ['==', ['get', 'mode'], 'train'], 'МЦК ', 'М '],
+      ['get', 'name']], 'text-font': FONT, 'text-size': 10.5,
       'text-offset': [0, -1.1], 'text-anchor': 'bottom' },
     paint: { 'text-color': '#d9b2b5', 'text-halo-color': 'rgba(9,9,11,0.95)', 'text-halo-width': 1.3 } });
 }
