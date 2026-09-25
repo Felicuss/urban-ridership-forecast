@@ -9,13 +9,50 @@
   background:
     radial-gradient(1200px 600px at 50% 60%, rgba(58, 149, 255, 0.1), transparent 60%),
     linear-gradient(180deg, #0a1322 0%, #070b12 70%);
-  transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
+  transition: opacity 0.4s var(--ease) 1s;
 }
 
+/* Уход: трамвай разгоняется и уезжает за край (0,1-1 с), экран гаснет над картой (1-1,4 с). */
 .leaving {
   opacity: 0;
-  transform: scale(1.03);
   pointer-events: none;
+}
+
+.leaving .caption {
+  opacity: 0;
+}
+
+.leaving .city,
+.leaving .sleepers,
+.leaving .body {
+  animation-play-state: paused;
+}
+
+.car {
+  transition: transform 0.9s cubic-bezier(0.55, 0, 0.85, 0.35) 0.1s;
+}
+
+.leaving .car {
+  transform: translateX(1400px);
+}
+
+/* Высотка стоит вдали и не едет: ближние дома проплывают перед ней, так видно, что трамвай в пути. */
+.skyline {
+  position: absolute;
+  left: 50%;
+  bottom: 18%;
+  width: 108%;
+  transform: translateX(-60%);
+  overflow: visible;
+}
+
+.lit {
+  fill: rgba(255, 206, 120, 0.55);
+}
+
+.star {
+  fill: #e5737d;
+  filter: drop-shadow(0 0 4px rgba(229, 115, 125, 0.8));
 }
 
 .scene {
@@ -31,7 +68,7 @@
   bottom: 18%;
   width: 140%;
   height: 55%;
-  fill: rgba(120, 150, 190, 0.07);
+  fill: rgba(120, 150, 190, 0.09);
   animation: city 9s linear infinite;
 }
 
@@ -185,6 +222,7 @@
 }
 
 .caption {
+  transition: opacity 0.3s;
   display: grid;
   justify-items: center;
   gap: 14px;

@@ -32,7 +32,7 @@ export const FLAG_LABELS: Record<keyof Flags, { label: string; hint: string }> =
   daylight: { label: 'Свет по времени суток', hint: 'Карта темнеет ночью и светлеет днём по высоте солнца' },
   labels: { label: 'Подписи', hint: 'Названия остановок на карте' },
   motion: { label: 'Анимации', hint: 'Плавные переходы интерфейса' },
-  intro: { label: 'Заставка', hint: 'Трамвай при загрузке и облака над картой' },
+  intro: { label: 'Заставка', hint: 'Трамвай при загрузке, потом он уезжает в тоннель' },
 };
 
 const DEFAULT_FLAGS: Flags = {

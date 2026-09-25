@@ -7,8 +7,7 @@ import { useWeatherGrid } from './hooks/useWeather';
 import { useStore } from './state/store';
 import { useClock } from './hooks/useClock';
 import { TIMELINE_DAYS, dayIndex, isoDate } from './lib/time';
-import { TramLoader } from './components/boot/TramLoader';
-import { CloudReveal } from './components/boot/CloudReveal';
+import { LEAVE_MS, TramLoader } from './components/boot/TramLoader';
 import { TopBar } from './components/layout/TopBar';
 import { RouteList } from './components/layout/RouteList';
 import { Timeline } from './components/layout/Timeline';
@@ -20,11 +19,10 @@ import styles from './App.module.css';
 const MapView = lazy(() => import('./components/map/MapView'));
 const RightPanel = lazy(() => import('./components/panels/RightPanel'));
 
-type Phase = 'loading' | 'clouds' | 'revealing' | 'done';
+type Phase = 'loading' | 'leaving' | 'done';
 
-/** Трамвай виден не меньше 1,4 с, облака стоят 0,7 с перед тем, как разойтись. */
+/** Трамвай виден не меньше 1,4 с, даже если данные пришли из кэша. */
 const LOADER_MIN_MS = 1400;
-const CLOUDS_HOLD_MS = 700;
 
 export function App() {
   useClock();
@@ -54,21 +52,20 @@ export function App() {
   const failed = meta.error ?? network.error ?? factors.error ?? load.error;
 
   const [minLoader, setMinLoader] = useState(!intro);
-  const [cloudsHeld, setCloudsHeld] = useState(false);
   useEffect(() => {
     const t = setTimeout(() => setMinLoader(true), LOADER_MIN_MS);
     return () => clearTimeout(t);
   }, []);
-  useEffect(() => {
-    if (phase !== 'clouds') return undefined;
-    const t = setTimeout(() => setCloudsHeld(true), CLOUDS_HOLD_MS);
-    return () => clearTimeout(t);
-  }, [phase]);
 
+  // трамвай уезжает в тоннель, только когда готовы и данные, и карта: под заставкой уже всё нарисовано
   useEffect(() => {
-    if (phase === 'loading' && dataReady && minLoader) setPhase('clouds');
-    if (phase === 'clouds' && mapReady && cloudsHeld) setPhase('revealing');
-  }, [phase, dataReady, mapReady, minLoader, cloudsHeld]);
+    if (phase === 'loading' && dataReady && mapReady && minLoader) setPhase('leaving');
+  }, [phase, dataReady, mapReady, minLoader]);
+  useEffect(() => {
+    if (phase !== 'leaving') return undefined;
+    const t = setTimeout(() => setPhase('done'), motion ? LEAVE_MS : 0);
+    return () => clearTimeout(t);
+  }, [phase, motion]);
 
   const steps = [
     { label: 'Модель', done: Boolean(meta.data && coefficients.data) },
@@ -94,7 +91,7 @@ export function App() {
               calendar={calendar.data}
               weather={weatherOn ? weather.data : undefined}
               rideStopsData={routeStops.data}
-              revealed={phase === 'revealing' || phase === 'done'}
+              revealed={phase !== 'loading'}
               onReady={() => setMapReady(true)}
             />
           </Suspense>
@@ -110,10 +107,7 @@ export function App() {
         <Timeline />
       </footer>
       {failed && <div className={styles.error}>Сервис прогноза не отвечает: {String(failed.message)}</div>}
-      {intro && (phase === 'loading' || phase === 'clouds') && <TramLoader steps={steps} leaving={phase === 'clouds'} />}
-      {intro && (phase === 'clouds' || phase === 'revealing') && (
-        <CloudReveal open={phase === 'revealing'} onDone={() => setPhase('done')} />
-      )}
+      {intro && phase !== 'done' && <TramLoader steps={steps} leaving={phase === 'leaving'} />}
     </div>
   );
 }
