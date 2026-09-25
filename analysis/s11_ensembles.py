@@ -69,9 +69,9 @@ def score_table(df: pd.DataFrame, members: list[str]) -> pd.DataFrame:
     return pv.sort_values("среднее", ascending=False)
 
 
-def plot_top(pv: pd.DataFrame, n: int = 14) -> None:
+def plot_top(pv: pd.DataFrame, members: list[str], n: int = 14) -> None:
     top = pv.head(n)
-    singles = pv[~pv.index.str.contains(r" \+ профиль| \+ Chronos| \+ t0| \+ TimesFM", regex=True)]
+    singles = pv[pv.index.isin(members)]
     show = pd.concat([top, singles[~singles.index.isin(top.index)]]).drop_duplicates()
     fig, ax = plt.subplots(figsize=(12, 0.42 * len(show) + 1.5))
     y = np.arange(len(show))
@@ -82,7 +82,7 @@ def plot_top(pv: pd.DataFrame, n: int = 14) -> None:
     ax.invert_yaxis()
     ax.axvline(0.88, color=TEXT_SECONDARY, lw=0.8)
     ax.set_xlabel("WAPE-score")
-    ax.legend(loc="lower left", ncols=3, fontsize=7)
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.06), ncols=5, fontsize=7)
     ax.set_title("Одиночные модели и ансамбли (среднее прогнозов): бэктест на 4 фолдах", loc="left")
     savefig(fig, "17_backtest_ensembles")
 
@@ -102,7 +102,7 @@ def main() -> None:
     pv.round(4).to_csv(TABLES / "backtest_ensembles.csv")
     no_nc = pv[~pv.index.str.contains("TimesFM")]
     print("\nбез некоммерческих весов (TimesFM):\n", no_nc.round(4).head(8).to_string())
-    plot_top(pv)
+    plot_top(pv, members)
 
 
 if __name__ == "__main__":
