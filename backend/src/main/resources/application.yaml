@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: tram-load-api
+  main:
+    banner-mode: off
+  webflux:
+    problemdetails:
+      enabled: true
+
+server:
+  port: ${PORT:8080}
+  shutdown: graceful
+  compression:
+    enabled: true
+    mime-types: application/json,application/problem+json,application/geo+json,text/csv
+    min-response-size: 2KB
+
+tramload:
+  artifacts:
+    dir: ${TRAMLOAD_ARTIFACTS_DIR:../artifacts}
+    scenario-cache-size: 256
+  cors:
+    allowed-origins: ${TRAMLOAD_CORS_ORIGINS:http://localhost:5173,http://localhost:3000}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+springdoc:
+  api-docs:
+    path: /api/v1/openapi
+  swagger-ui:
+    path: /swagger-ui.html
