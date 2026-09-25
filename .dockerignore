@@ -1,0 +1,9 @@
+# В контекст сборки идут только исходники сервиса и артефакты модели: сырые данные весят 10 ГБ
+*
+!backend/gradlew
+!backend/gradle/
+!backend/settings.gradle.kts
+!backend/build.gradle.kts
+!backend/src/main/
+!artifacts/
+artifacts/golden/

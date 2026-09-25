@@ -34,6 +34,15 @@ dependencies {
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
+// в образ идёт только исполняемый jar с постоянным именем
+tasks.named<Jar>("jar") {
+	enabled = false
+}
+
+tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+	archiveFileName = "app.jar"
+}
+
 tasks.withType<JavaCompile> {
 	options.compilerArgs.addAll(listOf("-parameters", "-Xlint:all,-processing,-serial"))
 }

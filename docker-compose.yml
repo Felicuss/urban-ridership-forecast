@@ -1,0 +1,45 @@
+# Сервис прогноза: реплики api за nginx.
+#   docker compose up -d --build                  один экземпляр, http://localhost:8080
+#   docker compose up -d --scale api=3            три реплики за тем же адресом
+#   docker compose --profile load run --rm k6     нагрузочный замер, итог в deploy/k6/results/
+name: tram-load
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    image: tram-load-api:0.1.0
+    environment:
+      TRAMLOAD_CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://localhost:3000}
+    # ограничения из ТЗ: 2-4 vCPU, 2-4 ГБ, без swap
+    cpus: 2
+    mem_limit: 2g
+    memswap_limit: 2g
+    restart: unless-stopped
+
+  gateway:
+    image: nginx:1.30-alpine
+    ports:
+      - "${API_PORT:-8080}:80"
+    volumes:
+      - ./deploy/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+  k6:
+    image: grafana/k6:2.3.0
+    profiles: ["load"]
+    # k6 в своём контейнере и на своих ядрах, чтобы не отнимать процессор у сервиса
+    cpus: 2
+    environment:
+      BASE_URL: http://gateway
+      RATES: ${K6_RATES:-100,300,500}
+    volumes:
+      - ./deploy/k6:/scripts:ro
+      - ./deploy/k6/results:/results
+    command: ["run", "--quiet", "/scripts/load.js"]
+    depends_on:
+      - gateway
