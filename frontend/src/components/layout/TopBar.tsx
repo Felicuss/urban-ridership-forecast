@@ -68,8 +68,8 @@ export function TopBar() {
           </svg>
         </span>
         <div>
-          <div className={styles.title}>Трамвай</div>
-          <div className={styles.subtitle}>прогноз посадок по часам</div>
+          <div className={styles.title}>Час пик</div>
+          <div className={styles.subtitle}>посадки в трамваи Москвы по часам</div>
         </div>
       </div>
 

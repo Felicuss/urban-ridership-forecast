@@ -96,7 +96,7 @@ export function TramLoader({ steps, leaving }: { steps: LoadStep[]; leaving: boo
         </svg>
       </div>
       <div className={styles.caption}>
-        <div className={styles.title}>Трамвай. Прогноз посадок</div>
+        <div className={styles.title}>Час пик</div>
         <div className={styles.track}>
           <div className={styles.progress} style={{ width: `${pct}%` }} />
         </div>
