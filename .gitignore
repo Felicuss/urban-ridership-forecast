@@ -1,0 +1,21 @@
+# Сырые валидации (~10 ГБ) в git не кладём, скачиваются по ссылке из docs/task.md
+dataset/train.csv
+dataset/test.csv
+dataset/*.zip
+
+# Промежуточные данные (parquet, кэши внешних источников)
+data/
+
+# Python / uv
+.venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.pytest_cache/
+.ruff_cache/
+
+# IDE и ОС
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
