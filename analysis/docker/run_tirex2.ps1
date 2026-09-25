@@ -1,4 +1,4 @@
-# TiRex-2 в Docker с GPU: бэктест на 4 фолдах и прогноз на ноябрь-декабрь.
+﻿# TiRex-2 в Docker с GPU: бэктест на 4 фолдах и прогноз на ноябрь-декабрь.
 # Запуск из любой папки:
 #   powershell -ExecutionPolicy Bypass -File D:\projects_2\hakaton_moskovskogo_transporta_2026\analysis\docker\run_tirex2.ps1
 # Нужны Docker Desktop с поддержкой GPU (WSL2) и uv. Образ ghcr.io/nx-ai/tirex2-gpu весит около 10 ГБ.
