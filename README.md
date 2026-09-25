@@ -34,6 +34,37 @@ deploy/             nginx перед репликами сервиса и сце
 tests/              эталонные тесты артефактов на Python
 ```
 
+## Архитектура
+
+Модель считается на Python офлайн и отдаёт сервису готовые артефакты. Сервис на Java модель не запускает: при старте он сверяет артефакты с `manifest.json` по sha256 и пересчитывает прогноз по той же формуле, что и экспорт. Если результат разойдётся с эталоном, сервис не стартует.
+
+```mermaid
+flowchart LR
+  subgraph PY["Python, офлайн: analysis/"]
+    A["Приём и нормализация<br/>s00: 10,4 ГБ CSV в parquet<br/>s03: проверка labels"]
+    B["Внешние данные<br/>s01, s08, s41, s42: Open-Meteo,<br/>data.mos.ru, transport.mos.ru, OSM"]
+    C["Геопривязка<br/>export_network: остановки справочника<br/>и OSM ближе 40 м, доли посадок"]
+    D["Прогноз<br/>s10, s30: 2 недели × сезонность<br/>× правила календаря и событий<br/>s06: проверка на 5 периодах"]
+    E["Экспорт s40<br/>artifacts/ и manifest с sha256"]
+  end
+  subgraph JV["Сервис: backend/, Java 25 + Spring WebFlux"]
+    F["infrastructure<br/>загрузка и сверка артефактов"]
+    G["domain<br/>формула прогноза, агрегация,<br/>шкала факт, прогноз, оценка"]
+    H["application<br/>запросы, сценарии, кэш"]
+    I["api<br/>REST /api/v1, OpenAPI,<br/>ошибки RFC 9457, CSV и XLSX"]
+  end
+  subgraph WEB["Интерфейс: frontend/, React 19"]
+    J["карта MapLibre, время,<br/>прогноз, сценарии, факторы"]
+  end
+  A --> C --> D --> E
+  B --> C
+  B --> D
+  E --> F --> G --> H --> I -->|nginx| J
+  B -. погода по дате .-> J
+```
+
+Границы слоёв проверяет `ArchitectureTest`: domain не зависит от Spring, Reactor, Jackson и других слоёв, application вызывается только из api, к api и infrastructure не обращается ни один слой. Подробности по сервису и замеры нагрузки: [backend/README.md](backend/README.md).
+
 ## Запуск
 
 Нужен [uv](https://docs.astral.sh/uv/). Сырые `dataset/train.csv` (8.2 ГБ) и `dataset/test.csv` (2.2 ГБ) в репозиторий не входят. Их нужно скачать архивом `dataset.zip` по ссылке https://disk.yandex.ru/d/DiFwlfMOauxjBg и положить в `dataset/`.
