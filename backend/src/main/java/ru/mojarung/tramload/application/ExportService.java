@@ -39,8 +39,11 @@ public final class ExportService {
 	}
 
 	public ExportTable table(ExportQuery q, Scenario scenario) {
-		if (q.level() == null || q.level() == Level.SEGMENT) {
-			throw ValidationException.of("level", "выгрузка доступна для route, stop и network");
+		if (q.level() == null) {
+			throw ValidationException.of("level", "укажите route, stop, segment или network");
+		}
+		if (q.level() == Level.SEGMENT && q.ids().size() != 1) {
+			throw ValidationException.of("ids", "для участка укажите один маршрут");
 		}
 		List<String> ids = q.ids().isEmpty() ? allIds(q.level()) : q.ids();
 		List<Target> targets = ids.stream().map(id -> resolver.target(query(q, id))).toList();
@@ -52,7 +55,7 @@ public final class ExportService {
 					+ ": сузьте интервал или возьмите шаг day");
 		}
 		Stream<ExportRow> stream = targets.stream().flatMap(t -> rowsOf(first, t, scenario));
-		return new ExportTable(fileName(q.level(), ids, first.from(), first.to()), stream, rows);
+		return new ExportTable(fileName(q, ids, first.from(), first.to()), stream, rows);
 	}
 
 	private Stream<ExportRow> rowsOf(ResolvedQuery base, Target target, Scenario scenario) {
@@ -72,22 +75,23 @@ public final class ExportService {
 	}
 
 	private static ForecastQuery query(ExportQuery q, String id) {
-		return new ForecastQuery(q.level(), id, null, null, null, q.from(), q.to(), q.hours(), q.granularity(),
-				q.horizon());
+		return new ForecastQuery(q.level(), id, q.direction(), q.fromStop(), q.toStop(), q.from(), q.to(), q.hours(),
+				q.granularity(), q.horizon());
 	}
 
-	private static String fileName(Level level, List<String> ids, LocalDate from, LocalDate to) {
-		String what = switch (level) {
+	private static String fileName(ExportQuery q, List<String> ids, LocalDate from, LocalDate to) {
+		String what = switch (q.level()) {
 			case ROUTE -> ids.size() == 1 ? "маршрут_" + ids.getFirst() : "маршруты";
 			case STOP -> ids.size() == 1 ? "остановка_" + ids.getFirst() : "остановки";
+			case SEGMENT -> "участок_" + ids.getFirst() + "_" + q.fromStop() + "-" + q.toStop();
 			default -> "сеть";
 		};
 		return "прогноз_посадок_" + what + "_" + from + "_" + to;
 	}
 
-	/** Что выгружать: пустой ids - все объекты уровня. */
-	public record ExportQuery(Level level, List<String> ids, LocalDate from, LocalDate to, HourWindow hours,
-			Granularity granularity, Horizon horizon) {
+	/** Что выгружать: пустой ids - все объекты уровня; для участка ещё направление и крайние остановки. */
+	public record ExportQuery(Level level, List<String> ids, Integer direction, String fromStop, String toStop,
+			LocalDate from, LocalDate to, HourWindow hours, Granularity granularity, Horizon horizon) {
 
 		public ExportQuery {
 			ids = ids == null ? List.of() : List.copyOf(ids);

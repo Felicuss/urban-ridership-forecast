@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -24,6 +25,7 @@ import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import ru.mojarung.tramload.TestArtifacts;
+import ru.mojarung.tramload.domain.network.RouteStop;
 
 /** Выгрузка: формат CSV для Excel, те же числа в XLSX, совпадение с сабмитом и имя файла по RFC 6266. */
 @SpringBootTest
@@ -94,6 +96,25 @@ class ExportTest {
 		assertThat(lines).hasSize(stops * 61);
 		assertThat(lines).filteredOn(l -> l.contains("\"\"")).isNotEmpty()
 			.allSatisfy(l -> assertThat(l.replaceAll("\"[^\"]*(\"\"[^\"]*)*\"", "X").split(";")).hasSize(8));
+	}
+
+	@Test
+	void segmentExportsOneRowPerHourUnderItsOwnName() {
+		List<RouteStop> stops = TestArtifacts.model().network().routeStops(17).stream()
+			.filter(s -> s.direction() == 0)
+			.sorted(Comparator.comparingInt(RouteStop::seq))
+			.toList();
+		String from = stops.getFirst().stopId();
+		String to = stops.get(3).stopId();
+		EntityExchangeResult<byte[]> result = download("csv", "level=segment&ids=17&direction=0&fromStop=" + from
+				+ "&toStop=" + to + "&horizon=day&from=2025-11-03");
+
+		byte[] body = result.getResponseBody();
+		List<String> lines = new String(body, 3, body.length - 3, StandardCharsets.UTF_8).lines().skip(1).toList();
+		assertThat(lines).hasSize(24)
+			.allSatisfy(l -> assertThat(l).startsWith("segment;17:0:" + from + "-" + to + ";"));
+		assertThat(ContentDisposition.parse(result.getResponseHeaders().getFirst(HttpHeaders.CONTENT_DISPOSITION))
+			.getFilename()).isEqualTo("прогноз_посадок_участок_17_" + from + "-" + to + "_2025-11-03_2025-11-03.csv");
 	}
 
 	@Test

@@ -64,17 +64,22 @@ public class ExportController {
 
 	@GetMapping
 	@Operation(summary = "Выгрузка прогноза по умолчанию",
-			description = "level=route|stop|network, ids через запятую (пусто - все объекты уровня). "
+			description = "level=route|stop|segment|network, ids через запятую (пусто - все объекты уровня). "
+					+ "Для участка один маршрут в ids, direction, fromStop и toStop. "
 					+ "Маршруты по часам за весь горизонт совпадают с сабмитом.")
 	public Mono<ResponseEntity<Flux<DataBuffer>>> export(
 			@Parameter(description = "csv или xlsx") @RequestParam(defaultValue = "csv") String format,
 			@Parameter(example = "route") @RequestParam(defaultValue = "route") String level,
 			@Parameter(description = "id через запятую", example = "17,25") @RequestParam(required = false) String ids,
+			@Parameter(description = "направление участка, 0 или 1") @RequestParam(required = false) Integer direction,
+			@Parameter(description = "первая остановка участка") @RequestParam(required = false) String fromStop,
+			@Parameter(description = "последняя остановка участка") @RequestParam(required = false) String toStop,
 			@RequestParam(required = false) String from, @RequestParam(required = false) String to,
 			@RequestParam(required = false) String hours, @RequestParam(required = false) String granularity,
 			@RequestParam(required = false) String horizon) {
 		return Mono.fromCallable(() -> {
-			ExportQuery query = query(level, ids, from, to, hours, granularity, horizon);
+			ExportQuery query = query(level, ids, new Segment(direction, fromStop, toStop), from, to, hours,
+					granularity, horizon);
 			return file(format, exports.table(query, scenarios.defaultScenario()));
 		});
 	}
@@ -83,8 +88,9 @@ public class ExportController {
 	@Operation(summary = "Выгрузка прогноза по сценарию")
 	public Mono<ResponseEntity<Flux<DataBuffer>>> exportScenario(@RequestBody ExportRequest r) {
 		return Mono.fromCallable(() -> {
-			ExportQuery query = query(r.level(), r.ids() == null ? null : String.join(",", r.ids()), r.from(), r.to(),
-					r.hours(), r.granularity(), r.horizon());
+			ExportQuery query = query(r.level(), r.ids() == null ? null : String.join(",", r.ids()),
+					new Segment(r.direction(), r.fromStop(), r.toStop()), r.from(), r.to(), r.hours(), r.granularity(),
+					r.horizon());
 			Scenario scenario = scenarios.resolve(r.coefficients(), Requests.events(r.events()));
 			return file(r.format(), exports.table(query, scenario));
 		});
@@ -108,14 +114,19 @@ public class ExportController {
 			.body(body);
 	}
 
-	private static ExportQuery query(String level, String ids, String from, String to, String hours,
-			String granularity, String horizon) {
+	private static ExportQuery query(String level, String ids, Segment segment, String from, String to,
+			String hours, String granularity, String horizon) {
 		List<String> idList = ids == null || ids.isBlank() ? List.of()
 				: Arrays.stream(ids.split(",")).map(String::trim).filter(s -> !s.isEmpty()).toList();
-		return new ExportQuery(Params.enumValue(level, Level.class, "level"), idList, Params.date(from, "from"),
+		return new ExportQuery(Params.enumValue(level, Level.class, "level"), idList, segment.direction(),
+				segment.fromStop(), segment.toStop(), Params.date(from, "from"),
 				Params.date(to, "to"), Params.hours(hours, "hours"),
 				Params.enumValue(granularity, Granularity.class, "granularity"),
 				Params.enumValue(horizon, Horizon.class, "horizon"));
+	}
+
+	/** Параметры участка из запроса: для остальных уровней все три пустые. */
+	private record Segment(Integer direction, String fromStop, String toStop) {
 	}
 
 }
