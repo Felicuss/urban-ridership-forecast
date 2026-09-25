@@ -72,7 +72,8 @@
 /* Планшет и телефон: карта сверху, панели под ней, страница прокручивается. */
 @media (max-width: 1024px) {
   .app {
-    grid-template-columns: 1fr;
+    /* minmax(0, 1fr): колонка не растягивается по самой длинной строке, лишнее сокращается многоточием */
+    grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto 58dvh auto auto auto;
     grid-template-areas: 'top' 'map' 'bottom' 'right' 'left';
     height: auto;
