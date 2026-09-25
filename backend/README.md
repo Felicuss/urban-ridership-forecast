@@ -9,7 +9,7 @@ REST API для диспетчера. Сервис отдаёт почасово
 Из корня репозитория:
 
 ```
-docker compose up -d --build              # http://localhost:8080, api за nginx
+docker compose up -d --build              # http://localhost:8080: интерфейс и api за nginx
 docker compose up -d --scale api=3        # три реплики за тем же адресом
 docker compose down
 ```
