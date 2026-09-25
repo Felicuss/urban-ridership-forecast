@@ -20,7 +20,9 @@ WORK = Path("/work")
 MEDIAN_IDX = 4  # квантили 0.1 … 0.9, индекс 4 = 0.5
 
 
-def run_variant(model, y: np.ndarray, cov: np.ndarray, horizon: int, variant: str) -> np.ndarray:
+def forecast_once(model, y: np.ndarray, cov: np.ndarray, horizon: int, variant: str) -> np.ndarray:
+    """Один вызов модели. TiRex-2 обрезает горизонт до своего максимума (320 шагов),
+    поэтому длина ответа может быть меньше запрошенной."""
     if variant == "multi_cov":
         ts = TimeseriesType(target=torch.tensor(y, dtype=torch.float32), past_covariates=None,
                             future_covariates=torch.tensor(cov[0], dtype=torch.float32))
@@ -33,6 +35,21 @@ def run_variant(model, y: np.ndarray, cov: np.ndarray, horizon: int, variant: st
                                      past_covariates=None, future_covariates=fut))
     outs = model.forecast(series, prediction_length=horizon, output_type="numpy")
     return np.stack([o[0, MEDIAN_IDX, :] for o in outs])
+
+
+def run_variant(model, y: np.ndarray, cov: np.ndarray, horizon: int, variant: str) -> tuple[np.ndarray, int]:
+    """Авторегрессионная раскатка: медиану каждого куска дописываем в контекст и просим следующий."""
+    ctx, parts, done = y.copy(), [], 0
+    while done < horizon:
+        step = horizon - done
+        pred = forecast_once(model, ctx, cov[..., : ctx.shape[1] + step], step, variant)
+        if pred.shape[1] == 0:
+            raise RuntimeError("модель вернула пустой прогноз")
+        pred = np.clip(pred, 0, None)  # посадки не бывают отрицательными
+        parts.append(pred)
+        ctx = np.concatenate([ctx, pred], axis=1)
+        done += pred.shape[1]
+    return np.concatenate(parts, axis=1)[:, :horizon], len(parts)
 
 
 def main() -> None:
@@ -48,12 +65,12 @@ def main() -> None:
         for variant in variants:
             t0 = time.time()
             try:
-                pred = run_variant(model, y, cov, horizon, variant)
+                pred, chunks = run_variant(model, y, cov, horizon, variant)
             except Exception as exc:  # фиксируем причину и идём дальше, чтобы не терять остальные фолды
                 print(f"{path.stem} {variant}: FAILED {type(exc).__name__}: {exc}", flush=True)
                 continue
             np.savez(out_dir / f"{path.stem}__{variant}.npz", pred=pred)
-            print(f"{path.stem} {variant}: shape={pred.shape} {time.time() - t0:.1f}s", flush=True)
+            print(f"{path.stem} {variant}: shape={pred.shape} chunks={chunks} {time.time() - t0:.1f}s", flush=True)
 
 
 if __name__ == "__main__":
