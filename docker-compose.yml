@@ -1,5 +1,5 @@
 # Сервис прогноза: реплики api за nginx.
-#   docker compose up -d --build                  один экземпляр, http://localhost:8080
+#   docker compose up -d --build                  интерфейс и API на http://localhost:8080
 #   docker compose up -d --scale api=3            три реплики за тем же адресом
 #   docker compose --profile load run --rm k6     нагрузочный замер, итог в deploy/k6/results/
 name: tram-load
@@ -19,11 +19,13 @@ services:
     restart: unless-stopped
 
   gateway:
-    image: nginx:1.30-alpine
+    # интерфейс и шлюз: nginx раздаёт фронт и проксирует /api на реплики api
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    image: tram-load-ui:0.1.0
     ports:
       - "${API_PORT:-8080}:80"
-    volumes:
-      - ./deploy/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       api:
         condition: service_healthy

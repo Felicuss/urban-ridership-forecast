@@ -1,4 +1,4 @@
-# В контекст сборки идут только исходники сервиса и артефакты модели: сырые данные весят 10 ГБ
+# В контекст сборки идут только исходники сервиса, фронта и артефакты модели: сырые данные весят 10 ГБ
 *
 !backend/gradlew
 !backend/gradle/
@@ -7,3 +7,7 @@
 !backend/src/main/
 !artifacts/
 artifacts/golden/
+!frontend/
+frontend/node_modules/
+frontend/dist/
+!deploy/nginx/
