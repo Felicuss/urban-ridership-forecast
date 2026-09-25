@@ -157,7 +157,9 @@ export default function MapView({ network, load, factors, calendar, weather, rid
         runner?.clear();
         rideTram.current = null;
         runner = s.ride ? makeRunner(map, s.ride.route, s.ride.direction, s.ride.hour, s.ride.speed, s.ride.startedAt) : null;
-        runnerKey = key;
+        // остановки маршрута могут ещё грузиться (поездку пустил агент сразу после выбора маршрута): тогда
+        // запуск повторится со следующего кадра, когда данные придут
+        if (runner || !s.ride) runnerKey = key;
       }
       if (runner && s.ride) {
         const f = runner.frame(now, true);

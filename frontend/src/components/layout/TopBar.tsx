@@ -9,6 +9,7 @@ import { centerWeather, useWeatherGrid } from '../../hooks/useWeather';
 import { Icon, SkyIcon } from '../ui/Icons';
 import { SettingsSheet } from './SettingsSheet';
 import { ExportSheet } from './ExportSheet';
+import { AgentIsland } from '../agent/AgentIsland';
 import { DatePopover } from './DatePopover';
 import styles from './TopBar.module.css';
 
@@ -120,6 +121,7 @@ export function TopBar() {
       )}
 
       <div className={styles.actions}>
+        <AgentIsland />
         {changes > 0 && !isDefaultScenario(scenario) && (
           <button type="button" className={styles.scenario} onClick={resetScenario} title="Вернуть прогноз по умолчанию">
             Сценарий: {changes} {changes === 1 ? 'изменение' : changes < 5 ? 'изменения' : 'изменений'}
