@@ -414,6 +414,9 @@ uv run python s34_traffic_probe.py        # рис. 20: эффект трафи�
 uv run python s35_traffic_forecast.py     # forecasts/submission_traffic.csv
 uv run python s36_daylight_probe.py       # световой день и форма суток, отклонён
 uv run python s37_weather_forecast_day_ahead.py  # погода на сутки вперёд: факт против прогноза накануне
+# сервис
+uv run python s40_export_artifacts.py     # artifacts/: компоненты прогноза, ползунки, сеть, горизонты
+cd .. && uv run pytest                    # эталон: artifacts/ воспроизводит лучший сабмит и правила s10
 ```
 
 Среда: Windows 11, Python 3.13, uv 0.12.15, DuckDB 1.5.5, pandas 3.0.6, LightGBM 4.7.0, torch 2.14.0+cu130, RTX 5070 12 ГБ, Ryzen 5 5600X, 32 ГБ RAM. Сырые CSV (10.4 ГБ) в репозиторий не входят, `data/` с parquet и кэшами тоже.

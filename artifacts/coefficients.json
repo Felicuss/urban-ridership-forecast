@@ -1,0 +1,207 @@
+{
+ "schema_version": 1,
+ "scenario": "ex_ante_route5",
+ "coefficients": [
+  {
+   "key": "level_nov",
+   "label": "Уровень ноября к октябрю",
+   "group": "level",
+   "type": "number",
+   "default": 1.0027,
+   "min": 0.8,
+   "max": 1.2,
+   "step": 0.001,
+   "source": "data.mos.ru 62521: городской трамвай 2019 и 2022-2024, амплитуда 0.83"
+  },
+  {
+   "key": "level_dec",
+   "label": "Уровень декабря к октябрю",
+   "group": "level",
+   "type": "number",
+   "default": 1.0339,
+   "min": 0.8,
+   "max": 1.2,
+   "step": 0.001,
+   "source": "data.mos.ru 62521: городской трамвай 2019 и 2022-2024, амплитуда 0.83"
+  },
+  {
+   "key": "traffic_weight",
+   "label": "Вес загруженности дорог в уровне",
+   "group": "level",
+   "type": "number",
+   "default": 0.0,
+   "min": 0.0,
+   "max": 1.0,
+   "step": 0.05,
+   "source": "data.mos.ru 62525: +10.5 % посадок на балл загруженности (s34); уровень = сезонный^(1-w) × трафик^w, на лидерборде не проверялся"
+  },
+  {
+   "key": "holiday_to_sunday",
+   "label": "Праздник в будний день к воскресенью",
+   "group": "calendar",
+   "type": "number",
+   "default": 0.95,
+   "min": 0.6,
+   "max": 1.2,
+   "step": 0.01,
+   "source": "история праздников 2025, постановление № 1335"
+  },
+  {
+   "key": "working_saturday",
+   "label": "Рабочая суббота 01.11 к будню",
+   "group": "calendar",
+   "type": "number",
+   "default": 0.85,
+   "min": 0.6,
+   "max": 1.2,
+   "step": 0.01,
+   "source": "постановление № 1335, рабочие субботы 2025"
+  },
+  {
+   "key": "last_workdays_dec",
+   "label": "29-30.12 к будню",
+   "group": "calendar",
+   "type": "number",
+   "default": 0.85,
+   "min": 0.5,
+   "max": 1.2,
+   "step": 0.01,
+   "source": "экспертная оценка, предновогодние дни"
+  },
+  {
+   "key": "dec31_day",
+   "label": "31.12 днём к профилю праздника",
+   "group": "calendar",
+   "type": "number",
+   "default": 0.9,
+   "min": 0.5,
+   "max": 1.2,
+   "step": 0.01,
+   "source": "история 31.12.2024"
+  },
+  {
+   "key": "dec31_free_from_hour",
+   "label": "Бесплатный проезд 31.12 с часа (24 - нет)",
+   "group": "events",
+   "type": "integer",
+   "default": 20,
+   "min": 0,
+   "max": 24,
+   "step": 1,
+   "source": "mos.ru 25.12.2024, РБК 28.12.2023: бесплатная новогодняя ночь с 20:00"
+  },
+  {
+   "key": "weekend_restore_date",
+   "label": "Выходные 7 и 50 снова по полной трассе с",
+   "group": "events",
+   "type": "date",
+   "default": "2025-11-15",
+   "min": "2025-11-01",
+   "max": "2026-01-01",
+   "source": "Дептранс, t.me/DtOperativno/23364; проверено на лидерборде 25.09.2026: +1.16 п.п."
+  },
+  {
+   "key": "t1_start",
+   "label": "Запуск электробуса Т1",
+   "group": "events",
+   "type": "date",
+   "default": "2025-11-12",
+   "min": "2025-11-01",
+   "max": "2026-01-01",
+   "source": "mos.ru 10.09.2025"
+  },
+  {
+   "key": "t1_route7",
+   "label": "Маршрут 7 после запуска Т1",
+   "group": "events",
+   "type": "number",
+   "default": 1.0,
+   "min": 0.7,
+   "max": 1.1,
+   "step": 0.01,
+   "source": "гипотеза, в честном варианте выключена"
+  },
+  {
+   "key": "route5_on",
+   "label": "Маршрут 5 работает",
+   "group": "events",
+   "type": "boolean",
+   "default": true,
+   "source": "mos.ru, запуск 16.12.2025; проверено на лидерборде 25.09.2026: +0.41 п.п."
+  },
+  {
+   "key": "route5_start",
+   "label": "Запуск маршрута 5",
+   "group": "events",
+   "type": "datetime",
+   "default": "2025-12-16T18:00",
+   "min": "2025-11-01T00:00",
+   "max": "2026-01-01T00:00",
+   "source": "mos.ru: маршрут 5 открыт 16.12.2025 вечером"
+  },
+  {
+   "key": "route5_workday",
+   "label": "Посадок маршрута 5 в будний день",
+   "group": "events",
+   "type": "number",
+   "default": 5000.0,
+   "min": 0,
+   "max": 20000,
+   "step": 100,
+   "source": "около 160 тыс. поездок за первый месяц"
+  },
+  {
+   "key": "weather",
+   "label": "Учитывать фактическую погоду",
+   "group": "weather",
+   "type": "boolean",
+   "default": false,
+   "source": "Open-Meteo; проверено на лидерборде 25.09.2026: -0.26 п.п., поэтому по умолчанию выключена"
+  },
+  {
+   "key": "precip_day_coef",
+   "label": "Осадки за день, log-эффект на мм",
+   "group": "weather",
+   "type": "number",
+   "default": -0.0074,
+   "min": -0.05,
+   "max": 0.0,
+   "step": 0.0001,
+   "source": "s05: -0.74 % посадок на мм осадков за 06-22 ч"
+  },
+  {
+   "key": "hour_precip_coef",
+   "label": "Осадки в этот час, log-эффект на мм (до 3 мм)",
+   "group": "weather",
+   "type": "number",
+   "default": -0.035,
+   "min": -0.1,
+   "max": 0.0,
+   "step": 0.001,
+   "source": "s09"
+  },
+  {
+   "key": "frost_coef",
+   "label": "Мороз ниже -10 °C, log-эффект на градус",
+   "group": "weather",
+   "type": "number",
+   "default": -0.0178,
+   "min": -0.05,
+   "max": 0.0,
+   "step": 0.0001,
+   "source": "s09, оценено по двум дням"
+  }
+ ],
+ "constants": {
+  "traffic_level_nov": 1.0481,
+  "traffic_level_dec": 1.0637,
+  "route5_saturday_ratio": 0.6,
+  "route5_sunday_ratio": 0.5
+ },
+ "groups": {
+  "level": "Уровень",
+  "calendar": "Календарь",
+  "events": "События сети",
+  "weather": "Погода"
+ }
+}

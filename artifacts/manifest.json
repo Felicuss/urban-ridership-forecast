@@ -1,0 +1,64 @@
+{
+ "schema_version": 1,
+ "model_version": "ex_ante_route5",
+ "git_commit": "3dd604dd525941b5f9eb0dbd958b68ff5f26021f",
+ "generated_at": "2026-09-25T13:16:31+00:00",
+ "forecast_origin": "2025-10-31",
+ "horizon": {
+  "from": "2025-11-01",
+  "to": "2025-12-31"
+ },
+ "routes": [
+  1,
+  5,
+  7,
+  11,
+  12,
+  17,
+  25,
+  26,
+  28,
+  50
+ ],
+ "default_scenario": {
+  "name": "ex_ante_route5",
+  "script": "analysis/s32_ex_ante_route5.py",
+  "submission": "forecasts/submission_ex_ante_route5.csv",
+  "submission_sha256": "384d25f2523b1e927626c067354d226951590f3b05dbbe355dbb4051db378701",
+  "leaderboard_wape_score": 0.8995
+ },
+ "files": {
+  "forecast_components.csv": {
+   "sha256": "b679b8a54fb0c368f818bfde132b14c3c4273e90a7e81b0b93357389cfb401b5",
+   "rows": 14640
+  },
+  "coefficients.json": {
+   "sha256": "7e9aecfdd076190e1cc506213348158643b6c50188c667bf75307cf8cafef7bb",
+   "rows": null
+  },
+  "stops.csv": {
+   "sha256": "560bc952893129f044057a509f35074d7ada9d6a661baa33ec6c3d94b7729875",
+   "rows": 452
+  },
+  "route_stops.csv": {
+   "sha256": "45d718abd8d74b28d9f175dd1a307217138c99aceb6b75769d02f6d296d68251",
+   "rows": 604
+  },
+  "network.geojson": {
+   "sha256": "d817896cb5068dbea6bdb2fa5545a61e711f2070e4db9b24b48cbc87c0cef144",
+   "rows": null
+  },
+  "intervals.json": {
+   "sha256": "54c519203f1b813f48de8f9dd5fca04e0cdf0a5fbf0dd1bc440e5796af62b1e4",
+   "rows": null
+  },
+  "forecast_year.csv": {
+   "sha256": "81500753dfd8ffc89b87ef65d43eda199cefded83db5e0ceb73cca2dd45fb4d3",
+   "rows": 120
+  },
+  "backtest_metrics.json": {
+   "sha256": "3b892d698d11c33aabfcf31b737fa02aab3207de64a5c41f7e00a758ae089c06",
+   "rows": null
+  }
+ }
+}
