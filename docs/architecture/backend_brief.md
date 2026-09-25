@@ -28,7 +28,7 @@
 Модель остаётся на Python и работает офлайн. Сервис только читает готовые артефакты, модели в запросе не запускаются.
 
 Что уже есть в репо:
-- сабмиты в `forecasts/`: лучший на лидерборде `submission_blend_external_route5.csv` (0.89574); кандидат `submission_ex_ante_route5.csv` (ожидается около 0.899) ждёт загрузки;
+- сабмиты в `forecasts/`: лучший на лидерборде `submission_ex_ante_route5.csv` (0.89950, скрипт `analysis/s32_ex_ante_route5.py` поверх `s30`), его сервис и отдаёт по умолчанию. Он собирается без foundation-моделей, поэтому экспорт артефактов не требует кэша FM и GPU;
 - коэффициенты вариантов в `forecasts/coefficients_*.json`;
 - геометрия в `external/osm_tram_routes.geojson`, остановки маршрутов 1, 5, 7, 11, 12 со справочником в `dataset/spravochniki/`.
 
