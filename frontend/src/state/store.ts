@@ -19,6 +19,7 @@ export interface Flags {
   weather: boolean;
   daylight: boolean;
   labels: boolean;
+  satellite: boolean;
 }
 
 export const FLAG_LABELS: Record<keyof Flags, { label: string; hint: string }> = {
@@ -31,16 +32,36 @@ export const FLAG_LABELS: Record<keyof Flags, { label: string; hint: string }> =
   weather: { label: 'Погода', hint: 'Осадки там, где они идут, и температура по районам, Open-Meteo' },
   daylight: { label: 'Свет по времени суток', hint: 'Карта темнеет ночью и светлеет днём по высоте солнца' },
   labels: { label: 'Подписи', hint: 'Названия остановок на карте' },
+  satellite: { label: 'Спутник', hint: 'Снимки Esri World Imagery вместо схемы города' },
   motion: { label: 'Анимации', hint: 'Плавные переходы интерфейса' },
-  intro: { label: 'Заставка', hint: 'Трамвай при загрузке, потом он уезжает в тоннель' },
+  intro: { label: 'Заставка', hint: 'Трамвай при загрузке, потом он уезжает за край экрана' },
 };
 
 const DEFAULT_FLAGS: Flags = {
   intro: true, motion: true, heat: true, stops: true, lines: true, metro: false, buildings: true, trams: true,
-  weather: true, daylight: true, labels: true,
+  weather: true, daylight: true, labels: true, satellite: false,
 };
 
 const FLAGS_KEY = 'tram-ui.flags.v1';
+const HIDDEN_KEY = 'tram-ui.hidden-routes.v1';
+
+function loadHidden(): number[] {
+  try {
+    const raw = localStorage.getItem(HIDDEN_KEY);
+    const parsed = raw ? (JSON.parse(raw) as unknown) : [];
+    return Array.isArray(parsed) ? parsed.filter((r): r is number => Number.isInteger(r)) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveHidden(hidden: number[]): void {
+  try {
+    localStorage.setItem(HIDDEN_KEY, JSON.stringify(hidden));
+  } catch {
+    // приватный режим браузера: фильтр живёт до перезагрузки
+  }
+}
 
 function loadFlags(): Flags {
   try {
@@ -114,6 +135,10 @@ interface State {
   tab: RightTab;
   scenario: Scenario;
   flags: Flags;
+  /** Маршруты, скрытые на карте фильтром. */
+  hiddenRoutes: number[];
+  toggleRoute: (route: number) => void;
+  setHiddenRoutes: (routes: number[]) => void;
   settingsOpen: boolean;
   viewMode: ViewMode;
   setViewMode: (v: ViewMode) => void;
@@ -168,6 +193,17 @@ export const useStore = create<State>((set, get) => {
     tab: 'forecast',
     scenario: { coefficients: {}, events: [] },
     flags: loadFlags(),
+    hiddenRoutes: loadHidden(),
+    toggleRoute: (route) => {
+      const hidden = get().hiddenRoutes;
+      const next = hidden.includes(route) ? hidden.filter((r) => r !== route) : [...hidden, route];
+      saveHidden(next);
+      set({ hiddenRoutes: next });
+    },
+    setHiddenRoutes: (routes) => {
+      saveHidden(routes);
+      set({ hiddenRoutes: routes });
+    },
     settingsOpen: false,
     viewMode: 'perspective',
     setViewMode: (viewMode) => set({ viewMode }),

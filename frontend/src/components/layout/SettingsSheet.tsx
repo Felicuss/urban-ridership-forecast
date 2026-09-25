@@ -5,7 +5,7 @@ import { Icon } from '../ui/Icons';
 import styles from './SettingsSheet.module.css';
 
 const GROUPS: { title: string; keys: (keyof Flags)[] }[] = [
-  { title: 'Слои карты', keys: ['heat', 'lines', 'stops', 'trams', 'metro', 'buildings', 'labels'] },
+  { title: 'Слои карты', keys: ['heat', 'lines', 'stops', 'trams', 'metro', 'buildings', 'satellite', 'labels'] },
   { title: 'Окружение', keys: ['weather', 'daylight'] },
   { title: 'Интерфейс', keys: ['motion', 'intro'] },
 ];

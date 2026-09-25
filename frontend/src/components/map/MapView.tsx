@@ -11,7 +11,7 @@ import { loadBaseStyle } from './style';
 import { applyDaylight } from './daylight';
 import { addNightLights } from './nightLights';
 import {
-  addNetworkLayers, addTramIcons, before, ensureMetro, pathFeatures, setHour, setLoadData, setSelection, setVisibility,
+  addNetworkLayers, addTramIcons, before, ensureMetro, ensureSatellite, pathFeatures, setHour, setLoadData, setSelection, setVisibility,
   setTramMode, stopFeatures, TRAMS_3D_ZOOM, withLoad, type Scale,
 } from './layers';
 import { buildLines, headway, tramBodies, tramCollection, tramScale, tramsAt, type Line, type TramState } from './trams';
@@ -144,7 +144,7 @@ export default function MapView({ network, load, factors, calendar, weather, rid
       }
       if (Math.abs(s.minute - lastLight) >= 5) {
         lastLight = s.minute;
-        applyDaylight(map, s.minute, s.flags.daylight);
+        applyDaylight(map, s.minute, s.flags.daylight, !s.flags.satellite);
       }
       // вагоны пересчитываются, только когда сдвинулось время или пришли новые посадки
       if (s.flags.trams && (s.minute !== lastTrams || data.current.load !== lastLoad)) {
@@ -177,11 +177,16 @@ export default function MapView({ network, load, factors, calendar, weather, rid
     if (!map || !ready.current) return;
     if (s.flags !== prev.flags) {
       if (s.flags.metro) void ensureMetro(map).then(() => setVisibility(map, useStore.getState().flags));
+      if (s.flags.satellite) ensureSatellite(map);
       setVisibility(map, s.flags);
+      if (s.flags.satellite !== prev.flags.satellite) applyDaylight(map, s.minute, s.flags.daylight, !s.flags.satellite);
       if (!s.flags.trams) (map.getSource('trams') as GeoJSONSource | undefined)?.setData(tramCollection([]));
       if (s.flags.trams && !prev.flags.trams) drawTrams(map, s.minute);
     }
-    if (s.route !== prev.route || s.stop !== prev.stop) setSelection(map, s.route, s.stop);
+    if (s.route !== prev.route || s.stop !== prev.stop || s.hiddenRoutes !== prev.hiddenRoutes) {
+      setSelection(map, s.route, s.stop, s.hiddenRoutes);
+    }
+    if (s.hiddenRoutes !== prev.hiddenRoutes) drawTrams(map, s.minute);
     if (s.viewMode !== prev.viewMode) {
       map.easeTo(s.viewMode === 'top' ? { pitch: 0, bearing: 0, duration: 700 } : { pitch: 55, duration: 700 });
       setTramMode(map, s.viewMode === 'perspective');
@@ -196,7 +201,7 @@ export default function MapView({ network, load, factors, calendar, weather, rid
     if (!s.flags.trams) return;
     const { load: l, factors: f, calendar: cal } = data.current;
     const dayOff = cal?.[dayIndex(minute)]?.dayOff ?? false;
-    const trams = tramsAt(lines.current, minute, f, dayOff, l);
+    const trams = tramsAt(lines.current, minute, f, dayOff, l).filter((t) => !s.hiddenRoutes.includes(t.route));
     (map.getSource('trams') as GeoJSONSource | undefined)?.setData(tramCollection(trams));
     // объёмные вагоны только в кадре и только на крупном плане: остальные не видны и не стоят ничего
     const zoom = map.getZoom();
@@ -242,7 +247,8 @@ export default function MapView({ network, load, factors, calendar, weather, rid
     setTramMode(map, s.viewMode === 'perspective');
     drawSegment(map, false);
     if (s.flags.metro) void ensureMetro(map).then(() => setVisibility(map, useStore.getState().flags));
-    setSelection(map, s.route, s.stop);
+    if (s.flags.satellite) ensureSatellite(map);
+    setSelection(map, s.route, s.stop, s.hiddenRoutes);
     const l = data.current.load;
     if (l) {
       const { lines: ls, points } = withLoad(pathFeatures(network), stopFeatures(network), l, scale.current);
@@ -251,7 +257,7 @@ export default function MapView({ network, load, factors, calendar, weather, rid
     setHour(map, hourOf(s.minute), scale.current);
     setWeatherData(map, weather);
     setWeatherHour(map, hourOf(s.minute));
-    applyDaylight(map, s.minute, s.flags.daylight);
+    applyDaylight(map, s.minute, s.flags.daylight, !s.flags.satellite);
   }
 
   return (

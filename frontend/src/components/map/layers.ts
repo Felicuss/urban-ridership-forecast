@@ -146,7 +146,8 @@ export function setHour(map: MapLibre, hour: number, scale: Scale): void {
     17.5, ['+', 1.5, ['*', 0.5, width]]]);
 }
 
-export function setSelection(map: MapLibre, route: number | null, stop: string | null): void {
+/** Выделение маршрута и остановки плюс фильтр: скрытые маршруты убираются с карты целиком. */
+export function setSelection(map: MapLibre, route: number | null, stop: string | null, hidden: number[] = []): void {
   const dim = (on: number, off: number): ExpressionSpecification | number =>
     route == null ? on : ['case', ['==', ['get', 'route'], route], on, off];
   map.setPaintProperty('route-lines', 'line-opacity', dim(0.95, 0.18));
@@ -155,10 +156,33 @@ export function setSelection(map: MapLibre, route: number | null, stop: string |
   map.setPaintProperty('stops-heat', 'heatmap-opacity', ['interpolate', ['linear'], ['zoom'], 13,
     route == null ? 0.9 : 0.35, 16, route == null ? 0.35 : 0.15]);
   map.setFilter('stop-selected', ['==', ['get', 'id'], stop ?? ''] as FilterSpecification);
-  const onRoute: FilterSpecification | null = route == null ? null
-    : ['in', ` ${route} `, ['get', 'routes']] as unknown as FilterSpecification;
+  const visible = ROUTE_IDS.filter((r) => !hidden.includes(r));
+  const shown: FilterSpecification | null = hidden.length === 0 ? null
+    : ['in', ['get', 'route'], ['literal', visible]] as unknown as FilterSpecification;
+  for (const id of ['route-lines', 'route-casing', 'trams', 'ride', 'ride-glow']) {
+    if (map.getLayer(id)) map.setFilter(id, shown);
+  }
+  // остановка видна, если её обслуживает хотя бы один видимый маршрут
+  const anyVisible = ['any', ...visible.map((r) => ['in', ` ${r} `, ['get', 'routes']])];
+  const onRoute: FilterSpecification | null = route != null
+    ? ['in', ` ${route} `, ['get', 'routes']] as unknown as FilterSpecification
+    : hidden.length ? anyVisible as unknown as FilterSpecification : null;
   map.setFilter('stops-dot', onRoute);
   map.setFilter('stops-label', onRoute);
+  map.setFilter('stops-heat', hidden.length ? anyVisible as unknown as FilterSpecification : null);
+}
+
+const ROUTE_IDS = Object.keys(ROUTE_COLORS).map(Number);
+
+/** Спутниковые снимки Esri World Imagery: грузятся при первом включении и встают под сеть маршрутов. */
+export function ensureSatellite(map: MapLibre): void {
+  if (map.getSource('satellite')) return;
+  map.addSource('satellite', { type: 'raster', tileSize: 256, maxzoom: 19,
+    tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+    attribution: 'Снимки © Esri, Maxar, Earthstar Geographics' });
+  const under = ['night-haze', 'segment-halo', 'route-casing'].find((id) => map.getLayer(id));
+  map.addLayer({ id: 'satellite', type: 'raster', source: 'satellite',
+    paint: { 'raster-brightness-max': 0.82, 'raster-saturation': -0.15, 'raster-contrast': 0.05 } }, under);
 }
 
 const VISIBILITY: Record<string, (keyof Flags)[]> = {
@@ -172,6 +196,7 @@ const VISIBILITY: Record<string, (keyof Flags)[]> = {
   'stops-label': ['stops', 'labels'],
   trams: ['trams'],
   'trams-3d': ['trams'],
+  satellite: ['satellite'],
   'buildings-3d': ['buildings'],
   'metro-lines': ['metro'],
   'metro-stations': ['metro'],

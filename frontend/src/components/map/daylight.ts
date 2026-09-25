@@ -62,7 +62,8 @@ function lightsLevel(elevation: number): number {
   return 1 - smooth(-6, 4, elevation);
 }
 
-export function applyDaylight(map: MapLibre, minute: number, enabled: boolean): void {
+/** lights = false гасит ночные огни: над спутниковыми снимками свечение улиц выглядит грязно. */
+export function applyDaylight(map: MapLibre, minute: number, enabled: boolean, lights = true): void {
   const elevation = sunElevation(minute);
   // без смены суток карта остаётся в ночной палитре, но без огней: чистая тёмная тема
   const w = enabled ? weights(elevation) : { night: 1, dusk: 0, day: 0 };
@@ -86,7 +87,7 @@ export function applyDaylight(map: MapLibre, minute: number, enabled: boolean): 
   if (map.getLayer('buildings-3d')) {
     map.setPaintProperty('buildings-3d', 'fill-extrusion-color', blend(w, '#23262d', '#3a3441', '#6b7384'));
   }
-  setNightLights(map, enabled ? lightsLevel(elevation) : 0);
+  setNightLights(map, enabled && lights ? lightsLevel(elevation) : 0);
   const root = document.documentElement.style;
   root.setProperty('--sky-a', blend(w, '#0d0f13', '#1d1720', '#1c2029'));
   const glow = blendRgb(w, '#7aa2f7', '#ff8c5a', '#ffd6a0').map(Math.round);

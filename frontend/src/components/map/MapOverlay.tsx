@@ -1,10 +1,11 @@
+import { useState } from 'react';
 import type { NetworkLoad } from '../../api/types';
 import type { GridPoint } from '../../lib/weatherGrid';
 import { useStops } from '../../api/queries';
 import { FLAG_LABELS, useStore, type Flags } from '../../state/store';
 import { hourOf, sunElevation } from '../../lib/time';
 import { fmtInt } from '../../lib/format';
-import { routeColor, yandexPoint, yandexRouteTo } from '../../lib/routes';
+import { ROUTE_COLORS, routeColor, yandexPoint, yandexRouteTo } from '../../lib/routes';
 import { Sparkline } from '../charts/Sparkline';
 import { Icon } from '../ui/Icons';
 import { WeatherFx } from './WeatherFx';
@@ -19,6 +20,7 @@ const DOCK: { key: keyof Flags; short: string }[] = [
   { key: 'metro', short: 'Метро' },
   { key: 'buildings', short: '3D' },
   { key: 'weather', short: 'Погода' },
+  { key: 'satellite', short: 'Спутник' },
 ];
 
 export function MapOverlay({ load, weather }: { load: NetworkLoad | undefined; weather: GridPoint[] | undefined }) {
@@ -49,6 +51,7 @@ export function MapOverlay({ load, weather }: { load: NetworkLoad | undefined; w
             <i />{d.short}
           </button>
         ))}
+        <RouteFilter />
       </nav>
       <div className={styles.legend}>
         <div className={styles.legendRow}>
@@ -131,5 +134,39 @@ function RideCard() {
       <p>Сколько сядет за один рейс в этот час: посадки маршрута ÷ рейсы по расписанию × доля остановки.
         Скорость показа ×{ride.speed}.</p>
     </section>
+  );
+}
+
+const ROUTES = Object.keys(ROUTE_COLORS).map(Number);
+
+/** Какие маршруты видны на карте: линии, вагоны и остановки скрытых маршрутов пропадают. */
+function RouteFilter() {
+  const hidden = useStore((s) => s.hiddenRoutes);
+  const toggleRoute = useStore((s) => s.toggleRoute);
+  const setHiddenRoutes = useStore((s) => s.setHiddenRoutes);
+  const [open, setOpen] = useState(false);
+  const shown = ROUTES.length - hidden.length;
+  return (
+    <div className={styles.filterWrap}>
+      <button type="button" className={hidden.length ? styles.dockOn : styles.dockBtn} aria-expanded={open}
+        title="Показать или скрыть маршруты на карте" onClick={() => setOpen((v) => !v)}>
+        <i />Маршруты {shown}/{ROUTES.length}
+      </button>
+      {open && (
+        <div className={styles.filter} role="group" aria-label="Маршруты на карте">
+          <div className={styles.filterChips}>
+            {ROUTES.map((r) => (
+              <button key={r} type="button" aria-pressed={!hidden.includes(r)}
+                className={hidden.includes(r) ? styles.chipOff : styles.chipOn}
+                style={{ '--c': routeColor(r) } as React.CSSProperties} onClick={() => toggleRoute(r)}>{r}</button>
+            ))}
+          </div>
+          <div className={styles.filterActions}>
+            <button type="button" onClick={() => setHiddenRoutes([])}>Показать все</button>
+            <button type="button" onClick={() => setHiddenRoutes(ROUTES)}>Скрыть все</button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
