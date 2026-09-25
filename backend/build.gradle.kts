@@ -22,6 +22,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-webflux")
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
+	implementation("org.springframework.boot:spring-boot-starter-data-redis")
 	implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:3.1.1")
 	implementation("tools.jackson.dataformat:jackson-dataformat-csv")
 	implementation("com.github.ben-manes.caffeine:caffeine:3.3.0")

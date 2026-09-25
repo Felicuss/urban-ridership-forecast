@@ -1,5 +1,7 @@
 package ru.mojarung.tramload.application;
 
+import java.util.concurrent.Executors;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -7,6 +9,9 @@ import org.springframework.context.annotation.Configuration;
 import ru.mojarung.tramload.domain.Aggregator;
 import ru.mojarung.tramload.domain.ForecastEngine;
 import ru.mojarung.tramload.domain.ForecastModel;
+import ru.mojarung.tramload.domain.agent.AgentMemory;
+import ru.mojarung.tramload.domain.agent.AgentTools;
+import ru.mojarung.tramload.domain.agent.LanguageModel;
 
 /** Сценарии использования поверх загруженной модели. Все сервисы без состояния, кроме кэша сценариев. */
 @Configuration(proxyBeanMethods = false)
@@ -37,6 +42,12 @@ public class ApplicationConfiguration {
 	@Bean
 	NetworkLoadService networkLoadService(ForecastModel model, ScenarioService scenarios, Aggregator aggregator) {
 		return new NetworkLoadService(model, scenarios, aggregator);
+	}
+
+	/** Агент ходит в модель и MCP-сервер по сети: каждый ход на своём виртуальном потоке. */
+	@Bean
+	AgentService agentService(LanguageModel model, AgentTools tools, AgentMemory memory) {
+		return new AgentService(model, tools, memory, Executors.newVirtualThreadPerTaskExecutor());
 	}
 
 }
