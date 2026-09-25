@@ -183,17 +183,21 @@ export async function download(format: 'csv' | 'xlsx', q: SeriesQuery & { ids?: 
   const custom = !isDefaultScenario(scenario);
   const params = new URLSearchParams({ format, level: q.level });
   if (q.ids?.length) params.set('ids', q.ids.join(','));
-  for (const key of ['from', 'to', 'hours', 'granularity', 'horizon'] as const) {
+  for (const key of ['from', 'to', 'hours', 'granularity', 'horizon', 'fromStop', 'toStop'] as const) {
     const v = q[key];
     if (v) params.set(key, v);
   }
+  if (q.direction != null) params.set('direction', String(q.direction));
   const res = custom
     ? await fetch('/api/v1/export', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...Object.fromEntries(params), ids: q.ids, ...scenario }),
+      body: JSON.stringify({ ...Object.fromEntries(params), direction: q.direction, ids: q.ids, ...scenario }),
     })
     : await fetch(`/api/v1/export?${params}`);
-  if (!res.ok) throw new Error(`выгрузка не удалась: ${res.status}`);
+  if (!res.ok) {
+    const problem = (await res.json().catch(() => null)) as { detail?: string } | null;
+    throw new Error(problem?.detail ?? `сервис ответил ${res.status}`);
+  }
   const disposition = res.headers.get('Content-Disposition') ?? '';
   const match = /filename\*=UTF-8''([^;]+)/.exec(disposition);
   const name = match ? decodeURIComponent(match[1] ?? '') : `прогноз.${format}`;

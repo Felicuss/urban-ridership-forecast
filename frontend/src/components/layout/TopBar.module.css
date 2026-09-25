@@ -209,6 +209,15 @@
   font-size: 12px;
 }
 
+.exportError {
+  max-width: 260px;
+  overflow: hidden;
+  color: var(--red);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .export button + button {
   border-left: 1px solid var(--line);
 }

@@ -73,12 +73,18 @@ export function addNetworkLayers(map: MapLibre, paths: Feature[], stops: Feature
   map.addSource('trams', { type: 'geojson', data: emptyCollection() });
   map.addSource('ride', { type: 'geojson', data: emptyCollection() });
   map.addSource('trams-3d', { type: 'geojson', data: emptyCollection() });
+  map.addSource('segment', { type: 'geojson', data: emptyCollection() });
   const b = before(map);
   map.addLayer({ id: 'stops-heat', type: 'heatmap', source: 'stops', maxzoom: 16.5, paint: {
     'heatmap-weight': 0, 'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 9, 0.7, 14, 1.2],
     'heatmap-radius': ['interpolate', ['exponential', 1.6], ['zoom'], 9, 10, 12, 22, 15, 55],
     'heatmap-color': HEAT_RAMP, 'heatmap-opacity': ['interpolate', ['linear'], ['zoom'], 13, 0.6, 16, 0.25],
   } }, b);
+  // выбранный участок: светлый ореол под линией маршрута
+  map.addLayer({ id: 'segment-halo', type: 'line', source: 'segment', filter: ['==', ['geometry-type'], 'LineString'],
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: { 'line-color': '#f4f4f5', 'line-opacity': 0.85, 'line-blur': 1,
+      'line-width': ['interpolate', ['linear'], ['zoom'], 10, 13, 15, 24] } }, b);
   map.addLayer({ id: 'route-casing', type: 'line', source: 'paths', layout: { 'line-cap': 'round', 'line-join': 'round' },
     paint: { 'line-color': '#0a0a0c', 'line-width': 5, 'line-opacity': 0.6 } }, b);
   map.addLayer({ id: 'route-lines', type: 'line', source: 'paths', layout: { 'line-cap': 'round', 'line-join': 'round' },
@@ -88,6 +94,9 @@ export function addNetworkLayers(map: MapLibre, paths: Feature[], stops: Feature
     'circle-opacity': ['interpolate', ['linear'], ['zoom'], 11.2, 0, 12, 1],
     'circle-stroke-opacity': ['interpolate', ['linear'], ['zoom'], 11.2, 0, 12, 1],
   } });
+  map.addLayer({ id: 'segment-ends', type: 'circle', source: 'segment', filter: ['==', ['geometry-type'], 'Point'],
+    paint: { 'circle-radius': 7, 'circle-color': 'rgba(244,244,245,0.12)', 'circle-stroke-color': '#f4f4f5',
+      'circle-stroke-width': 2 } });
   map.addLayer({ id: 'stop-selected', type: 'circle', source: 'stops', filter: ['==', ['get', 'id'], ''], paint: {
     'circle-radius': 11, 'circle-color': 'rgba(244,244,245,0.08)', 'circle-stroke-color': '#f4f4f5',
     'circle-stroke-width': 2 } });
@@ -153,6 +162,8 @@ const VISIBILITY: Record<string, (keyof Flags)[]> = {
   'stops-heat': ['heat'],
   'route-lines': ['lines'],
   'route-casing': ['lines'],
+  'segment-halo': ['lines'],
+  'segment-ends': ['lines'],
   'stops-dot': ['stops'],
   'stop-selected': ['stops'],
   'stops-label': ['stops', 'labels'],

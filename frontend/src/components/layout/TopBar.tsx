@@ -4,7 +4,7 @@ import { SPEEDS, isDefaultScenario, useStore, type Speed } from '../../state/sto
 import { TIMELINE_DAYS, clock, dayIndex, dayLabel, hourOf, isoDate, sunElevation } from '../../lib/time';
 import { fmtTemp, fmt1 } from '../../lib/format';
 import { SKY_LABEL, weatherAt } from '../../lib/weather';
-import { useTarget } from '../../hooks/useTarget';
+import { targetQuery, useTarget } from '../../hooks/useTarget';
 import { centerWeather, useWeatherGrid } from '../../hooks/useWeather';
 import { Icon, SkyIcon } from '../ui/Icons';
 import { SettingsSheet } from './SettingsSheet';
@@ -44,6 +44,7 @@ export function TopBar() {
   const target = useTarget();
   const [dateOpen, setDateOpen] = useState(false);
   const [exporting, setExporting] = useState<string | null>(null);
+  const [exportError, setExportError] = useState<string | null>(null);
   const day = dayIndex(minute);
   const hour = hourOf(minute);
   const cal = calendar?.[day];
@@ -56,11 +57,14 @@ export function TopBar() {
 
   const exportFile = async (format: 'csv' | 'xlsx') => {
     setExporting(format);
+    setExportError(null);
     try {
-      const level = target.level === 'segment' ? 'route' : target.level;
+      const { id, ...rest } = targetQuery(target);
       const period = horizon === 'day' ? { from: isoDate(day), to: isoDate(day), granularity: 'hour' as const }
         : horizon === 'month' ? { horizon: 'month' as const, from: isoDate(day) } : { horizon: 'year' as const };
-      await download(format, { level, ids: target.id ? [target.id] : undefined, ...period }, scenario);
+      await download(format, { ...rest, ids: id ? [id] : undefined, ...period }, scenario);
+    } catch (e) {
+      setExportError(`Выгрузка не удалась: ${e instanceof Error ? e.message : 'сервис недоступен'}`);
     } finally {
       setExporting(null);
     }
@@ -142,6 +146,7 @@ export function TopBar() {
             {exporting === 'xlsx' ? 'XLSX…' : 'XLSX'}
           </button>
         </div>
+        {exportError && <span className={styles.exportError} role="alert" title={exportError}>{exportError}</span>}
         <button type="button" className={styles.icon} aria-label="Настройки" onClick={() => setSettingsOpen(true)}>
           <Icon.gear />
         </button>

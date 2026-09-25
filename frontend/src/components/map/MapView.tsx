@@ -17,6 +17,7 @@ import { buildLines, headway, tramBodies, tramCollection, tramScale, tramsAt, ty
 import { RideRunner, rideStops } from './ride';
 import { addWeatherLayer, setWeatherData, setWeatherHour } from './weatherGrid';
 import { mapHandle } from './mapHandle';
+import { segmentBounds, segmentShape } from './segment';
 import { routeColor } from '../../lib/routes';
 import styles from './MapView.module.css';
 
@@ -52,6 +53,12 @@ export default function MapView({ network, load, factors, calendar, weather, rid
     data.current = { load, factors, calendar, rideStopsData };
     onReadyRef.current = onReady;
   });
+
+  useEffect(() => {
+    // остановки маршрута приходят позже выбора участка: как только они есть, участок рисуется
+    const map = mapRef.current;
+    if (map && ready.current) drawSegment(map, false);
+  }, [rideStopsData]);
 
   useEffect(() => {
     const abort = new AbortController();
@@ -176,7 +183,8 @@ export default function MapView({ network, load, factors, calendar, weather, rid
     if (s.viewMode !== prev.viewMode) {
       map.easeTo(s.viewMode === 'top' ? { pitch: 0, bearing: 0, duration: 700 } : { pitch: 55, duration: 700 });
     }
-    if (s.route !== prev.route && s.route != null && !s.ride) fitRoute(map, s.route);
+    if (s.route !== prev.route && s.route != null && !s.ride && !s.segment) fitRoute(map, s.route);
+    if (s.segment !== prev.segment || s.route !== prev.route) drawSegment(map, s.segment !== prev.segment);
   }), []);
 
   function drawTrams(map: MapLibre, minute: number) {
@@ -194,6 +202,15 @@ export default function MapView({ network, load, factors, calendar, weather, rid
       .filter((t) => bounds.contains(t.at)).map((t) => ({ ...t, color: routeColor(t.route) })) : [];
     const night = sunElevation(minute) < -4;
     (map.getSource('trams-3d') as GeoJSONSource | undefined)?.setData(tramBodies(visible, tramScale(zoom), night));
+  }
+
+  /** Подсветка выбранного участка; при новом участке камера наводится на него. */
+  function drawSegment(map: MapLibre, focus: boolean) {
+    const s = useStore.getState();
+    const shape = segmentShape(lines.current, s.route, s.segment, data.current.rideStopsData);
+    (map.getSource('segment') as GeoJSONSource | undefined)?.setData(shape);
+    const bounds = focus && !s.ride ? segmentBounds(shape) : null;
+    if (bounds) map.fitBounds(bounds, { padding: 90, maxZoom: 15.2, duration: 900 });
   }
 
   function makeRunner(map: MapLibre, route: number, direction: number, hour: number, speed: number, startedAt: number) {
@@ -218,6 +235,7 @@ export default function MapView({ network, load, factors, calendar, weather, rid
   function syncAll(map: MapLibre) {
     const s = useStore.getState();
     setVisibility(map, s.flags);
+    drawSegment(map, false);
     if (s.flags.metro) void ensureMetro(map).then(() => setVisibility(map, useStore.getState().flags));
     setSelection(map, s.route, s.stop);
     const l = data.current.load;
