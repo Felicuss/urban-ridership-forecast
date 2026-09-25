@@ -15,11 +15,16 @@ from models import ProfileConfig, profile_forecast
 from s06_backtest import FOLDS, load_frame
 
 FM_FILES = ["chronos2", "t0beta", "timesfm"]
+# TiRex-2 считается в Docker (s13_tirex2_docker.py); подключаем, если его прогнозы уже есть
+if (DATA / "fm_backtest_preds_tirex2.parquet").exists():
+    FM_FILES.append("tirex2")
 BASE_MEMBERS = {
     "профиль 4 нед": partial(profile_forecast, cfg=ProfileConfig(weeks=4)),
     "профиль 2 нед": partial(profile_forecast, cfg=ProfileConfig(weeks=2)),
 }
 FM_MEMBERS = ["Chronos-2 + календарь", "t0-beta + календарь", "TimesFM 3.0 + календарь"]
+if "tirex2" in FM_FILES:
+    FM_MEMBERS.append("TiRex-2 + календарь")
 
 
 def collect() -> pd.DataFrame:
