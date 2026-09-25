@@ -68,9 +68,10 @@ export function tramCollection(trams: TramState[]): GeoJSON.FeatureCollection {
   };
 }
 
-// Объёмные вагоны для крупного плана: три секции «Витязя-М» (34 м) слоями fill-extrusion - юбка в цвете
-// маршрута, белый кузов, полоса окон (тёмная днём, светится после заката), крыша и тёмная маска спереди.
-// Вагон на любом приближении одной длины на экране, около 28 пикселей, как плоский значок: при приближении
+// Объёмные вагоны для крупного плана: три секции «Витязя-М» (34 м) слоями fill-extrusion - кузов в цвете
+// маршрута, полоса окон (тёмная днём, светится после заката), светлая крыша, как полоса на плоском значке,
+// и тёмная маска спереди.
+// Вагон на любом приближении одной длины на экране, TRAM_SCREEN_PX пикселей, как плоский значок: при приближении
 // он не растёт и не прыгает. До zoom 14 модель упрощённая (юбка, кузов, окна, крыша без маски), чтобы сотня
 // вагонов на общем плане не тормозила; ширина у обеих моделей одна.
 
@@ -82,12 +83,12 @@ const HALF_WIDTH = 2.1;
 const NOSE = 2.2;
 const WINDOWS_DAY = '#29303b';
 const WINDOWS_NIGHT = '#ffc93d';
+const ROOF = '#eef1f5';
 const LAYERS: { b: number; h: number; c?: string }[] = [
-  { b: 0.25, h: 1.05 },
-  { b: 1.05, h: 2.0, c: '#e8ebf0' },
+  { b: 0.25, h: 2.0 },
   { b: 2.0, h: 2.85, c: WINDOWS_DAY },
-  { b: 2.85, h: 3.35, c: '#e8ebf0' },
-  { b: 3.35, h: 3.6, c: '#9aa3b2' },
+  { b: 2.85, h: 3.35 },
+  { b: 3.35, h: 3.6, c: ROOF },
 ];
 
 type Ring = [number, number][];
@@ -104,9 +105,10 @@ function rect(at: LngLat, bearing: number, from: number, to: number, half: numbe
   return [...ring, ring[0]!];
 }
 
-const TRAM_SCREEN_PX = 28;
-/** Метров в пикселе на zoom 0 на широте Москвы. */
-const M_PER_PX_Z0 = 156_543.03 * Math.cos((55.75 * Math.PI) / 180);
+/** Длина вагона на экране в пикселях: одна и та же у плоского значка и у объёмной модели на любом зуме. */
+export const TRAM_SCREEN_PX = 32;
+/** Метров в пикселе на zoom 0 на широте Москвы: MapLibre считает мир из тайлов по 512 пикселей. */
+const M_PER_PX_Z0 = (40_075_016.7 / 512) * Math.cos((55.75 * Math.PI) / 180);
 const TRAM_LENGTH_M = 3 * CAR + 2 * GAP;
 
 /** Во сколько раз увеличить вагон на этом приближении, чтобы он читался на карте. */
@@ -116,19 +118,22 @@ export function tramScale(zoom: number): number {
 
 /** Упрощённая модель для общего плана: вагон шире и выше, чтобы выделялся над линией маршрута. */
 const LITE_LAYERS: { b: number; h: number; c?: string }[] = [
-  { b: 0.25, h: 1.2 },
-  { b: 1.2, h: 2.0, c: '#e8ebf0' },
+  { b: 0.25, h: 2.0 },
   { b: 2.0, h: 2.9, c: WINDOWS_DAY },
-  { b: 2.9, h: 3.6, c: '#d9dee6' },
+  { b: 2.9, h: 3.6, c: ROOF },
 ];
-/** Вагон шире настоящего, чтобы читался над линией маршрута. */
-const WIDTH_BOOST = 1.5;
+/**
+ * Вагон шире и выше настоящего: по ширине он совпадает с плоским значком (14 из 44 пикселей длины) и шире
+ * линии маршрута, поэтому не сливается с ней.
+ */
+const WIDTH_BOOST = 2.4;
+const HEIGHT_BOOST = 1.8;
 
 export function tramBodies(trams: { at: LngLat; bearing: number; color: string }[], scale = 1,
   night = false, lite = false): GeoJSON.FeatureCollection {
   const features: GeoJSON.Feature[] = [];
   const push = (ring: Ring, b: number, h: number, c: string) => features.push({ type: 'Feature',
-    geometry: { type: 'Polygon', coordinates: [ring] }, properties: { b: b * scale, h: h * scale, c } });
+    geometry: { type: 'Polygon', coordinates: [ring] }, properties: { b: b * scale * HEIGHT_BOOST, h: h * scale * HEIGHT_BOOST, c } });
   const car = CAR * scale;
   const gap = GAP * scale;
   const half = HALF_WIDTH * scale * WIDTH_BOOST;
@@ -147,7 +152,7 @@ export function tramBodies(trams: { at: LngLat; bearing: number; color: string }
         continue;
       }
       for (const layer of LAYERS) {
-        const upto = layer.b >= 1.05 && layer.b < 3.35 ? bodyTo : to;
+        const upto = layer.b >= 2.0 && layer.b < 3.35 ? bodyTo : to;
         const color = layer.c === WINDOWS_DAY && night ? WINDOWS_NIGHT : layer.c ?? tram.color;
         push(rect(tram.at, tram.bearing, from, upto, half), layer.b, layer.h, color);
       }

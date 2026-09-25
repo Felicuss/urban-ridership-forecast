@@ -27,6 +27,8 @@ setWorkerUrl(workerUrl);
 
 const MOSCOW: [number, number] = [37.62, 55.755];
 const FRAME_MS = 33;
+/** Шаг приближения, после которого объёмные вагоны перестраиваются: так они держат один размер на экране. */
+const ZOOM_EPS = 0.004;
 
 interface Props {
   network: NetworkGeoJson;
@@ -48,6 +50,8 @@ export default function MapView({ network, load, factors, calendar, weather, rid
   const lines = useRef<Line[]>(buildLines(network));
   const data = useRef({ load, factors, calendar, rideStopsData });
   const rideTram = useRef<TramState | null>(null);
+  const shown = useRef<TramState[]>([]);
+  const bodiesDrawn = useRef(false);
   const onReadyRef = useRef(onReady);
 
   useEffect(() => {
@@ -130,10 +134,19 @@ export default function MapView({ network, load, factors, calendar, weather, rid
     let raf = 0;
     let runner: RideRunner | null = null;
     let runnerKey = '';
+    let lastZoom = -1;
     const loop = (now: number) => {
       raf = requestAnimationFrame(loop);
       const map = mapRef.current;
-      if (!map || !ready.current || now - last < FRAME_MS) return;
+      if (!map || !ready.current) return;
+      // объёмный вагон задан в метрах: при каждом шаге зума он перестраивается без ожидания кадра,
+      // иначе во время приближения он растёт вместе с картой и прыгает к нужному размеру в конце
+      const zoom = map.getZoom();
+      if (Math.abs(zoom - lastZoom) > ZOOM_EPS) {
+        lastZoom = zoom;
+        drawBodies(map);
+      }
+      if (now - last < FRAME_MS) return;
       last = now;
       const s = useStore.getState();
       const hour = hourOf(s.minute);
@@ -205,14 +218,31 @@ export default function MapView({ network, load, factors, calendar, weather, rid
     const dayOff = cal?.[dayIndex(minute)]?.dayOff ?? false;
     const trams = tramsAt(lines.current, minute, f, dayOff, l).filter((t) => !s.hiddenRoutes.includes(t.route));
     (map.getSource('trams') as GeoJSONSource | undefined)?.setData(tramCollection(trams));
-    // объёмные вагоны только в кадре и только на крупном плане: остальные не видны и не стоят ничего
+    shown.current = trams;
+    drawBodies(map);
+  }
+
+  /** Объёмные вагоны только в кадре с запасом по краям и только на крупном плане: остальные не стоят ничего. */
+  function drawBodies(map: MapLibre) {
+    const s = useStore.getState();
+    const source = map.getSource('trams-3d') as GeoJSONSource | undefined;
+    if (!source) return;
     const zoom = map.getZoom();
-    const bodies = zoom >= TRAMS_3D_ZOOM && s.viewMode === 'perspective';
-    const bounds = map.getBounds();
-    const visible = bodies ? [...trams, ...(rideTram.current ? [rideTram.current] : [])]
-      .filter((t) => bounds.contains(t.at)).map((t) => ({ ...t, color: routeColor(t.route) })) : [];
-    const night = sunElevation(minute) < -4;
-    (map.getSource('trams-3d') as GeoJSONSource | undefined)?.setData(tramBodies(visible, tramScale(zoom), night, zoom < 14));
+    if (!s.flags.trams || zoom < TRAMS_3D_ZOOM || s.viewMode !== 'perspective') {
+      if (bodiesDrawn.current) source.setData(tramBodies([]));
+      bodiesDrawn.current = false;
+      return;
+    }
+    bodiesDrawn.current = true;
+    const b = map.getBounds();
+    const padLon = (b.getEast() - b.getWest()) * 0.25;
+    const padLat = (b.getNorth() - b.getSouth()) * 0.25;
+    const inView = (t: TramState) => t.at[0] > b.getWest() - padLon && t.at[0] < b.getEast() + padLon
+      && t.at[1] > b.getSouth() - padLat && t.at[1] < b.getNorth() + padLat;
+    const visible = [...shown.current, ...(rideTram.current ? [rideTram.current] : [])]
+      .filter(inView).map((t) => ({ ...t, color: routeColor(t.route) }));
+    const night = sunElevation(s.minute) < -4;
+    source.setData(tramBodies(visible, tramScale(zoom), night, zoom < 14));
   }
 
   /** Подсветка выбранного участка; при новом участке камера наводится на него. */

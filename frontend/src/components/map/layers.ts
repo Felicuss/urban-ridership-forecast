@@ -5,6 +5,7 @@ import type { NetworkGeoJson, NetworkLoad } from '../../api/types';
 import type { Flags } from '../../state/store';
 import { ROUTE_COLORS, routeColor } from '../../lib/routes';
 import { FONT } from './style';
+import { TRAM_SCREEN_PX } from './trams';
 
 // Слои сети. Посадки по 24 часам лежат в свойствах объектов (h0..h23 у остановок, l0..l23 у линий),
 // поэтому смена часа - это только новое выражение стиля, без перезаливки данных в видеокарту.
@@ -110,7 +111,7 @@ export function addNetworkLayers(map: MapLibre, paths: Feature[], stops: Feature
   map.addLayer({ id: 'trams', type: 'symbol', source: 'trams', layout: {
     'icon-image': ['concat', 'tram-', ['to-string', ['get', 'route']]], 'icon-rotate': ['get', 'bearing'],
     'icon-rotation-alignment': 'map', 'icon-allow-overlap': true, 'icon-ignore-placement': true,
-    'icon-size': 0.64 } });
+    'icon-size': TRAM_SCREEN_PX / TRAM_ICON_PX } });
   map.addLayer({ id: 'trams-3d', type: 'fill-extrusion', source: 'trams-3d', minzoom: TRAMS_3D_ZOOM - 0.5, paint: {
     'fill-extrusion-color': ['get', 'c'], 'fill-extrusion-height': ['get', 'h'], 'fill-extrusion-base': ['get', 'b'],
     'fill-extrusion-opacity': 1, 'fill-extrusion-vertical-gradient': true } });
@@ -243,11 +244,14 @@ export async function ensureMetro(map: MapLibre): Promise<void> {
     paint: { 'text-color': '#d9b2b5', 'text-halo-color': 'rgba(9,9,11,0.95)', 'text-halo-width': 1.3 } });
 }
 
+/** Длина картинки значка в пикселях при размере 1. */
+const TRAM_ICON_PX = 44;
+
 /** Иконка трамвая сверху: кузов в цвете маршрута, светлая крыша, тёмная маска спереди (вверху). */
 export function addTramIcons(map: MapLibre): void {
   const ratio = 2;
   const w = 14 * ratio;
-  const h = 44 * ratio;
+  const h = TRAM_ICON_PX * ratio;
   for (const [route, color] of Object.entries(ROUTE_COLORS)) {
     const canvas = document.createElement('canvas');
     canvas.width = w;
