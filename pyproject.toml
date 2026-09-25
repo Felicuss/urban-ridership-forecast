@@ -1,0 +1,32 @@
+[project]
+name = "tram-forecast"
+version = "0.1.0"
+description = "Прогноз почасовых посадок на трамвайных маршрутах Москвы (хакатон МТТЕХ 2026)"
+requires-python = ">=3.13"
+dependencies = [
+    "duckdb>=1.5.5",
+    "holidays>=0.105",
+    "lightgbm>=4.7.0",
+    "matplotlib>=3.11.2",
+    "numpy>=2.5.3",
+    "pandas>=3.0.6",
+    "pyarrow>=25.0.1",
+    "requests>=2.34.2",
+    "statsmodels>=0.15.0",
+]
+
+[project.optional-dependencies]
+fm = [
+    "torch>=2.14.0",
+    "chronos-forecasting>=2.3.2",
+    "timesfm[torch]>=3.0.2",
+    "tfc-t0>=0.5.0",
+]
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cu130" }]
+
+[[tool.uv.index]]
+name = "pytorch-cu130"
+url = "https://download.pytorch.org/whl/cu130"
+explicit = true
