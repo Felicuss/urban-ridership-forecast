@@ -110,7 +110,7 @@ export function addNetworkLayers(map: MapLibre, paths: Feature[], stops: Feature
   map.addLayer({ id: 'trams', type: 'symbol', source: 'trams', layout: {
     'icon-image': ['concat', 'tram-', ['to-string', ['get', 'route']]], 'icon-rotate': ['get', 'bearing'],
     'icon-rotation-alignment': 'map', 'icon-allow-overlap': true, 'icon-ignore-placement': true,
-    'icon-size': ['interpolate', ['linear'], ['zoom'], 10, 0.65, 13, 1.05, 16, 1.6] } });
+    'icon-size': 0.8 } });
   map.addLayer({ id: 'trams-3d', type: 'fill-extrusion', source: 'trams-3d', minzoom: TRAMS_3D_ZOOM - 0.5, paint: {
     'fill-extrusion-color': ['get', 'c'], 'fill-extrusion-height': ['get', 'h'], 'fill-extrusion-base': ['get', 'b'],
     'fill-extrusion-opacity': 1, 'fill-extrusion-vertical-gradient': true } });
@@ -120,7 +120,7 @@ export function addNetworkLayers(map: MapLibre, paths: Feature[], stops: Feature
   map.addLayer({ id: 'ride', type: 'symbol', source: 'ride', layout: {
     'icon-image': ['concat', 'tram-', ['to-string', ['get', 'route']]], 'icon-rotate': ['get', 'bearing'],
     'icon-rotation-alignment': 'map', 'icon-allow-overlap': true, 'icon-ignore-placement': true,
-    'icon-size': ['interpolate', ['linear'], ['zoom'], 10, 1.05, 16, 2] } });
+    'icon-size': 1 } });
 }
 
 export function setLoadData(map: MapLibre, lines: Feature[], points: Feature[]): void {

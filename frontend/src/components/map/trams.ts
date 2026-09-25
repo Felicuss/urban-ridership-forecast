@@ -70,8 +70,9 @@ export function tramCollection(trams: TramState[]): GeoJSON.FeatureCollection {
 
 // Объёмные вагоны для крупного плана: три секции «Витязя-М» (34 м) слоями fill-extrusion - юбка в цвете
 // маршрута, белый кузов, полоса окон (тёмная днём, светится после заката), крыша и тёмная маска спереди.
-// На общем плане вагон держит на экране длину около 32 пикселей, иначе его не видно; с zoom 17 размер
-// настоящий. До zoom 14 модель упрощённая: юбка, кузов, окна и крыша без маски, сотня вагонов не тормозит.
+// Вагон на любом приближении одной длины на экране, около 35 пикселей, как плоский значок: при приближении
+// он не растёт и не прыгает. До zoom 14 модель упрощённая (юбка, кузов, окна, крыша без маски), чтобы сотня
+// вагонов на общем плане не тормозила; ширина у обеих моделей одна.
 
 const M_LAT = 110_540;
 const M_LON = 111_320 * Math.cos((55.75 * Math.PI) / 180);
@@ -103,14 +104,14 @@ function rect(at: LngLat, bearing: number, from: number, to: number, half: numbe
   return [...ring, ring[0]!];
 }
 
-const TRAM_SCREEN_PX = 32;
+const TRAM_SCREEN_PX = 35;
 /** Метров в пикселе на zoom 0 на широте Москвы. */
 const M_PER_PX_Z0 = 156_543.03 * Math.cos((55.75 * Math.PI) / 180);
 const TRAM_LENGTH_M = 3 * CAR + 2 * GAP;
 
 /** Во сколько раз увеличить вагон на этом приближении, чтобы он читался на карте. */
 export function tramScale(zoom: number): number {
-  return Math.max((TRAM_SCREEN_PX * M_PER_PX_Z0) / 2 ** zoom / TRAM_LENGTH_M, 1);
+  return (TRAM_SCREEN_PX * M_PER_PX_Z0) / 2 ** zoom / TRAM_LENGTH_M;
 }
 
 /** Упрощённая модель для общего плана: вагон шире и выше, чтобы выделялся над линией маршрута. */
@@ -120,7 +121,8 @@ const LITE_LAYERS: { b: number; h: number; c?: string }[] = [
   { b: 2.0, h: 2.9, c: WINDOWS_DAY },
   { b: 2.9, h: 3.6, c: '#d9dee6' },
 ];
-const LITE_WIDTH = 1.3;
+/** Вагон шире настоящего, чтобы читался над линией маршрута. */
+const WIDTH_BOOST = 1.8;
 
 export function tramBodies(trams: { at: LngLat; bearing: number; color: string }[], scale = 1,
   night = false, lite = false): GeoJSON.FeatureCollection {
@@ -129,7 +131,7 @@ export function tramBodies(trams: { at: LngLat; bearing: number; color: string }
     geometry: { type: 'Polygon', coordinates: [ring] }, properties: { b: b * scale, h: h * scale, c } });
   const car = CAR * scale;
   const gap = GAP * scale;
-  const half = HALF_WIDTH * scale * (lite ? LITE_WIDTH : 1);
+  const half = HALF_WIDTH * scale * WIDTH_BOOST;
   const nose = NOSE * scale;
   for (const tram of trams) {
     const front = (3 * car + 2 * gap) / 2;

@@ -75,14 +75,17 @@ export function applyDaylight(map: MapLibre, minute: number, enabled: boolean): 
   map.setLight({ anchor: 'map', position: [1.4, sunAzimuth(minute), polar],
     color: blend(w, '#8fa6d6', '#ffae73', '#fff4e6'), intensity: 0.2 * w.night + 0.5 * w.dusk + 0.5 * w.day });
   map.setSky({
-    'sky-color': blend(w, '#05070c', '#241f3d', '#415570'),
-    'horizon-color': blend(w, '#0e1219', '#d98256', '#aeb9c8'),
-    'fog-color': blend(w, '#090b10', '#3b2833', '#4b5563'),
+    'sky-color': blend(w, '#05070c', '#241f3d', '#5f86b8'),
+    'horizon-color': blend(w, '#0e1219', '#d98256', '#c4d4e6'),
+    'fog-color': blend(w, '#090b10', '#3b2833', '#6f7c8d'),
     'sky-horizon-blend': 0.5,
     'horizon-fog-blend': 0.6,
     'fog-ground-blend': 0.2,
     'atmosphere-blend': 0.6,
   });
+  if (map.getLayer('buildings-3d')) {
+    map.setPaintProperty('buildings-3d', 'fill-extrusion-color', blend(w, '#23262d', '#3a3441', '#6b7384'));
+  }
   setNightLights(map, enabled ? lightsLevel(elevation) : 0);
   const root = document.documentElement.style;
   root.setProperty('--sky-a', blend(w, '#0d0f13', '#1d1720', '#1c2029'));

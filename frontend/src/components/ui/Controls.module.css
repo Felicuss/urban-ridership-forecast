@@ -105,11 +105,10 @@
 }
 
 .infoBody {
-  position: absolute;
-  z-index: 30;
-  top: calc(100% + 8px);
-  left: 50%;
-  width: 250px;
+  position: fixed;
+  z-index: 90;
+  max-height: min(60vh, 340px);
+  overflow: auto;
   padding: 9px 11px;
   border: 1px solid var(--line-strong);
   border-radius: 10px;
@@ -120,16 +119,17 @@
   font-weight: 400;
   line-height: 1.45;
   text-align: left;
-  transform: translate(-50%, -4px);
-  opacity: 0;
+  text-transform: none;
+  letter-spacing: normal;
+  white-space: normal;
   pointer-events: none;
-  transition: opacity 0.15s, transform 0.15s var(--ease);
+  animation: tip-in 0.15s var(--ease);
 }
 
-.info:hover .infoBody,
-.info:focus .infoBody {
-  opacity: 1;
-  transform: translate(-50%, 0);
+@keyframes tip-in {
+  from {
+    opacity: 0;
+  }
 }
 
 .kpi {
