@@ -12,7 +12,7 @@ import pytest
 
 import s10_forecast as s10
 from export_components import build_components, recompute, scenario_coefficients
-from s40_export_artifacts import DEFAULT_SUBMISSION, OUT, default_coefficients
+from s40_export_artifacts import DEFAULT_SUBMISSION, OUT, default_coefficients, text_sha256
 
 
 @pytest.fixture(scope="module")
@@ -56,7 +56,7 @@ def test_manifest_matches_files():
         assert hashlib.sha256(path.read_bytes()).hexdigest() == meta["sha256"], name
         if meta["rows"] is not None:
             assert sum(1 for _ in path.open(encoding="utf-8")) - 1 == meta["rows"], name
-    assert hashlib.sha256(DEFAULT_SUBMISSION.read_bytes()).hexdigest() == manifest["default_scenario"]["submission_sha256"]
+    assert text_sha256(DEFAULT_SUBMISSION) == manifest["default_scenario"]["submission_sha256_lf"]
 
 
 def test_stop_shares_keep_route_total():

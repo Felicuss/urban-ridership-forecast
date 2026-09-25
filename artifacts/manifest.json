@@ -1,8 +1,8 @@
 {
  "schema_version": 1,
  "model_version": "ex_ante_route5",
- "git_commit": "3dd604dd525941b5f9eb0dbd958b68ff5f26021f",
- "generated_at": "2026-09-25T13:16:31+00:00",
+ "git_commit": "d985906120e16fab848062e561cc8255bff2c3d1",
+ "generated_at": "2026-09-25T13:17:56+00:00",
  "forecast_origin": "2025-10-31",
  "horizon": {
   "from": "2025-11-01",
@@ -24,7 +24,7 @@
   "name": "ex_ante_route5",
   "script": "analysis/s32_ex_ante_route5.py",
   "submission": "forecasts/submission_ex_ante_route5.csv",
-  "submission_sha256": "384d25f2523b1e927626c067354d226951590f3b05dbbe355dbb4051db378701",
+  "submission_sha256_lf": "cd3e465e97fa845a932ed6be38f7f752fdf8c709efecf1cee7e271d4a7e468c7",
   "leaderboard_wape_score": 0.8995
  },
  "files": {

@@ -106,6 +106,11 @@ def sha256(path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def text_sha256(path) -> str:
+    """sha256 текста с концами строк LF: сабмит в forecasts/ git на Windows выдаёт с CRLF."""
+    return hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+
+
 def git_commit() -> str:
     return subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True, check=True).stdout.strip()
 
@@ -159,7 +164,7 @@ def main() -> None:
         "routes": ROUTES,
         "default_scenario": {"name": "ex_ante_route5", "script": "analysis/s32_ex_ante_route5.py",
                              "submission": "forecasts/submission_ex_ante_route5.csv",
-                             "submission_sha256": sha256(DEFAULT_SUBMISSION),
+                             "submission_sha256_lf": text_sha256(DEFAULT_SUBMISSION),
                              "leaderboard_wape_score": LEADERBOARD_SCORE},
         "files": {name: {"sha256": sha256(OUT / name),
                          "rows": sum(1 for _ in (OUT / name).open(encoding="utf-8")) - 1 if name.endswith(".csv") else None}
