@@ -56,7 +56,9 @@ final class Views {
 	private static PointDto point(Point p) {
 		Double peak = p.peak() == null ? null : round(p.peak().value());
 		String peakAt = p.peak() == null ? null : p.peak().at();
-		return new PointDto(p.period(), round(p.p50()), round(p.p10()), round(p.p90()), p.source().code(), peak, peakAt);
+		Double plan = p.plan() == null ? null : round(p.plan());
+		return new PointDto(p.period(), round(p.p50()), round(p.p10()), round(p.p90()), p.source().code(), peak, peakAt,
+				plan);
 	}
 
 	private static ScenarioPointDto delta(Point scenario, Point baseline) {

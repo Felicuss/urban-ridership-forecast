@@ -209,6 +209,27 @@ class ApiContractTest {
 			.expectHeader().contentType(MediaType.APPLICATION_PROBLEM_JSON);
 	}
 
+	@Test
+	void pastDaysCarryThePlanMadeTheEveningBefore() throws IOException {
+		ForecastResponse day = get("/api/v1/forecast?level=route&id=17&horizon=day&from=2025-10-15", ForecastResponse.class);
+		ForecastResponse week = get("/api/v1/forecast?level=route&id=17&horizon=week&from=2025-10-13", ForecastResponse.class);
+		ForecastResponse network = get("/api/v1/forecast?level=network&horizon=day&from=2025-10-15", ForecastResponse.class);
+		ForecastResponse forecast = get("/api/v1/forecast?level=route&id=17&horizon=day&from=2025-11-15",
+				ForecastResponse.class);
+		ForecastResponse january = get("/api/v1/forecast?level=route&id=17&horizon=day&from=2025-01-15",
+				ForecastResponse.class);
+
+		assertThat(day.points()).allSatisfy(p -> assertThat(p.plan()).isNotNull());
+		assertThat(day.points().get(8).plan()).isCloseTo(plan("17,2025-10-15,8,"), within(0.05));
+		double hourly = day.points().stream().mapToDouble(PointDto::plan).sum();
+		assertThat(day.total().plan()).isCloseTo(hourly, within(1.0));
+		assertThat(week.points().get(2).plan()).isCloseTo(hourly, within(1.0));
+		assertThat(network.total().plan()).isGreaterThan(day.total().plan());
+		assertThat(forecast.points()).allSatisfy(p -> assertThat(p.plan()).isNull());
+		assertThat(forecast.total().plan()).isNull();
+		assertThat(january.points()).allSatisfy(p -> assertThat(p.plan()).isNull());
+	}
+
 	private <T> T get(String uri, Class<T> type) {
 		return client.get().uri(uri).exchange().expectStatus().isOk().expectBody(type).returnResult().getResponseBody();
 	}
@@ -216,6 +237,12 @@ class ApiContractTest {
 	private WebTestClient.ResponseSpec postScenario(String body) {
 		return client.post().uri("/api/v1/forecast/scenario").contentType(MediaType.APPLICATION_JSON).bodyValue(body)
 			.exchange();
+	}
+
+	private static double plan(String prefix) throws IOException {
+		String line = Files.readAllLines(TestArtifacts.dir().resolve("plan.csv")).stream()
+			.filter(l -> l.startsWith(prefix)).findFirst().orElseThrow();
+		return Double.parseDouble(line.substring(prefix.length()));
 	}
 
 	private static double submission(String prefix) throws IOException {

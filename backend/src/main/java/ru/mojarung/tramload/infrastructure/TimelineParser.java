@@ -1,8 +1,10 @@
 package ru.mojarung.tramload.infrastructure;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -13,8 +15,9 @@ import ru.mojarung.tramload.domain.Source;
 import ru.mojarung.tramload.domain.Timeline;
 
 /**
- * Шкала времени из timeline_calendar.csv, actuals.csv (факт 2025) и outlook.csv (оценка 2026).
- * Каждая ячейка факта и оценки должна быть заполнена ровно один раз, иначе запуск останавливается.
+ * Шкала времени из timeline_calendar.csv, actuals.csv (факт 2025), outlook.csv (оценка 2026) и plan.csv
+ * (план прошедших дней: прогноз, сделанный накануне). Каждая ячейка факта и оценки должна быть заполнена
+ * ровно один раз, иначе запуск останавливается; у плана повтор ячейки тоже ошибка, а пропуск значит «плана нет».
  */
 final class TimelineParser {
 
@@ -44,7 +47,13 @@ final class TimelineParser {
 				}
 			}
 		}
-		return new Timeline(days, values, horizon);
+		double[] plan = new double[values.length];
+		Arrays.fill(plan, Double.NaN);
+		Path planFile = dir.resolve("plan.csv");
+		if (Files.exists(planFile)) {
+			fill(CsvRows.read(planFile), "plan", horizon, start, days.size(), plan, new boolean[plan.length]);
+		}
+		return new Timeline(days, values, plan, horizon);
 	}
 
 	private static DayInfo day(Map<String, String> r) {

@@ -16,22 +16,32 @@ public final class Timeline {
 	private final LocalDate start;
 	private final DayInfo[] days;
 	private final double[] values;
+	private final double[] plan;
 	private final ForecastGrid horizon;
 	private final int horizonOffset;
 
+	public Timeline(List<DayInfo> days, double[] values, ForecastGrid horizon) {
+		this(days, values, null, horizon);
+	}
+
 	/**
 	 * @param values факт и оценка по индексу (маршрут × день шкалы) × 24 + час; дни прогноза не читаются
+	 * @param plan план прошедших дней по тому же индексу: прогноз, сделанный вечером накануне; NaN или null - плана нет
 	 */
-	public Timeline(List<DayInfo> days, double[] values, ForecastGrid horizon) {
+	public Timeline(List<DayInfo> days, double[] values, double[] plan, ForecastGrid horizon) {
 		this.routes = horizon.routes();
 		this.days = days.toArray(DayInfo[]::new);
 		this.start = this.days[0].date();
 		this.values = values.clone();
+		this.plan = plan == null ? null : plan.clone();
 		this.horizon = horizon;
 		this.horizonOffset = (int) ChronoUnit.DAYS.between(start, horizon.start());
 		if (values.length != routes.size() * this.days.length * ForecastGrid.HOURS) {
 			throw new IllegalArgumentException("шкала: " + values.length + " значений вместо "
 					+ routes.size() * this.days.length * ForecastGrid.HOURS);
+		}
+		if (plan != null && plan.length != values.length) {
+			throw new IllegalArgumentException("план: " + plan.length + " значений вместо " + values.length);
 		}
 		for (int d = 0; d < this.days.length; d++) {
 			if (!this.days[d].date().equals(start.plusDays(d))) {
@@ -81,6 +91,11 @@ public final class Timeline {
 			return prediction[horizon.cell(routeIndex, day - horizonOffset, hour)];
 		}
 		return values[(routeIndex * days.length + day) * ForecastGrid.HOURS + hour];
+	}
+
+	/** План маршрута на час прошедшего дня: прогноз, сделанный вечером накануне; NaN, если плана нет. */
+	public double plan(int routeIndex, int day, int hour) {
+		return plan == null ? Double.NaN : plan[(routeIndex * days.length + day) * ForecastGrid.HOURS + hour];
 	}
 
 	public int routeIndex(int route) {
