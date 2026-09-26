@@ -1,8 +1,10 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useCalendar, useFactors } from '../../api/queries';
 import { SPEEDS, isDefaultScenario, useStore, type Speed } from '../../state/store';
 import { useLayout, type LayoutMode } from '../../state/layout';
-import { TIMELINE_DAYS, clock, dayIndex, dayLabel, hourOf, isoDate, sunElevation, weekdayName } from '../../lib/time';
+import {
+  MINUTES_PER_DAY, TIMELINE_DAYS, clock, dayIndex, dayLabel, hourOf, isoDate, sunElevation, weekdayName,
+} from '../../lib/time';
 import { fmtTemp, fmt1 } from '../../lib/format';
 import { SKY_LABEL, weatherAt } from '../../lib/weather';
 import { useTarget } from '../../hooks/useTarget';
@@ -99,7 +101,7 @@ export function TopBar() {
       </div>
 
       <div className={styles.clock}>
-        <span className="num">{clock(minute)}</span>
+        <ClockField minute={minute} />
         <button type="button" className={styles.play} onClick={togglePlay} aria-label={playing ? 'Пауза' : 'Пустить время'}
           title={playing ? 'Пауза' : followNow ? 'Пустить время: режим «Сейчас» выключится'
             : `Пустить время, ${SPEED_HINT[speed]}`}>
@@ -225,6 +227,34 @@ function AlertBell() {
 }
 
 /** Дата в кнопке: год прячется на узком экране, день недели остаётся всегда. */
+/** Часы: клик открывает ввод «чч:мм» (или просто час), Enter переносит время выбранного дня, Esc отменяет. */
+function ClockField({ minute }: { minute: number }) {
+  const setMinute = useStore((s) => s.setMinute);
+  const [draft, setDraft] = useState<string | null>(null);
+  const cancelled = useRef(false);
+  if (draft == null) {
+    return (
+      <button type="button" className={`num ${styles.clockTime}`} title="Ввести время: например 8:30 или 17"
+        onClick={() => { cancelled.current = false; setDraft(clock(minute)); }}>{clock(minute)}</button>
+    );
+  }
+  const apply = () => {
+    const m = /^(\d{1,2})(?:[:.\s]?(\d{2}))?$/.exec(draft.trim());
+    const h = Number(m?.[1]);
+    const mm = Number(m?.[2] ?? 0);
+    if (!cancelled.current && m && h < 24 && mm < 60) setMinute(dayIndex(minute) * MINUTES_PER_DAY + h * 60 + mm);
+    setDraft(null);
+  };
+  return (
+    <input className={`num ${styles.clockInput}`} value={draft} autoFocus aria-label="Время, чч:мм" inputMode="numeric"
+      maxLength={5} onFocus={(e) => e.currentTarget.select()} onChange={(e) => setDraft(e.target.value)} onBlur={apply}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') cancelled.current = true;
+        if (e.key === 'Enter' || e.key === 'Escape') e.currentTarget.blur();
+      }} />
+  );
+}
+
 /** «сб, 25 октября»: короткий день недели, чтобы ширина кнопки почти не менялась при листании стрелками. */
 function DateText({ day }: { day: number }) {
   const label = dayLabel(day);

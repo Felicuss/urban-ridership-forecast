@@ -107,10 +107,33 @@
   gap: 10px;
 }
 
-.clock > span {
+.clockTime,
+.clockInput {
+  width: 84px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: none;
+  color: inherit;
   font-size: 24px;
   font-weight: 600;
   letter-spacing: -0.03em;
+  text-align: center;
+}
+
+.clockTime {
+  cursor: text;
+}
+
+.clockTime:hover {
+  border-color: var(--line);
+}
+
+.clockInput {
+  border-color: var(--line-strong);
+  background: var(--surface);
+  outline: none;
 }
 
 .now,
@@ -323,7 +346,9 @@
     display: none;
   }
 
-  .clock > span {
+  .clockTime,
+  .clockInput {
+    width: 68px;
     font-size: 19px;
   }
 
