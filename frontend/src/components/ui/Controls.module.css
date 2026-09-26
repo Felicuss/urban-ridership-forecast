@@ -177,8 +177,11 @@
   color: var(--accent-2);
 }
 
+/* minmax(0, 1fr): график на canvas не держит карточку шире панели, когда окно сузили после загрузки */
 .card {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
   gap: 8px;
   padding: 10px 12px 12px;
   border: 1px solid var(--line);
