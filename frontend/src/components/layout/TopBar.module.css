@@ -71,7 +71,7 @@
   font-weight: 500;
   white-space: nowrap;
   /* ширина под самую длинную дату шкалы с плашкой: стрелки не прыгают при листании */
-  min-width: 290px;
+  min-width: 264px;
 }
 
 .date:hover {
@@ -287,7 +287,7 @@
   }
 
   .date {
-    min-width: 270px;
+    min-width: 226px;
   }
 }
 

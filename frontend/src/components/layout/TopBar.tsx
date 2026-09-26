@@ -89,7 +89,7 @@ export function TopBar() {
           <Icon.calendar />
           <DateText day={day} />
           {cal?.dayOff && <em className={cal.holiday ? styles.holiday : styles.dayoff}>{cal.holiday ? 'праздник' : 'выходной'}</em>}
-          {cal && !cal.dayOff && cal.dayOfWeek >= 5 && <em className={styles.work}>рабочий выходной</em>}
+          {cal && !cal.dayOff && cal.dayOfWeek >= 5 && <em className={styles.work} title="Рабочий выходной: день перенесён по производственному календарю">рабочий</em>}
         </button>
         <button type="button" className={styles.icon} aria-label="Следующий день" disabled={day === TIMELINE_DAYS - 1}
           title={followNow ? 'Следующий день: режим «Сейчас» выключится' : 'Следующий день'} onClick={() => setDay(day + 1)}><Icon.next /></button>
