@@ -4,7 +4,7 @@ import { isDefaultScenario, useStore } from '../../state/store';
 import {
   HORIZON_END, HORIZON_START, TIMELINE_DAYS, TIMELINE_END, TIMELINE_START, dayIndex, dayOf, isoDate, monthOf, weekStart,
 } from '../../lib/time';
-import { fmtInt } from '../../lib/format';
+import { fmtInt, plural } from '../../lib/format';
 import { targetQuery, useTarget } from '../../hooks/useTarget';
 import { Segmented, Toggle } from '../ui/Controls';
 import { Icon } from '../ui/Icons';
@@ -126,7 +126,8 @@ export function ExportSheet({ onClose }: { onClose: () => void }) {
   const whatOptions: { value: What; label: string; hint: string }[] = [
     ...(target.level !== 'network' ? [{ value: 'target' as const, label: target.name, hint: target.subtitle }] : []),
     { value: 'routes', label: 'Все маршруты', hint: '10 маршрутов, как в сабмите' },
-    { value: 'stops', label: 'Все остановки', hint: `${stops?.length ?? '...'} остановок, оценка по долям` },
+    { value: 'stops', label: 'Все остановки', hint: stops ? `${stops.length} ${plural(stops.length, ['остановка', 'остановки', 'остановок'])}, оценка по долям`
+      : 'Остановки, оценка по долям' },
     { value: 'network', label: 'Вся сеть', hint: 'Сумма по 10 маршрутам' },
   ];
 
