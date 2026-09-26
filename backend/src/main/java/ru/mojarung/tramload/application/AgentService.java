@@ -154,13 +154,15 @@ public final class AgentService {
 
 	/**
 	 * Ответ модели в простой текст, как пишет весь интерфейс: длинное тире и неразрывный дефис - обычным
-	 * дефисом, разметка жирного и заголовков убирается, плашка показывает текст как есть.
+	 * дефисом, знак «≈» - словом «около», разметка жирного и заголовков убирается.
 	 */
 	static String plain(String text) {
 		return MARKUP.matcher(text.strip()).replaceAll("")
 			.replace('\u2014', '-')
 			.replace('\u2013', '-')
-			.replace('\u2011', '-');
+			.replace('\u2011', '-')
+			.replace("\u2248 ", "около ")
+			.replace("\u2248", "около ");
 	}
 
 	private static String sha1(String text) {

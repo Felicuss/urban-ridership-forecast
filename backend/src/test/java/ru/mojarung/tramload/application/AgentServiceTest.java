@@ -29,9 +29,9 @@ class AgentServiceTest {
 
 	@Test
 	void answerIsPlainTextWithoutMarkupAndLongDashes() {
-		String model = "**Итог:** 645 посадок\n### Вывод\nпадение \u20111 % \u2014 ночью";
+		String model = "**Итог:** \u2248 645 посадок\n### Вывод\nпадение \u20111 % \u2014 ночью";
 
-		assertThat(AgentService.plain(model)).isEqualTo("Итог: 645 посадок\nВывод\nпадение -1 % - ночью");
+		assertThat(AgentService.plain(model)).isEqualTo("Итог: около 645 посадок\nВывод\nпадение -1 % - ночью");
 	}
 
 	@Test
