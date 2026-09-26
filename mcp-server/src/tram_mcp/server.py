@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import datetime as dt
 import os
+import re
 from typing import Annotated, Any, Literal
 
 from mcp.server import MCPServer
@@ -23,6 +24,7 @@ TIMELINE_TO = dt.date(2026, 10, 31)
 ROUTES = (1, 5, 7, 11, 12, 17, 25, 26, 28, 50)
 MAX_POINTS = 400
 MAX_CALENDAR_DAYS = 120
+INCIDENT_ID = re.compile(r"^\d{1,12}$")
 LAYERS = ("heat", "lines", "stops", "trams", "metro", "buildings", "weather", "daylight", "labels", "satellite")
 
 Level = Literal["network", "route", "stop", "segment"]
@@ -155,8 +157,11 @@ def scenario(level: Level, id: str | None = None, date_from: str | None = None, 
     result = API.post("/forecast/scenario", body)
     total = result.get("total", {})
     base = total.get("baseline") or 0
-    return {**_summary(result), "baseline_total": base,
-            "delta_pct": round(100 * (total.get("p50", 0) - base) / base, 2) if base else None}
+    value = total.get("p50", 0)
+    # итог словами модели: сколько посадок со сценарием, без него и на сколько меньше или больше
+    return {**_summary(result), "boardings_with_scenario": round(value), "boardings_default": round(base),
+            "change_boardings": round(value - base),
+            "delta_pct": round(100 * (value - base) / base, 2) if base else None}
 
 
 def _event(e: Event) -> dict[str, Any]:
@@ -194,11 +199,49 @@ def export_link(format: Literal["csv", "xlsx"], level: Level, date_from: str, da
 
 
 @mcp.tool()
+def transport_news(route: int | None = None, date_from: str | None = None, date_to: str | None = None,
+                   limit: Annotated[int, Field(ge=1, le=40)] = 10) -> dict[str, Any]:
+    """Сбои движения трамваев из оперативного канала Дептранса t.me/DtOperativno: проверенный архив 2025 года
+    и свежие сообщения канала. У сбоя маршруты, начало и конец, причина, место, ссылка на сообщение и отметка,
+    учтён ли он уже в прогнозе. Свежие сверху."""
+    feed = API.get("/news")
+    lo, hi = _date(date_from, "date_from"), _date(date_to, "date_to")
+    items = [i for i in feed.get("incidents", [])
+             if (route is None or _route(route) in i["routes"])
+             and (lo is None or i["start"][:10] >= lo) and (hi is None or i["start"][:10] <= hi)]
+    return {"alpha": feed.get("alpha"), "live_checked_at": feed.get("liveCheckedAt"), "live_error": feed.get("liveError"),
+            "total": len(items), "incidents": [_incident(i) for i in items[:limit]]}
+
+
+def _incident(i: dict[str, Any]) -> dict[str, Any]:
+    """Сбой для модели: время уже по-русски и по Москве, чтобы модель не разбирала ISO со смещением сама."""
+    start = dt.datetime.fromisoformat(i["start"])
+    end = dt.datetime.fromisoformat(i["end"]) if i.get("end") else None
+    when = f"{start:%d.%m.%Y %H:%M} - " + (f"{end:%d.%m.%Y %H:%M}" if end else "ещё не восстановлено")
+    return {"id": i["id"], "routes": i["routes"], "when": when,
+            "minutes": round(i["minutes"]) if i.get("minutes") is not None else None,
+            "cause": i.get("causeLabel"), "place": i.get("location"), "source": i.get("sourceUrl"),
+            "already_in_forecast": i.get("inForecast"), "origin": i.get("origin")}
+
+
+@mcp.tool()
+def news_events(incident_id: str, date: str) -> dict[str, list[dict[str, Any]]]:
+    """События сценария, если такой же сбой случится в день date (1 ноября - 31 декабря 2025): те же часы и
+    длительность. Результат передай в scenario как events, чтобы посчитать потерю посадок."""
+    if not INCIDENT_ID.match(incident_id):
+        raise ToolError("номер сбоя - число из transport_news, например 23459")
+    events = API.get(f"/news/{incident_id}/events", {"date": _date(date, "date")})
+    return {"events": [{"route": e.get("route"), "date_from": e["from"], "date_to": e["to"], "hours": e.get("hours"),
+                        "multiplier": e["multiplier"], "label": e.get("label")} for e in events]}
+
+
+@mcp.tool()
 def ui_show(date: str | None = None, hour: Annotated[int, Field(ge=0, le=23)] | None = None, route: int | None = None,
             stop_id: str | None = None, view: Literal["top", "perspective"] | None = None,
-            horizon: Horizon | None = None, tab: Literal["forecast", "scenario", "factors", "model"] | None = None,
+            horizon: Horizon | None = None, tab: Literal["forecast", "shift", "scenario", "factors", "model"] | None = None,
             ) -> dict[str, Any]:
-    """Команда интерфейсу: открыть дату и час, выбрать маршрут или остановку, вид карты, горизонт и вкладку."""
+    """Команда интерфейсу: открыть дату и час, выбрать маршрут или остановку, вид карты, горизонт и вкладку.
+    Вкладка shift - «Смена»: сводка смены, оповещения на завтра, узкие места недели, расчёт выпуска."""
     action = {"type": "show", "date": _date(date, "date"), "hour": hour, "route": _route(route), "stop": stop_id,
               "view": view, "horizon": horizon, "tab": tab}
     return {"ui": {k: v for k, v in action.items() if v is not None}}

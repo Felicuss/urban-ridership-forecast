@@ -64,7 +64,7 @@ final class Views {
 				round(scenario.p90()), round(baseline.p50()), round(delta), pct, scenario.source().code());
 	}
 
-	private static EventDto event(ScenarioEvent e) {
+	static EventDto event(ScenarioEvent e) {
 		return new EventDto(e.route().isPresent() ? e.route().getAsInt() : null, e.from().toString(), e.to().toString(),
 				e.hours().toString(), e.multiplier(), e.label());
 	}

@@ -1,8 +1,8 @@
 {
  "schema_version": 1,
  "model_version": "shape_facts_v6",
- "git_commit": "0c30333dd5528ae2f135c81c17f268c55da2fc82",
- "generated_at": "2026-09-25T22:26:07+00:00",
+ "git_commit": "6d967322cf83766e07f694c6ff7ba1758f5e5bd8",
+ "generated_at": "2026-09-26T00:04:55+00:00",
  "forecast_origin": "2025-10-31",
  "horizon": {
   "from": "2025-11-01",
@@ -76,6 +76,10 @@
   "outlook.csv": {
    "sha256": "c7134c63f9b3e37550f246fe2f628bd0c476ee596663c61566a396c4f11e8ad6",
    "rows": 72960
+  },
+  "news.json": {
+   "sha256": "ebf8029a17c80b0fba41558e2866add75670bf4d2afce7dd28a7d932a77d7d1e",
+   "rows": null
   }
  }
 }

@@ -25,6 +25,7 @@ from export_components import (ROUTE5_SATURDAY, ROUTE5_SUNDAY, TARGET_SUBMISSION
                                scenario_coefficients)
 from export_horizons import backtest_frame, intervals_and_metrics, year_forecast
 from export_network import build_stops, network_geojson
+from export_news import build_news
 from s30_ex_ante import coefficients as ex_ante_coefficients
 from s34_traffic_probe import city_tram_monthly, novdec_levels
 
@@ -174,13 +175,15 @@ def main() -> None:
     (OUT / "factors.json").write_text(json.dumps(factors, ensure_ascii=False, separators=(",", ":")) + "\n",
                                       encoding="utf-8")
 
+    write_json(build_news(), "news.json")
+
     table, sets = golden_scenarios(comp, c)
     table.to_csv(GOLDEN / "scenarios.csv", index=False, lineterminator="\n")
     (GOLDEN / "scenarios.json").write_text(json.dumps(sets, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
 
     files = ["forecast_components.csv", "coefficients.json", "stops.csv", "route_stops.csv", "network.geojson",
              "intervals.json", "forecast_year.csv", "backtest_metrics.json", "factors.json",
-             "timeline_calendar.csv", "actuals.csv", "outlook.csv"]
+             "timeline_calendar.csv", "actuals.csv", "outlook.csv", "news.json"]
     manifest = {
         "schema_version": SCHEMA_VERSION,
         "model_version": MODEL_VERSION,

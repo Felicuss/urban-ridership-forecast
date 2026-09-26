@@ -27,6 +27,7 @@ dependencies {
 	implementation("tools.jackson.dataformat:jackson-dataformat-csv")
 	implementation("com.github.ben-manes.caffeine:caffeine:3.3.0")
 	implementation("org.dhatim:fastexcel:0.20.2")
+	implementation("org.jsoup:jsoup:1.23.2")
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-webflux-test")

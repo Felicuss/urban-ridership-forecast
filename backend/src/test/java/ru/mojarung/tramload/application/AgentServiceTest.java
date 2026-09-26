@@ -28,6 +28,13 @@ class AgentServiceTest {
 	private static final String SESSION = "session-01";
 
 	@Test
+	void answerIsPlainTextWithoutMarkupAndLongDashes() {
+		String model = "**Итог:** 645 посадок\n### Вывод\nпадение \u20111 % \u2014 ночью";
+
+		assertThat(AgentService.plain(model)).isEqualTo("Итог: 645 посадок\nВывод\nпадение -1 % - ночью");
+	}
+
+	@Test
 	void toolCallsBecomeStepsUiActionsAndAnAnswerThatIsRemembered() {
 		ScriptedModel model = new ScriptedModel(
 				calls(new ToolCall("1", "forecast", "{\"level\":\"route\",\"id\":\"17\"}"),

@@ -87,3 +87,34 @@ def test_ui_commands_are_validated_actions_not_side_effects(monkeypatch):
     assert bad_route.is_error and "маршрута 3 нет" in text(bad_route)
     assert bad_layer.is_error and "radar" in text(bad_layer)
     assert seen == []
+
+
+def test_news_is_filtered_by_route_and_trimmed_for_the_model(monkeypatch):
+    incident = {"id": "23459", "routes": [12], "start": "2025-11-08T10:28:51+03:00", "end": "2025-11-08T11:09:05+03:00",
+                "minutes": 40.2, "cause": "technical_or_unspecified", "causeLabel": "технические причины",
+                "location": "Авиамоторная", "sourceUrl": "https://t.me/DtOperativno/23459", "recoveryUrl": None,
+                "inForecast": True, "origin": "archive", "events": [{"route": 12}]}
+    other = {**incident, "id": "23678", "routes": [17]}
+    use_api(monkeypatch, lambda r: httpx.Response(200, json={"incidents": [other, incident], "alpha": 0.5,
+                                                              "liveCheckedAt": None, "liveError": None}))
+
+    result = payload(call("transport_news", {"route": 12}))
+
+    assert result["total"] == 1
+    assert result["incidents"][0] == {
+        "id": "23459", "routes": [12], "when": "08.11.2025 10:28 - 08.11.2025 11:09", "minutes": 40,
+        "cause": "технические причины", "place": "Авиамоторная", "source": "https://t.me/DtOperativno/23459",
+        "already_in_forecast": True, "origin": "archive"}
+
+
+def test_news_events_come_back_in_scenario_format_and_bad_id_never_reaches_the_api(monkeypatch):
+    seen = use_api(monkeypatch, lambda r: httpx.Response(200, json=[
+        {"route": 12, "from": "2025-11-14", "to": "2025-11-14", "hours": "10-10", "multiplier": 0.74, "label": "сбой"}]))
+
+    events = payload(call("news_events", {"incident_id": "23459", "date": "2025-11-14"}))["events"]
+    bad = call("news_events", {"incident_id": "../meta", "date": "2025-11-14"})
+
+    assert events == [{"route": 12, "date_from": "2025-11-14", "date_to": "2025-11-14", "hours": "10-10",
+                       "multiplier": 0.74, "label": "сбой"}]
+    assert bad.is_error
+    assert len(seen) == 1 and seen[0].url.path == "/api/v1/news/23459/events"

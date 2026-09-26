@@ -35,6 +35,11 @@ tramload:
     mcp-url: ${MCP_URL:http://localhost:8765/mcp}
     mcp-timeout: 20s
     redis-url: ${REDIS_URL:}
+  news:
+    # веб-версия канала Дептранса; пусто - только проверенный архив 2025 года
+    live-url: ${NEWS_LIVE_URL:https://t.me/s/DtOperativno}
+    refresh: 10m
+    timeout: 6s
 
 management:
   endpoints:

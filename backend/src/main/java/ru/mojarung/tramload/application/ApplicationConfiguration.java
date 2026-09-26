@@ -12,6 +12,8 @@ import ru.mojarung.tramload.domain.ForecastModel;
 import ru.mojarung.tramload.domain.agent.AgentMemory;
 import ru.mojarung.tramload.domain.agent.AgentTools;
 import ru.mojarung.tramload.domain.agent.LanguageModel;
+import ru.mojarung.tramload.domain.news.NewsArchive;
+import ru.mojarung.tramload.domain.news.NewsSource;
 
 /** Сценарии использования поверх загруженной модели. Все сервисы без состояния, кроме кэша сценариев. */
 @Configuration(proxyBeanMethods = false)
@@ -42,6 +44,11 @@ public class ApplicationConfiguration {
 	@Bean
 	NetworkLoadService networkLoadService(ForecastModel model, ScenarioService scenarios, Aggregator aggregator) {
 		return new NetworkLoadService(model, scenarios, aggregator);
+	}
+
+	@Bean
+	NewsService newsService(NewsArchive archive, NewsSource live, ForecastModel model) {
+		return new NewsService(archive, live, model.grid());
 	}
 
 	/** Агент ходит в модель и MCP-сервер по сети: каждый ход на своём виртуальном потоке. */

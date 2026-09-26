@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 import reactor.core.publisher.Flux;
 import ru.mojarung.tramload.domain.agent.AgentEvent;
@@ -36,13 +37,16 @@ public final class AgentService {
 	static final int SESSION_LIMIT = 12;
 	static final int GLOBAL_LIMIT = 60;
 	private static final Set<String> UI_TOOLS = Set.of("ui_show", "ui_layers", "ui_ride");
+	/** Жирный из звёздочек и подчёркиваний, решётки заголовков в начале строки. */
+	private static final Pattern MARKUP = Pattern.compile("\\*\\*|__|(?m)^#{1,6}\\s+");
 	private static final Map<String, String> STEP_TEXT = Map.ofEntries(Map.entry("model_info", "Смотрю паспорт модели"),
 			Map.entry("list_routes", "Смотрю маршруты"), Map.entry("find_stops", "Ищу остановку"),
 			Map.entry("forecast", "Считаю прогноз"), Map.entry("network_load", "Смотрю загрузку сети"),
 			Map.entry("scenario", "Пересчитываю сценарий"), Map.entry("coefficients_catalog", "Смотрю ползунки"),
 			Map.entry("calendar", "Смотрю календарь"), Map.entry("export_link", "Готовлю выгрузку"),
 			Map.entry("ui_show", "Показываю на экране"), Map.entry("ui_layers", "Меняю слои карты"),
-			Map.entry("ui_ride", "Запускаю трамвай"));
+			Map.entry("ui_ride", "Запускаю трамвай"), Map.entry("transport_news", "Читаю новости Дептранса"),
+			Map.entry("news_events", "Переношу сбой в сценарий"));
 
 	private final LanguageModel model;
 	private final AgentTools tools;
@@ -148,9 +152,15 @@ public final class AgentService {
 		return cut;
 	}
 
-	/** Длинное тире в ответе модели заменяется дефисом: так пишет весь интерфейс. */
+	/**
+	 * Ответ модели в простой текст, как пишет весь интерфейс: длинное тире и неразрывный дефис - обычным
+	 * дефисом, разметка жирного и заголовков убирается, плашка показывает текст как есть.
+	 */
 	static String plain(String text) {
-		return text.strip().replace('\u2014', '-').replace('\u2013', '-');
+		return MARKUP.matcher(text.strip()).replaceAll("")
+			.replace('\u2014', '-')
+			.replace('\u2013', '-')
+			.replace('\u2011', '-');
 	}
 
 	private static String sha1(String text) {
