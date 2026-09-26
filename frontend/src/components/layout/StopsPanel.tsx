@@ -46,21 +46,24 @@ export function StopsPanel({ route, load }: { route: number; load: NetworkLoad |
         ))}
       </div>
       <p className={styles.caption}>
-        Посадки в {hour}:00-{hour + 1}:00
-        <InfoTip>Прогноз маршрута на этот час, разложенный по долям остановок. Клик выбирает остановку: прогноз
-          справа и графики внизу переключаются на неё, карта подлетает к ней.</InfoTip>
+        Посадки в {hour}:00–{hour + 1}:00
+        <InfoTip>Прогноз маршрута на этот час, разложенный по долям остановок в выбранном направлении. На общей
+          с другими маршрутами остановке здесь только этот маршрут. Клик выбирает остановку: прогноз справа
+          и графики внизу переключаются на неё и считают все маршруты, карта подлетает к ней.</InfoTip>
       </p>
-      <StopList list={list} load={load} hour={hour} />
+      <StopList list={list} routeHour={load?.routes.get(route)?.[hour] ?? 0} />
       <SegmentPicker stops={stops} direction={direction} onDirection={setDirection} />
     </section>
   );
 }
 
-function StopList({ list, load, hour }: { list: RouteStop[]; load: NetworkLoad | undefined; hour: number }) {
+/** Посадки маршрута в этот час × доля остановки в выбранном направлении, как в «Станциях по дням». Общая
+ * с другими маршрутами остановка показывает только этот маршрут, сумму по всем даёт прогноз справа. */
+function StopList({ list, routeHour }: { list: RouteStop[]; routeHour: number }) {
   const selected = useStore((s) => s.stop);
   const selectStop = useStore((s) => s.selectStop);
   const segment = useStore((s) => s.segment);
-  const values = list.map((s) => load?.stops.get(s.stopId)?.[hour] ?? 0);
+  const values = list.map((s) => s.share * routeHour);
   const max = Math.max(...values, 1);
   const inSegment = (s: RouteStop) => {
     if (!segment || segment.direction !== s.direction) return false;
