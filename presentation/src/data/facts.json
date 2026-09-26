@@ -3,34 +3,34 @@
  "route17": {
   "date": "2025-11-14",
   "hour": 8,
-  "boardings": 5343,
+  "boardings": 5349,
   "headway": 7,
   "perTrip": 312,
   "perTripByHour": [
-   12,
+   13,
    0,
    0,
    0,
    2,
    21,
    90,
-   215,
+   214,
    312,
-   260,
+   256,
+   152,
    154,
    154,
-   154,
-   131,
-   162,
-   140,
-   222,
-   267,
-   262,
-   194,
-   139,
+   132,
+   164,
+   145,
+   234,
+   271,
+   256,
+   186,
+   136,
    88,
-   43,
-   28
+   44,
+   30
   ],
   "spans": [
    {
@@ -48,7 +48,7 @@
     "date": "2025-11-14",
     "start": 16,
     "end": 20,
-    "peak": 267,
+    "peak": 271,
     "hour": 17,
     "hw": 7,
     "need": 4
@@ -58,15 +58,25 @@
  "week": {
   "from": "2025-11-15",
   "to": "2025-11-21",
-  "spans": 61,
+  "spans": 64,
   "routes": 5,
   "top": [
+   {
+    "route": 17,
+    "date": "2025-11-19",
+    "start": 7,
+    "end": 10,
+    "peak": 319,
+    "hour": 8,
+    "hw": 7,
+    "need": 4
+   },
    {
     "route": 17,
     "date": "2025-11-20",
     "start": 7,
     "end": 10,
-    "peak": 315,
+    "peak": 319,
     "hour": 8,
     "hw": 7,
     "need": 4
@@ -76,35 +86,26 @@
     "date": "2025-11-17",
     "start": 7,
     "end": 10,
-    "peak": 314,
-    "hour": 8,
-    "hw": 7,
-    "need": 4
-   },
-   {
-    "route": 17,
-    "date": "2025-11-19",
-    "start": 7,
-    "end": 10,
-    "peak": 314,
+    "peak": 315,
     "hour": 8,
     "hw": 7,
     "need": 4
    }
   ]
  },
- "overloadedHours": 1103,
- "overloadedPct": 10.1,
+ "overloadedHours": 1136,
+ "overloadedPct": 10.4,
  "vehicleHours": 106072,
- "extraVehicleHours": 3979,
- "extraPct": 3.8,
- "freedVehicleHours": 540,
+ "extraVehicleHours": 4195,
+ "extraPct": 4.0,
+ "freedVehicleHours": 529,
  "overloadedByRoute": {
   "17": 329,
-  "12": 258,
-  "11": 251,
-  "50": 151,
-  "7": 114
+  "11": 274,
+  "12": 268,
+  "50": 149,
+  "7": 115,
+  "1": 1
  },
  "topStop17": "ВДНХ (северная)",
  "incident": {
@@ -118,7 +119,7 @@
   "place": "На проспекте Мира (в районе остановки «Улица Докукина»)",
   "tryOn": "2025-12-19",
   "events": 4,
-  "lost": 769,
+  "lost": 786,
   "alpha": 0.5,
   "archive": 31
  }

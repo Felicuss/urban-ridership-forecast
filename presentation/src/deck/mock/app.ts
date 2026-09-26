@@ -1,5 +1,6 @@
 import { E } from '../../film';
 import { NETWORK, STOPS, UI_ROUTE, camLerp, drawUiMap, fitRect, routeBox, uiPoint, type Cam, type Rect } from '../map';
+import { plural } from '../g';
 import { M, ROUTE_HOURS } from './data';
 import {
   U, badge, bandChart, button, card, fmt, fmtK, hourBars, kpi, rr, slider, sparkline, t, tc, tw, type Band, type Ctx,
@@ -624,7 +625,7 @@ function shift(ctx: Ctx, s: UiState): void {
   y = s.alertQ > 0 ? 922 : 862;
   card(ctx, 1522, y, 378, 420, U.surface);
   t(ctx, 'Узкие места на 7 дней', 1536, y + 24, { size: 12.5, weight: 600, color: U.text2 });
-  t(ctx, `${M.week.count} отрезок на ${M.week.routes} маршрутах`, 1536, y + 48, { size: 12, color: U.text2 });
+  t(ctx, `${M.week.count} ${plural(M.week.count, ['отрезок', 'отрезка', 'отрезков'])} на ${M.week.routes} маршрутах`, 1536, y + 48, { size: 12, color: U.text2 });
   M.week.top.slice(0, 5).forEach((w, i) => {
     const ry = y + 62 + i * 60;
     badge(ctx, 1540, ry + 8, String(w.route), UI_ROUTE[w.route]!, { w: 30, h: 24, size: 12 });
@@ -740,7 +741,7 @@ function scenario(ctx: Ctx, s: UiState): void {
 // ---------------------------------------------------------------------------
 
 const QUESTION = 'Покажи 17 маршрут 14 ноября в 8 утра';
-const ANSWER = '14 ноября в 8:00 на маршруте 17 прогноз 5 343 посадки: около 312 на рейс при интервале 7 минут, это больше вместимости вагона. Показал маршрут на карте.';
+const ANSWER = '14 ноября в 8:00 на маршруте 17 прогноз 5 349 посадок: около 312 на рейс при интервале 7 минут, это больше вместимости вагона. Показал маршрут на карте.';
 const STEPS = ['Считаю прогноз', 'Показываю на экране'];
 
 function wrap(ctx: Ctx, str: string, maxW: number, size: number): string[] {

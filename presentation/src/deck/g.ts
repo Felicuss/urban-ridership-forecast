@@ -321,3 +321,11 @@ export function drawMipped(ctx: CanvasRenderingContext2D, src: HTMLCanvasElement
   for (const level of levels) if (level.width >= need) pick = level;
   ctx.drawImage(pick, x, y, w, h);
 }
+
+/** Форма слова для числа: 1 отрезок, 2 отрезка, 5 отрезков. */
+export function plural(n: number, forms: [string, string, string]): string {
+  const a = Math.abs(Math.round(n));
+  if (a % 10 === 1 && a % 100 !== 11) return forms[0];
+  if (a % 10 >= 2 && a % 10 <= 4 && (a % 100 < 12 || a % 100 > 14)) return forms[1];
+  return forms[2];
+}
