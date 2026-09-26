@@ -1,6 +1,6 @@
-import { useMeta } from '../../api/queries';
+import { useFactors, useMeta } from '../../api/queries';
 import type { Granularity } from '../../api/types';
-import { fmt1 } from '../../lib/format';
+import { fmt1, fmtInt } from '../../lib/format';
 import { Card, Kpi, TramDots } from '../ui/Controls';
 import styles from './Panels.module.css';
 
@@ -22,6 +22,7 @@ const GRANULARITY: { key: Granularity; label: string }[] = [
 
 export default function ModelTab() {
   const meta = useMeta().data;
+  const checks = useFactors().data?.equipment_checks;
   if (!meta) return <TramDots label="Загружаем паспорт модели" />;
   const q = meta.quality;
   const folds = Object.keys(q.folds);
@@ -80,6 +81,20 @@ export default function ModelTab() {
         <Kpi label="Ошибка годового прогноза" value={`${fmt1(check.mape_pct)} %`} sub={`в среднем за ${check.months} мес., максимум ${fmt1(check.max_abs_error_pct)} %`}
           info="Насколько сезонный индекс угадал городской трамвай в ноябре 2025 - августе 2026 (данные data.mos.ru вышли позже прогноза)." />
       </div>
+
+      {checks && (
+        <Card title="Очистка факта"
+          info="Организаторы 26.09.2026: валидации в часы, когда трамваи не ходят, - это проверка оборудования, их нужно отбрасывать. Прогноз v11 в эти часы и так нулевой.">
+          <p className={styles.note}>Отброшено {fmtInt(checks.validations)} валидаций в {checks.cells} часах, это
+            {' '}{String(checks.share_pct).replace('.', ',')} % факта января-октября 2025.
+            Маршрут работает {checks.window}, ниже - часы вне этого окна.</p>
+          <ul className={styles.list}>
+            {Object.entries(checks.off_hours).filter(([, h]) => h.length).map(([route, hours]) => (
+              <li key={route}><span>№{route}: {hours.map((h) => `${h}:00-${h + 1}:00`).join(', ')}</span></li>
+            ))}
+          </ul>
+        </Card>
+      )}
 
       <Card title="Область применимости">
         <ul className={styles.list}>

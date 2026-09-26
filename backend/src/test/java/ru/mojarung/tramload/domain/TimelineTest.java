@@ -9,12 +9,19 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
 import ru.mojarung.tramload.TestArtifacts;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
-/** Шкала времени: факт - это данные организаторов, оценка 2026 сходится с годовым прогнозом, сценарий их не трогает. */
+/**
+ * Шкала времени: факт - это данные организаторов без проверок оборудования в нерабочие часы, оценка 2026
+ * сходится с годовым прогнозом, сценарий их не трогает.
+ */
 class TimelineTest {
 
 	private static final ForecastModel MODEL = TestArtifacts.model();
@@ -23,15 +30,22 @@ class TimelineTest {
 	private static final double[] DEFAULT = ENGINE.compute(Scenario.of(MODEL.catalog().defaults()));
 
 	@Test
-	void factIsTheOrganizersHourlyLabels() throws IOException {
+	void factIsTheOrganizersHourlyLabelsWithoutEquipmentChecks() throws IOException {
 		List<String> lines = Files.readAllLines(TestArtifacts.repoRoot().resolve("dataset/labels/labels_day_test.csv"));
+		JsonNode checks = JsonMapper.builder().build()
+			.readTree(TestArtifacts.dir().resolve("factors.json").toFile())
+			.path("equipment_checks");
 
 		for (String line : lines.subList(1, lines.size())) {
 			String[] f = line.split(";");
-			int day = TIMELINE.dayIndex(LocalDate.parse(f[1]));
-			double value = TIMELINE.value(TIMELINE.routeIndex(Integer.parseInt(f[0])), day, Integer.parseInt(f[2]), DEFAULT);
-			assertThat(value).as(line).isEqualTo(Double.parseDouble(f[3]));
+			int route = Integer.parseInt(f[0]);
+			int hour = Integer.parseInt(f[2]);
+			Set<Integer> off = checks.path("off_hours").path(f[0]).valueStream().map(JsonNode::asInt)
+				.collect(Collectors.toSet());
+			double value = TIMELINE.value(TIMELINE.routeIndex(route), TIMELINE.dayIndex(LocalDate.parse(f[1])), hour, DEFAULT);
+			assertThat(value).as(line).isEqualTo(off.contains(hour) ? 0.0 : Double.parseDouble(f[3]));
 		}
+		assertThat(checks.path("validations").asInt()).isPositive();
 		assertThat(TIMELINE.day(TIMELINE.dayIndex(LocalDate.of(2025, 10, 31))).source()).isEqualTo(Source.FACT);
 	}
 

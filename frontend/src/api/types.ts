@@ -161,6 +161,15 @@ export interface Factors {
     }>;
   };
   history: { source: string; dates: string[]; routes: Record<string, number[]> };
+  /** Проверки оборудования вне часов работы маршрутов: отброшены из факта. */
+  equipment_checks?: {
+    rule: string;
+    window: string;
+    cells: number;
+    validations: number;
+    share_pct: number;
+    off_hours: Record<string, number[]>;
+  };
   events: {
     start: string;
     end: string | null;

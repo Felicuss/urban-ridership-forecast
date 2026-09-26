@@ -163,14 +163,14 @@ def main() -> None:
                "backtest_metrics.json")
 
     cal = timeline_calendar()
-    actuals = actuals_frame()
+    actuals, equipment_checks = actuals_frame()
     outlook = outlook_frame(comp, pred, year, cal)
     check_timeline(cal, actuals, outlook, year)
     write_csv(cal, "timeline_calendar.csv")
     write_csv(actuals, "actuals.csv")
     write_csv(outlook, "outlook.csv")
 
-    factors = build_factors()
+    factors = {**build_factors(), "equipment_checks": equipment_checks}
     check_factors(factors)
     (OUT / "factors.json").write_text(json.dumps(factors, ensure_ascii=False, separators=(",", ":")) + "\n",
                                       encoding="utf-8")
