@@ -29,6 +29,8 @@ type Phase = 'loading' | 'leaving' | 'done';
 
 /** Трамвай виден не меньше 1,4 с, даже если данные пришли из кэша. */
 const LOADER_MIN_MS = 1400;
+/** Подложка идёт с внешнего tiles.openfreemap.org: при медленной сети заставка не ждёт её дольше 10 с. */
+const MAP_WAIT_MS = 10000;
 
 export function App() {
   useClock();
@@ -65,7 +67,11 @@ export function App() {
   const [minLoader, setMinLoader] = useState(!intro);
   useEffect(() => {
     const t = setTimeout(() => setMinLoader(true), LOADER_MIN_MS);
-    return () => clearTimeout(t);
+    const map = setTimeout(() => setMapReady(true), MAP_WAIT_MS);
+    return () => {
+      clearTimeout(t);
+      clearTimeout(map);
+    };
   }, []);
 
   // трамвай уезжает в тоннель, только когда готовы и данные, и карта: под заставкой уже всё нарисовано
