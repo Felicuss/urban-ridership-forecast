@@ -59,7 +59,9 @@ export function Board() {
   const shown = ROUTE_IDS.filter((r) => !hidden.includes(r));
   const routes = (shown.length ? shown : ROUTE_IDS).map((r) => routeNow(r, load, factors, dayOff, hour));
   const running = routes.filter((r) => r.now > 0);
-  const [index, setIndex] = useState(0);
+  // табло начинает с маршрута, выбранного в списке: диспетчер открыл его ради этого маршрута
+  const selected = useStore((s) => s.route);
+  const [index, setIndex] = useState(() => Math.max(running.findIndex((r) => r.route === selected), 0));
   const [paused, setPaused] = useState(false);
   const spot = running.length ? running[index % running.length]! : routes[0]!;
 
