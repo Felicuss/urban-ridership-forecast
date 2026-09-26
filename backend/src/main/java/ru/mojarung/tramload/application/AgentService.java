@@ -115,7 +115,8 @@ public final class AgentService {
 
 	private String reject(String session, String message) {
 		if (!model.configured()) {
-			return "Агент не настроен: нет ключа LLM_API_KEY.";
+			return "Агент не настроен: нет ключа LLM_API_KEY. Впишите ключ Ollama Cloud (ollama.com/settings/keys) "
+					+ "в .env и перезапустите сервис: docker compose up -d.";
 		}
 		if (message == null || message.isBlank()) {
 			return "Пустой вопрос.";
