@@ -27,6 +27,8 @@ export interface Point {
   peak?: number | null;
   /** Этот час: 2025-11-14T08:00. */
   peakAt?: string | null;
+  /** План прошедшего дня: прогноз, сделанный вечером накануне; у прогноза и оценки нет. */
+  plan?: number | null;
   baseline?: number;
   delta?: number;
   deltaPct?: number | null;
@@ -134,6 +136,8 @@ export interface BacktestQuality {
     index_check_city_tram: { months: number; mape_pct: number; mean_error_pct: number; max_abs_error_pct: number };
   };
   stops: { stops: number; osm_matched_to_reference: number; osm_stops: number };
+  /** Точность плана прошедших дней против факта: февраль-октябрь 2025. */
+  plan?: { from: string; to: string; method: string; wape_score_hour: number; wape_score_day: number };
 }
 
 export interface GapPeriod {

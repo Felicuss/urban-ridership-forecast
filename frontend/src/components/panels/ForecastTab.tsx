@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useCalendar, useFactors, useNetworkLoad, useSeries, type SeriesQuery } from '../../api/queries';
+import { useCalendar, useFactors, useMeta, useNetworkLoad, useSeries, type SeriesQuery } from '../../api/queries';
 import type { Factors, Horizon, Series } from '../../api/types';
 import { useStore } from '../../state/store';
 import { MINUTES_PER_DAY, dayIndex, dayOf, hourOf, isoDate, monthLabel, shortDate, weekStart, weekdayName } from '../../lib/time';
@@ -76,6 +76,7 @@ export function ForecastTab() {
   const scenario = useStore((s) => s.scenario);
   const target = useTarget();
   const factors = useFactors().data;
+  const planQuality = useMeta().data?.quality.plan;
   const calendar = useCalendar().data;
   const load = useNetworkLoad(isoDate(day), scenario).data;
   const query = useMemo<SeriesQuery>(() => {
@@ -109,6 +110,7 @@ export function ForecastTab() {
       history: history2025(factors, series, target.route, target.level),
       compare: compareQuery && other ? series.points.map((_, i) => other.points[i]?.p50 ?? null) : undefined,
       compareLabel: compareDay != null ? compareLabel(compareDay, horizon) : undefined,
+      plan: series.points.some((p) => p.plan != null) ? series.points.map((p) => p.plan ?? null) : undefined,
     };
   }, [series, horizon, factors, target.route, target.level, compareQuery, other, compareDay, restored]);
 
@@ -123,6 +125,8 @@ export function ForecastTab() {
   const spread = series.total.p50 > 0 ? (100 * (series.total.p90 - series.total.p10)) / 2 / series.total.p50 : 0;
   const delta = series.scenario && series.total.baseline
     ? (100 * (series.total.p50 - series.total.baseline)) / series.total.baseline : null;
+  const plan = series.total.plan;
+  const vsPlan = plan ? (100 * (series.total.p50 - plan)) / plan : null;
 
   return (
     <div className={styles.stack}>
@@ -154,6 +158,11 @@ export function ForecastTab() {
           <Kpi label="Сценарий к базе" value={fmtPct(delta)} tone={delta >= 0 ? 'up' : 'down'}
             sub={`база ${fmtCompact(series.total.baseline)}`}
             info="Разница между прогнозом с изменёнными ползунками и прогнозом по умолчанию за тот же период." />
+        ) : vsPlan != null && plan != null ? (
+          <Kpi label="Факт к плану" value={fmtPct(vsPlan)} tone={vsPlan >= 0 ? 'up' : 'down'} sub={`план ${fmtCompact(plan)}`}
+            info={`План - прогноз, который модель сделала бы вечером накануне: профиль за 2 недели по данным до этого дня.${
+              planQuality ? ` За февраль-октябрь 2025 его точность против факта ${fmt3(planQuality.wape_score_hour)} по часам и ${
+                fmt3(planQuality.wape_score_day)} по суткам маршрута.` : ''}`} />
         ) : current.source === 'fact' ? (
           <Kpi label="Источник" value="факт" sub="валидации, коридора нет"
             info="Январь-октябрь 2025: успешные валидации из данных организаторов, это не прогноз." />
@@ -163,7 +172,7 @@ export function ForecastTab() {
         )}
       </div>
       <Card title={horizon === 'day' ? 'Посадки по часам' : byDay ? 'Посадки по дням' : 'Посадки по месяцам'}
-        info="Линия - прогноз, заливка - коридор, куда факт попадает в 8 случаях из 10. Белый пунктир - прогноз по умолчанию, когда включён сценарий. Жёлтые точки - другая дата из «Сравнить с». Серым на годе - факт тех же месяцев 2025 года. Клик по графику переносит время.">
+        info="Линия - прогноз, заливка - коридор, куда факт попадает в 8 случаях из 10. Белый пунктир - прогноз по умолчанию, когда включён сценарий. Жёлтые точки - другая дата из «Сравнить с». Серым на годе - факт тех же месяцев 2025 года. Голубой пунктир на прошедших днях - план: прогноз, сделанный накануне. Клик по графику переносит время.">
         <BandChart data={chart} color={target.color} cursorIndex={cursor >= 0 ? cursor : undefined} height={190}
           onPick={(i) => {
             if (horizon === 'day') setMinute(day * MINUTES_PER_DAY + i * 60 + 30);
@@ -188,6 +197,11 @@ export function ForecastTab() {
       {series.notes.map((n) => <p key={n} className={styles.note}>{n}</p>)}
     </div>
   );
+}
+
+/** Точность с тремя знаками и десятичной запятой: 0.8912 -> «0,891». */
+function fmt3(v: number): string {
+  return v.toFixed(3).replace('.', ',');
 }
 
 /** «пт 14.11, 8:00-9:00» по метке часа 2025-11-14T08:00. */

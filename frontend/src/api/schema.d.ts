@@ -63,6 +63,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Выход
+         * @description Удаляет cookie сессии
+         */
+        post: operations["logout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Вход по логину и паролю
+         * @description Ставит cookie сессии на 12 часов
+         */
+        post: operations["login"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/agent/reset": {
         parameters: {
             query?: never;
@@ -290,6 +330,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Текущий пользователь
+         * @description 401, если сессии нет; без входа в сервисе - гость
+         */
+        get: operations["me"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/agent/status": {
         parameters: {
             query?: never;
@@ -492,6 +552,10 @@ export interface components {
             events?: components["schemas"]["EventDto"][];
         };
         DataBuffer: unknown;
+        LoginRequest: {
+            username?: string;
+            password?: string;
+        };
         AgentResetRequest: {
             session?: string;
         };
@@ -656,6 +720,8 @@ export interface components {
             /** Format: double */
             peak?: number;
             peakAt?: string;
+            /** Format: double */
+            plan?: number;
         };
         CoefficientDto: {
             key?: string;
@@ -832,6 +898,48 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["DataBuffer"][];
+                };
+            };
+        };
+    };
+    logout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    login: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoginRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": Record<string, never>;
                 };
             };
         };
@@ -1131,6 +1239,26 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["CalendarDayDto"][];
+                };
+            };
+        };
+    };
+    me: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": Record<string, never>;
                 };
             };
         };

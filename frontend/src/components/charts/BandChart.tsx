@@ -5,7 +5,7 @@ import { fmtCompact, fmtInt } from '../../lib/format';
 import styles from './BandChart.module.css';
 
 // Ряд с коридором p10-p90 на uPlot (canvas, около 50 КБ): медиана, коридор, база сценария пунктиром,
-// факт прошлых периодов серым. Экземпляр создаётся один раз, дальше только setData.
+// факт прошлых периодов серым, план прошедших дней голубым пунктиром. Экземпляр создаётся один раз, дальше только setData.
 
 export interface BandSeries {
   labels: string[];
@@ -19,6 +19,8 @@ export interface BandSeries {
   /** Ряд другой даты для сравнения и его подпись в подсказке. */
   compare?: (number | null)[];
   compareLabel?: string;
+  /** План прошедших дней: прогноз, сделанный накануне. */
+  plan?: (number | null)[];
 }
 
 interface Props {
@@ -31,6 +33,8 @@ interface Props {
 
 /** Ряд сравнения: тёплый цвет, чтобы не путать с базой сценария (белый пунктир) и фактом (серый). */
 export const COMPARE_COLOR = '#f5c07a';
+/** План прошедших дней: холодный пунктир, отличный от базы сценария и сравнения. */
+export const PLAN_COLOR = '#7dcfff';
 
 function css(name: string): string {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || '#888';
@@ -52,6 +56,7 @@ function options(width: number, height: number, color: string, labels: string[],
       { label: 'база', stroke: 'rgba(233,238,245,0.55)', width: 1.4, dash: [5, 4], points: { show: false } },
       { label: 'факт', stroke: css('--muted'), width: 1.2, points: { show: false } },
       { label: 'сравнение', stroke: COMPARE_COLOR, width: 1.6, dash: [2, 3], points: { show: false } },
+      { label: 'план', stroke: PLAN_COLOR, width: 1.6, dash: [6, 4], points: { show: false } },
     ],
     bands: [{ series: [1, 2], fill: `${color}2e` }],
     axes: [
@@ -81,7 +86,7 @@ function axisValue(v: number): string {
 function aligned(d: BandSeries): AlignedData {
   const x = d.labels.map((_, i) => i);
   const none = d.labels.map(() => null);
-  return [x, d.p90, d.p10, d.p50, d.baseline ?? none, d.history ?? none, d.compare ?? none] as AlignedData;
+  return [x, d.p90, d.p10, d.p50, d.baseline ?? none, d.history ?? none, d.compare ?? none, d.plan ?? none] as AlignedData;
 }
 
 export function BandChart({ data, color, cursorIndex, height = 180, onPick }: Props) {
@@ -111,10 +116,12 @@ export function BandChart({ data, color, cursorIndex, height = 180, onPick }: Pr
       const d = latest.current.data;
       const base = d.baseline?.[i];
       const other = d.compare?.[i];
+      const plan = d.plan?.[i];
       t.style.opacity = '1';
       t.textContent = `${d.labels[i] ?? ''}: ${fmtInt(d.p50[i])} (${fmtInt(d.p10[i])}-${fmtInt(d.p90[i])})`
         + (base != null ? `, ${d.baselineLabel ?? 'база'} ${fmtInt(base)}` : '')
-        + (other != null ? `, ${d.compareLabel ?? 'сравнение'} ${fmtInt(other)}` : '');
+        + (other != null ? `, ${d.compareLabel ?? 'сравнение'} ${fmtInt(other)}` : '')
+        + (plan != null ? `, план ${fmtInt(plan)}` : '');
     }];
     const m = document.createElement('div');
     m.className = styles.now ?? '';
