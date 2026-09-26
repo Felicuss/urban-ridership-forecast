@@ -1,27 +1,31 @@
 """Пробы уровня: сумма эталона по всей сетке и по группам ячеек в сравнении с v6.
 
-Продолжение проб s19. В пробе множества M ячейки M получают прогноз H = ceil(a·v6 + b), заведомо
-выше факта, остальные ячейки — нули. Тогда WAPE-score пробы S = (2·Y_M − ΣH_M) / T, где Y_M — сумма
-эталона по M, T — по всей сетке, и Y_M = (ΣH_M + T·S) / 2. Табло показывает пять знаков, поэтому
-Y_M получается с точностью до нескольких десятков посадок.
+Продолжение проб s19. В пробе множества M ячейки M получают прогноз H = ceil(a·v6 + b), остальные
+ячейки — нули. Тогда WAPE-score пробы S = (2·Σmin(y, H) − ΣH) / T, где T — сумма эталона по всей
+сетке, и расшифровка (ΣH + T·S) / 2 даёт Σmin(y, H) по M. Это сумма эталона Y_M, если потолок H
+не ниже факта ни в одной ячейке, иначе чуть меньше: на историческом аналоге v6 для будней
+маршрута 17 занижение до 184 посадок при потолке 1,6·v6 + 3 и до 19 при 1,8·v6 + 4
+(docs/analysis/tables/level_probe_review_historical_ceiling.csv). Округление скора до пяти знаков
+добавляет ещё ±T·10⁻⁵/2, около 65 посадок.
 
 T даёт проба p10: v6 плюс 7000 в ноябрьских ячейках маршрута 5, где маршрута ещё нет и эталон
 нулевой, так что скор падает ровно на ΣH / T. Чтобы скор пробы не опустился до нуля, в неё
 добавляется уже измеренная группа-носитель с тем же потолком, что в её собственной пробе. Ошибки
 на разных ячейках складываются, поэтому вклад носителя известен и вычитается.
 
-rake() пересчитывает v6 пропорционально так, чтобы суммы по измеренным множествам и по всей сетке
-совпали с пробами; маршрут 5 не меняется.
+Потолки проб считаются от v6, чтобы носители p11 и p12 оставались теми же файлами. rake()
+пересчитывает прогноз (по умолчанию v11) пропорционально так, чтобы суммы по измеренным множествам
+и по всей сетке совпали с пробами; маршрут 5 не меняется.
 
 Журнал проб со скорами — forecasts/probes/level_probes.json, итоги —
 docs/research/level_probes_2026-09-25.md.
 
 Запуск:
   uv run python analysis/s65_level_probes.py probe-set dec29_30 --carrier p11
-  uv run python analysis/s65_level_probes.py probe 17 wd 11 [--carrier p10]
-  uv run python analysis/s65_level_probes.py score p13 0.03971
+  uv run python analysis/s65_level_probes.py probe 12 wd 11 --carrier p11 --carrier p12
+  uv run python analysis/s65_level_probes.py score p14 0.04123
   uv run python analysis/s65_level_probes.py decode
-  uv run python analysis/s65_level_probes.py rake
+  uv run python analysis/s65_level_probes.py rake [--base forecasts/submission_seasonal_daily_v11.csv]
   uv run python analysis/s65_level_probes.py selftest
 """
 
@@ -39,6 +43,8 @@ OUT = ROOT / "forecasts" / "probes"
 LEDGER = OUT / "level_probes.json"
 BASE = ROOT / "forecasts" / "submission_shape_facts_v6.csv"
 BASE_SCORE = 0.90553
+RAKE_BASE = ROOT / "forecasts" / "submission_seasonal_daily_v11.csv"
+KEYS = ["route", "date", "hour"]
 TOTAL_VALUE = 7000  # на 720 ноябрьских ячейках маршрута 5 скор падает примерно на 0,39
 SOLO = (1.6, 3.0)  # потолок без носителя: скор пробы остаётся выше нуля
 CARRIED = (1.8, 4.0)  # с носителем запас есть, а ячеек, где факт выше потолка, меньше
@@ -56,9 +62,14 @@ SETS = {
 
 
 def grid() -> pd.DataFrame:
+    """v6 и тип дня из artifacts, соединённые по ключу маршрут × дата × час."""
     base = pd.read_csv(BASE, sep=";")
-    kind = pd.read_csv(ROOT / "artifacts" / "forecast_components.csv", usecols=["kind"]).kind
-    return base.assign(part=np.where(kind == "workday", "wd", "nwd"), month=base.date.str[5:7].astype(int))
+    kind = pd.read_csv(ROOT / "artifacts" / "forecast_components.csv", usecols=[*KEYS, "kind"])
+    g = base.merge(kind, on=KEYS, how="left", validate="one_to_one")
+    if len(g) != len(base) or g.kind.isna().any():
+        sys.exit("календарь artifacts не покрывает сетку v6")
+    return g.assign(part=np.where(g.kind == "workday", "wd", "nwd"),
+                    month=g.date.str[5:7].astype(int)).drop(columns="kind")
 
 
 def group_mask(g: pd.DataFrame, route: int, part: str, month: int) -> np.ndarray:
@@ -125,8 +136,15 @@ def probe_prediction(g: pd.DataFrame, target: dict, carriers: list[dict]) -> tup
     base = g.prediction.to_numpy()
     pred = np.zeros(len(g), dtype=np.int64)
     used = np.zeros(len(g), dtype=bool)
+    ids = [c["id"] for c in carriers]
+    if len(set(ids)) != len(ids):
+        sys.exit("носитель указан дважды")
     for c in carriers:
+        if c["kind"] != "probe" or not c.get("score"):
+            sys.exit(f"{c['id']} не годится в носители: нужна проба множества с измеренным скором выше нуля")
         m = entry_mask(g, c)
+        if (m & used).any():
+            sys.exit("носители пересекаются между собой")
         pred[m] = ceiling(base[m], *c["ceiling"])
         used |= m
     m = entry_mask(g, target)
@@ -142,7 +160,7 @@ def probe_prediction(g: pd.DataFrame, target: dict, carriers: list[dict]) -> tup
 
 
 def decode(rows: list[dict], base_score: float = BASE_SCORE) -> tuple[float | None, list[dict]]:
-    """T и сумма эталона Y по каждому измеренному множеству."""
+    """T и Σmin(y, H) по каждому измеренному множеству: сумма эталона, если потолок не ниже факта."""
     total = next((r for r in rows if r["kind"] == "total" and r["score"] is not None), None)
     if total is None:
         return None, []
@@ -161,9 +179,11 @@ def decode(rows: list[dict], base_score: float = BASE_SCORE) -> tuple[float | No
     return T, measured
 
 
-def rake(g: pd.DataFrame, measured: list[dict], T: float, sweeps: int = 200) -> np.ndarray:
-    """v6, пересчитанный пропорционально под суммы измеренных множеств и всей сетки; маршрут 5 фиксирован."""
-    base = g.prediction.to_numpy().astype(float)
+def rake(g: pd.DataFrame, measured: list[dict], T: float, base: np.ndarray | None = None,
+         sweeps: int = 200) -> np.ndarray:
+    """Прогноз base (по умолчанию v6 из g), пересчитанный пропорционально под суммы измеренных множеств
+    и всей сетки; маршрут 5 фиксирован."""
+    base = (g.prediction.to_numpy() if base is None else np.asarray(base)).astype(float)
     fixed = (g.route == 5).to_numpy()
     constraints = [(~fixed, T - base[fixed].sum())] + [(entry_mask(g, e) & ~fixed, e["y"]) for e in measured]
     out = base.copy()
@@ -236,7 +256,8 @@ def main() -> None:
     s.add_argument("id")
     s.add_argument("value", type=float)
     sub.add_parser("decode")
-    sub.add_parser("rake")
+    rk = sub.add_parser("rake")
+    rk.add_argument("--base", default=str(RAKE_BASE.relative_to(ROOT)), help="прогноз, который пересчитываем")
     args = ap.parse_args()
 
     if args.cmd == "selftest":
@@ -246,6 +267,8 @@ def main() -> None:
     rows = load_ledger()
     by_id = {r["id"]: r for r in rows}
     if args.cmd in ("probe", "probe-set"):
+        if unknown := [c for c in args.carrier if c not in by_id]:
+            sys.exit(f"нет в журнале: {', '.join(unknown)}")
         pid = next_id(rows)
         if args.cmd == "probe":
             target = {"group": [args.route, args.part, args.month]}
@@ -276,9 +299,14 @@ def main() -> None:
             print(f"{e['id']} {entry_label(e):40s} Y = {e['y']:>12,.0f}, v6 = {e['base_sum']:>12,}, Y/v6 = {e['ratio']:.4f}")
     elif args.cmd == "rake":
         T, measured = decode(rows)
-        pred = rake(g, measured, T)
-        path = write_submission(g, pred, "level_probes_raked.csv")
-        print(f"{path}: множеств {len(measured)}, сумма {pred.sum():,} (v6 {g.prediction.sum():,}, T {T:,.0f})")
+        if T is None:
+            sys.exit("нет скора пробы суммы")
+        src = pd.read_csv(ROOT / args.base, sep=";")
+        if not src[KEYS].equals(g[KEYS]):
+            sys.exit(f"ключи {args.base} не совпадают с сеткой v6")
+        pred = rake(g, measured, T, src.prediction.to_numpy())
+        path = write_submission(g, pred, f"level_probes_raked_{(ROOT / args.base).stem}.csv")
+        print(f"{path}: множеств {len(measured)}, сумма {pred.sum():,} (исходно {src.prediction.sum():,}, T {T:,.0f})")
 
 
 if __name__ == "__main__":
