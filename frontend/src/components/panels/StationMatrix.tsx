@@ -94,7 +94,8 @@ export function StationMatrix({ route, embedded = false }: { route: number; embe
             { value: 'month', label: 'Месяц', hint: 'Все дни месяца выбранного дня' }]} />
         <Segmented value={mode} onChange={setMode} label="Что в клетке"
           options={[{ value: 'day', label: 'За сутки', hint: 'Посадки на остановке за сутки' },
-            { value: 'hour', label: `В ${hour}:00`, hint: 'Посадки в выбранный час; час меняется на шкале или клавишами ↑ ↓' }]} />
+            { value: 'hour', label: `В ${hour}:00`,
+              hint: `Посадки в выбранный час; час меняется на шкале или клавишами ${embedded ? 'Shift + ' : ''}↑ ↓` }]} />
         <Segmented value={String(direction)} onChange={(v) => setDirection(Number(v))} label="Направление"
           options={[{ value: '0', label: ends[0] ?? 'туда', hint: 'Остановки по ходу движения' },
             { value: '1', label: ends[1] ?? 'обратно', hint: 'Остановки по ходу движения' }]} />
@@ -161,7 +162,8 @@ export function StationMatrix({ route, embedded = false }: { route: number; embe
       <p className={styles.note}>
         {pending ? 'Загружаем дни… ' : ''}Остановки посадки в валидациях нет: посадки маршрута делятся по долям остановок,
         это оценка. Белая рамка - самая загруженная клетка. Клик по клетке переносит время и выделяет остановку на карте.
-        Клавиши: S - открыть и закрыть, ← → - день, ↑ ↓ - час, Esc - закрыть.
+        {embedded ? ' Клавиши: Shift + ← → - день, Shift + ↑ ↓ - час.'
+          : ' Клавиши: S - открыть и закрыть, ← → - день, ↑ ↓ - час, Esc - закрыть.'}
       </p>
     </section>
   );

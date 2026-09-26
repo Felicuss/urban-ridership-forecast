@@ -4,7 +4,7 @@
   inset: 12px;
   z-index: 20;
   display: grid;
-  grid-template-rows: auto auto auto 1fr auto;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
   gap: 10px;
   padding: 14px 16px;
   border: 1px solid var(--line-strong);
@@ -21,10 +21,22 @@
 /* виджет в сплите и панелях: занимает место целиком, без тени и отступа от краёв */
 .embedded {
   display: grid;
-  grid-template-rows: auto auto auto 1fr auto;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
   gap: 10px;
   height: 100%;
   min-height: 0;
+}
+
+/* Строка часов есть только в режиме «В 22:00». Без неё таблица попадала в строку auto, а растягивалась
+   подпись снизу: в панели виджетов высотой 170 px таблица сжималась до нуля. */
+.panel:has(> .hours),
+.embedded:has(> .hours) {
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+}
+
+/* в тесном виджете таблица держит хотя бы несколько строк, дальше прокручивается сам виджет */
+.embedded .scroll {
+  min-height: 150px;
 }
 
 .head {
