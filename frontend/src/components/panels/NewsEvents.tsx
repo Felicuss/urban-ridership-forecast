@@ -3,7 +3,7 @@ import type { ScenarioEvent } from '../../api/types';
 import { useNewsFeed, type NewsIncident } from '../../hooks/useNews';
 import { MAX_EVENTS, useStore } from '../../state/store';
 import { HORIZON_END, HORIZON_START, dayIndex, isoDate, shortDate } from '../../lib/time';
-import { fmt1 } from '../../lib/format';
+import { fmt1, plural } from '../../lib/format';
 import { routeColor } from '../../lib/routes';
 import { InfoTip, TramDots } from '../ui/Controls';
 import { Icon } from '../ui/Icons';
@@ -13,6 +13,7 @@ import styles from './Panels.module.css';
 // «задерживаются трамваи» - «движение восстановлено»; здесь сбой можно примерить на выбранный день.
 
 const SHOWN = 5;
+const EVENT_FORMS: [string, string, string] = ['событие', 'события', 'событий'];
 
 function when(n: NewsIncident): string {
   const day = shortDate(n.start.slice(0, 10));
@@ -37,11 +38,12 @@ export function NewsEvents() {
       const body = (await res.json()) as ScenarioEvent[] | { detail?: string };
       if (!res.ok || !Array.isArray(body)) throw new Error(Array.isArray(body) ? `сервис ответил ${res.status}` : body.detail);
       if (events.length + body.length > MAX_EVENTS) {
-        setMessage(`В сценарии уже ${events.length} событий, этот сбой добавит ещё ${body.length}; предел ${MAX_EVENTS}.`);
+        setMessage(`В сценарии уже ${events.length} ${plural(events.length, EVENT_FORMS)}, этот сбой добавит ещё `
+          + `${body.length}; предел ${MAX_EVENTS}.`);
         return;
       }
       body.forEach(addEvent);
-      setMessage(`Добавлено ${body.length} ${body.length === 1 ? 'событие' : body.length < 5 ? 'события' : 'событий'}: `
+      setMessage(`Добавлено ${body.length} ${plural(body.length, EVENT_FORMS)}: `
         + `такой же сбой ${shortDate(date)}. Итог по сети - в карточке выше.`);
     } catch (e) {
       setMessage(`Не удалось примерить сбой: ${e instanceof Error ? e.message : 'ошибка сети'}`);
@@ -67,7 +69,7 @@ export function NewsEvents() {
         {feed.liveCheckedAt
           ? `Канал проверен в ${new Date(feed.liveCheckedAt).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}`
             + (feed.liveError ? `: ${feed.liveError}. ` : ': ')
-            + (live.length ? `свежих сбоев трамваев ${live.length}.` : 'свежих сбоев на десяти маршрутах нет.')
+            + (live.length ? `свежих сбоев трамваев: ${live.length}.` : 'свежих сбоев на десяти маршрутах нет.')
           : 'Живая лента выключена, показан архив 2025 года.'}
         {' '}{inHorizon ? `«Примерить» переносит такой же сбой на ${shortDate(date)}.`
           : 'Чтобы примерить сбой, выберите день в ноябре-декабре 2025.'}

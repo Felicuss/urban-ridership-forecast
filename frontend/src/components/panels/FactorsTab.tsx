@@ -3,7 +3,7 @@ import { useWeatherGrid } from '../../hooks/useWeather';
 import { CENTER_INDEX } from '../../lib/weatherGrid';
 import { useStore } from '../../state/store';
 import { MONTHS, dayIndex, dayLabel, hourOf, isoDate, monthLabel, monthOf, shortDate } from '../../lib/time';
-import { fmt1, fmtCompact, fmtTemp } from '../../lib/format';
+import { capitalize, fmt1, fmtCompact, fmtTemp } from '../../lib/format';
 import { routeColor } from '../../lib/routes';
 import { MiniBars, MiniLine } from '../charts/Mini';
 import { Card, TramDots } from '../ui/Controls';
@@ -91,7 +91,7 @@ export default function FactorsTab() {
         info="data.mos.ru, набор 62521: посадки в сутки по всем трамвайным маршрутам города. Из отношения месяцев прошлых лет к октябрю строится уровень ноября и декабря (амплитуда наших маршрутов 0,83) и годовой прогноз.">
         <MiniLine values={city.per_day.slice(cityFrom)} labels={city.months.slice(cityFrom)}
           color="#73daca" mark={city.months.indexOf('2025-11') - cityFrom} format={(v) => fmtCompact(v)} />
-        <p className={styles.note}>Отметка - ноябрь 2025. {monthLabel(city.months[city.months.length - 1] ?? '2026-08')}: {fmtCompact(city.per_day[city.per_day.length - 1])} посадок в сутки.{' '}
+        <p className={styles.note}>Отметка - ноябрь 2025. {capitalize(monthLabel(city.months[city.months.length - 1] ?? '2026-08'))}: {fmtCompact(city.per_day[city.per_day.length - 1])} посадок в сутки.{' '}
           <a href="https://data.mos.ru/opendata/7704786030-mesyachniy-passajiropotok-po-vsem-vidam-obshchestvennogo-transporta-v-gorode-moskve"
             target="_blank" rel="noopener noreferrer">data.mos.ru, набор 62521</a></p>
       </Card>

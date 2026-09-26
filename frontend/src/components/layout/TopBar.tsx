@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { useCalendar, useFactors } from '../../api/queries';
+import { useCalendar, useFactors, useMeta } from '../../api/queries';
 import { SPEEDS, isDefaultScenario, useStore, type Speed } from '../../state/store';
 import { useLayout, type LayoutMode } from '../../state/layout';
 import {
   MINUTES_PER_DAY, TIMELINE_DAYS, clock, dayIndex, dayLabel, hourOf, isoDate, sunElevation, weekdayName,
 } from '../../lib/time';
-import { fmtTemp, fmt1 } from '../../lib/format';
+import { fmtFixed, fmtTemp, fmt1, plural } from '../../lib/format';
 import { SKY_LABEL, weatherAt } from '../../lib/weather';
 import { useTarget } from '../../hooks/useTarget';
 import { centerWeather, useWeatherGrid } from '../../hooks/useWeather';
@@ -19,7 +19,7 @@ import styles from './TopBar.module.css';
 
 const SOURCE_BADGE: Record<string, { label: string; hint: string }> = {
   fact: { label: 'факт', hint: 'Успешные валидации из данных организаторов' },
-  forecast: { label: 'прогноз', hint: 'Почасовой прогноз v11, точность 0,90741 на проверке организаторов' },
+  forecast: { label: 'прогноз', hint: 'Почасовой прогноз v11' },
   outlook: { label: 'оценка', hint: 'Месячный прогноз по сезонному индексу, разложенный по дням и часам; коридор ±12 %' },
 };
 
@@ -58,6 +58,9 @@ export function TopBar() {
   const changes = Object.keys(scenario.coefficients).length + scenario.events.length;
   const night = sunElevation(minute) < -4;
   const badge = SOURCE_BADGE[cal?.source ?? 'forecast'];
+  const score = useMeta().data?.leaderboardWapeScore;
+  const badgeHint = cal?.source === 'forecast' && score != null
+    ? `${badge?.hint}, точность ${fmtFixed(score, 5)} на проверке организаторов` : badge?.hint;
   const setBoardOpen = useStore((s) => s.setBoardOpen);
   const openBoard = () => {
     setBoardOpen(true);
@@ -91,11 +94,13 @@ export function TopBar() {
           <Icon.calendar />
           <DateText day={day} />
           {cal?.dayOff && <em className={cal.holiday ? styles.holiday : styles.dayoff}>{cal.holiday ? 'праздник' : 'выходной'}</em>}
-          {cal && !cal.dayOff && cal.dayOfWeek >= 5 && <em className={styles.work} title="Рабочий выходной: день перенесён по производственному календарю">рабочий</em>}
+          {cal && !cal.dayOff && cal.dayOfWeek >= 5 && (
+            <em className={styles.work} title={`${cal.dayOfWeek === 5 ? 'Рабочая суббота' : 'Рабочее воскресенье'}: перенос по производственному календарю`}>рабочий</em>
+          )}
         </button>
         <button type="button" className={styles.icon} aria-label="Следующий день" disabled={day === TIMELINE_DAYS - 1}
           title={followNow ? 'Следующий день: режим «Сейчас» выключится' : 'Следующий день'} onClick={() => setDay(day + 1)}><Icon.next /></button>
-        {badge && <span className={`${styles.source} ${styles[cal?.source ?? 'forecast']}`} title={badge.hint}>{badge.label}</span>}
+        {badge && <span className={`${styles.source} ${styles[cal?.source ?? 'forecast']}`} title={badgeHint}>{badge.label}</span>}
         {dateOpen && <DatePopover day={day} calendar={calendar} onPick={(d) => { setDay(d); setDateOpen(false); }}
           onClose={() => setDateOpen(false)} />}
       </div>
@@ -131,7 +136,7 @@ export function TopBar() {
         <AgentIsland />
         {changes > 0 && !isDefaultScenario(scenario) && (
           <button type="button" className={styles.scenario} onClick={resetScenario}
-            title={`Сценарий: ${changes} ${changes === 1 ? 'изменение' : changes < 5 ? 'изменения' : 'изменений'}. Клик вернёт прогноз по умолчанию`}>
+            title={`Сценарий: ${changes} ${plural(changes, ['изменение', 'изменения', 'изменений'])}. Клик вернёт прогноз по умолчанию`}>
             Сценарий: {changes}
             <Icon.reset />
           </button>
@@ -144,7 +149,8 @@ export function TopBar() {
         </button>
         <div className={styles.export}>
           <button type="button" onClick={() => setExportOpen(true)} aria-label="Выгрузка"
-            title={`Выгрузка в CSV или XLSX: ${target.name} или вся сеть, любой период и шаг`}>
+            title={target.level === 'network' ? 'Выгрузка в CSV или XLSX: вся сеть, маршруты или остановки, любой период и шаг'
+              : `Выгрузка в CSV или XLSX: ${target.name} или вся сеть, любой период и шаг`}>
             <Icon.download /><span className={styles.exportLabel}>Выгрузка</span>
           </button>
         </div>
@@ -210,10 +216,12 @@ function AlertBell() {
   const { states, day } = useAlerts();
   const setTab = useStore((s) => s.setTab);
   const fired = states.filter((s) => s.spans.length > 0).length;
-  const hint = states.length === 0
+  const n = states.length;
+  const hint = n === 0
     ? 'Оповещения: подпишитесь на маршрут во вкладке «Смена»'
-    : fired ? `Завтра, ${dayLabel(day, false)}: сработало ${fired} из ${states.length} оповещений`
-      : `Завтра, ${dayLabel(day, false)}: все ${states.length} оповещений в норме`;
+    : fired ? `Завтра, ${dayLabel(day, false)}. Сработало оповещений: ${fired} из ${n}`
+      : `Завтра, ${dayLabel(day, false)}: ${n === 1 ? 'оповещение в норме'
+        : `все ${n} ${plural(n, ['оповещение', 'оповещения', 'оповещений'])} в норме`}`;
   return (
     <button type="button" className={fired ? styles.bellOn : styles.icon} aria-label={hint} title={hint}
       onClick={() => {

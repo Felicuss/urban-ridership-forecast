@@ -39,8 +39,10 @@ export function BottlenecksCard() {
       {pending && days.length === 0 ? <TramDots label="Считаем неделю" /> : (
         <>
           <p className={styles.meta}>
-            {list.length === 0 ? `За ${days.length} дней везде меньше ${limit} посадок на рейс.`
-              : `${list.length} ${plural(list.length, ['отрезок', 'отрезка', 'отрезков'])} на ${byRoute.size} маршрутах`
+            {list.length === 0
+              ? `За ${days.length} ${plural(days.length, ['день', 'дня', 'дней'])} везде меньше ${limit} посадок на рейс.`
+              : `${list.length} ${plural(list.length, ['отрезок', 'отрезка', 'отрезков'])} на ${byRoute.size}`
+                + ` ${plural(byRoute.size, ['маршруте', 'маршрутах', 'маршрутах'])}`
                 + (worst ? `, чаще всего №${worst[0]}` : '') + '.'}
           </p>
           <ol className={styles.rows}>

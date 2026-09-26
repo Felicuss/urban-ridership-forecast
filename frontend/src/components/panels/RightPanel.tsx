@@ -10,7 +10,7 @@ const FactorsTab = lazy(() => import('./FactorsTab'));
 const ModelTab = lazy(() => import('./ModelTab'));
 
 const TABS: { id: RightTab; label: string; hint: string }[] = [
-  { id: 'forecast', label: 'Прогноз', hint: 'Посадки выбранного объекта на сутки, месяц или год' },
+  { id: 'forecast', label: 'Прогноз', hint: 'Посадки выбранного объекта на сутки, неделю, месяц или год' },
   { id: 'shift', label: 'Смена', hint: 'Сводка смены, оповещения на завтра, узкие места недели и расчёт выпуска вагонов' },
   { id: 'scenario', label: 'Сценарий', hint: 'Ползунки факторов и события: перекрытия, стройки' },
   { id: 'factors', label: 'Факторы', hint: 'Что влияет на посадки: погода, календарь, пробки, расписание, события сети' },

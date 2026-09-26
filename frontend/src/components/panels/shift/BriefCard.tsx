@@ -9,7 +9,7 @@ import { CAPACITY, intervalAdvice } from '../../../lib/dispatch';
 import { askFromUi } from '../../../lib/agent';
 import { CENTER_INDEX } from '../../../lib/weatherGrid';
 import { MINUTES_PER_DAY, dayIndex, isoDate, shortDate } from '../../../lib/time';
-import { fmtCompact, fmtInt, fmtPct } from '../../../lib/format';
+import { capitalize, fmtCompact, fmtInt, fmtPct } from '../../../lib/format';
 import { ROUTE_IDS, routeColor } from '../../../lib/routes';
 import { Card, Kpi, TramDots } from '../../ui/Controls';
 import styles from './Shift.module.css';
@@ -53,7 +53,9 @@ export function BriefCard() {
   return (
     <Card id="shift-brief" title={`Сводка смены: ${brief.title}`}
       info="Собирается из прогноза на день, расписания, погоды Open-Meteo и событий сети. Кнопка «Скопировать» кладёт текст в буфер обмена, чтобы отправить его в рабочий чат.">
-      <p className={styles.meta}>{brief.dayKind}, {brief.source}{brief.weather ? `. Погода: ${brief.weather}` : ''}</p>
+      <p className={styles.meta}>
+        {capitalize(brief.dayKind)}, {brief.source}{brief.weather ? `. Погода: ${brief.weather}` : ''}
+      </p>
       <div className={styles.kpis3}>
         <Kpi label="Посадок" value={`${fmtInt(brief.total / 1000)} тыс.`} sub="за сутки" />
         <Kpi label="Пиковый час" value={`${brief.peakHour}:00`} sub={fmtCompact(brief.peak)} tone="accent" />
@@ -93,9 +95,9 @@ export function BriefCard() {
         <button type="button" className={styles.primary} onClick={() => void copy()}>
           {copied === 'ok' ? 'Скопировано' : copied === 'fail' ? 'Буфер обмена недоступен' : 'Скопировать для чата'}
         </button>
-        <button type="button" className={styles.secondary}
+        <button type="button" className={styles.secondary} title="Помощник диспетчера перескажет сводку своими словами"
           onClick={() => askFromUi(`Составь короткую сводку смены на ${date}: пики, погода, события, где сократить интервал.`)}>
-          Пересказать агентом
+          Сводка от помощника
         </button>
       </div>
     </Card>

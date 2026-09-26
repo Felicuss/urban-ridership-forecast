@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { download, useStops, type SeriesQuery } from '../../api/queries';
 import { isDefaultScenario, useStore } from '../../state/store';
 import {
-  HORIZON_END, HORIZON_START, TIMELINE_DAYS, TIMELINE_END, TIMELINE_START, dayIndex, dayOf, isoDate, monthOf, weekStart,
+  HORIZON_END, HORIZON_START, TIMELINE_DAYS, TIMELINE_END, TIMELINE_START, dayIndex, dayOf, fullDate, isoDate, monthOf,
+  weekStart,
 } from '../../lib/time';
 import { fmtInt, plural } from '../../lib/format';
 import { targetQuery, useTarget } from '../../hooks/useTarget';
@@ -21,6 +22,13 @@ type Step = 'hour' | 'day' | 'month';
 const MAX_ROWS = 1_048_575;
 const ROUTES = 10;
 const HOURS_PATTERN = /^(\d{1,2})-(\d{1,2})$/;
+const ROW_FORMS: [string, string, string] = ['строка', 'строки', 'строк'];
+
+/** Период под кнопками: «15.11.2025» для суток, «10.11.2025 - 16.11.2025» для интервала. */
+function periodLabel(start: string, end: string): string {
+  if (!start || !end) return 'даты не выбраны';
+  return start === end ? fullDate(start) : `${fullDate(start)} - ${fullDate(end)}`;
+}
 
 const PERIODS: { value: Period; label: string; hint: string }[] = [
   { value: 'day', label: 'Сутки', hint: 'Выбранный день' },
@@ -100,8 +108,8 @@ export function ExportSheet({ onClose }: { onClose: () => void }) {
     period === 'custom' && (dayOf(start) < 0 || dayOf(end) < 0 || start > end)
       ? 'Интервал должен лежать между 1 января 2025 и 31 октября 2026, начало не позже конца.' : null,
     hours && hourCount == null ? 'Часы пишутся как «7-10»: с 7:00 до 10:59.' : null,
-    rows > MAX_ROWS ? `Выйдет ${fmtInt(rows)} строк, лист Excel вмещает ${fmtInt(MAX_ROWS)}: сузьте период или возьмите шаг «по суткам».`
-      : null,
+    rows > MAX_ROWS ? `Выйдет ${fmtInt(rows)} ${plural(rows, ROW_FORMS)}, лист Excel вмещает ${fmtInt(MAX_ROWS)}: `
+      + 'сузьте период или возьмите шаг «по суткам».' : null,
   ].filter(Boolean) as string[];
 
   const run = async (format: 'csv' | 'xlsx') => {
@@ -115,7 +123,7 @@ export function ExportSheet({ onClose }: { onClose: () => void }) {
     try {
       await download(format, { ...rest, ids: id ? [id] : undefined, ...when } as SeriesQuery & { ids?: string[] },
         withScenario ? scenario : { coefficients: {}, events: [] });
-      setMessage(`Файл ${format.toUpperCase()} скачан: ${fmtInt(rows)} строк.`);
+      setMessage(`Файл ${format.toUpperCase()} скачан: ${fmtInt(rows)} ${plural(rows, ROW_FORMS)}.`);
     } catch (e) {
       setMessage(`Выгрузка не удалась: ${e instanceof Error ? e.message : 'сервис недоступен'}`);
     } finally {
@@ -125,7 +133,7 @@ export function ExportSheet({ onClose }: { onClose: () => void }) {
 
   const whatOptions: { value: What; label: string; hint: string }[] = [
     ...(target.level !== 'network' ? [{ value: 'target' as const, label: target.name, hint: target.subtitle }] : []),
-    { value: 'routes', label: 'Все маршруты', hint: '10 маршрутов, как в сабмите' },
+    { value: 'routes', label: 'Все маршруты', hint: '10 маршрутов, как в файле решения' },
     { value: 'stops', label: 'Все остановки', hint: stops ? `${stops.length} ${plural(stops.length, ['остановка', 'остановки', 'остановок'])}, оценка по долям`
       : 'Остановки, оценка по долям' },
     { value: 'network', label: 'Вся сеть', hint: 'Сумма по 10 маршрутам' },
@@ -166,7 +174,7 @@ export function ExportSheet({ onClose }: { onClose: () => void }) {
                 onChange={(e) => setTo(e.target.value)} />
             </div>
           )}
-          <small className={styles.note}>{period === 'year' ? 'Ноябрь 2025 - октябрь 2026' : `${start} - ${end}`}.
+          <small className={styles.note}>{period === 'year' ? 'Ноябрь 2025 - октябрь 2026' : periodLabel(start, end)}.
             До ноября 2025 - факт, ноябрь-декабрь 2025 - прогноз, 2026 год - оценка; источник в столбце «источник».</small>
         </section>
 
@@ -201,7 +209,7 @@ export function ExportSheet({ onClose }: { onClose: () => void }) {
         </div>
         {message && <p className={styles.message} role="status">{message}</p>}
         <p>CSV в UTF-8 с разделителем «;», открывается в Excel. Маршруты по часам за ноябрь-декабрь совпадают с файлом
-          сабмита.</p>
+          решения.</p>
       </div>
     </div>
   );

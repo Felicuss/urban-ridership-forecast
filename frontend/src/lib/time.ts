@@ -66,6 +66,12 @@ export function shortDate(iso: string): string {
   return `${d.getUTCDate()}.${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
 }
 
+/** «31.10.2025» из ISO-даты или момента «2025-10-31T…». */
+export function fullDate(iso: string): string {
+  const [y, m, d] = iso.slice(0, 10).split('-');
+  return `${d}.${m}.${y}`;
+}
+
 export function monthLabel(period: string): string {
   const [y, m] = period.split('-').map(Number);
   return `${MONTHS[(m ?? 1) - 1]} ${y}`;

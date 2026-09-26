@@ -84,7 +84,7 @@ export function dayEvents(factors: Factors | undefined, date: string, dayOff: bo
 
 function scenarioLines(events: ScenarioEvent[], date: string): string[] {
   return events.filter((e) => e.from <= date && date <= e.to).map((e) => `сценарий: ${e.label || 'событие'}, `
-    + `${e.route ? `маршрут ${e.route}` : 'все маршруты'}${e.hours ? `, ${e.hours} ч` : ''}, ×${e.multiplier}`);
+    + `${e.route ? `маршрут ${e.route}` : 'все маршруты'}${e.hours ? `, ${e.hours} ч` : ''}, ×${String(e.multiplier).replace('.', ',')}`);
 }
 
 export function buildBrief(input: BriefInput): Brief {

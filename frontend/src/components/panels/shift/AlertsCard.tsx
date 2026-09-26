@@ -4,7 +4,7 @@ import { useAlerts, type AlertState } from '../../../hooks/useDispatch';
 import { useStore } from '../../../state/store';
 import { CAPACITY } from '../../../lib/dispatch';
 import { MINUTES_PER_DAY, dayLabel } from '../../../lib/time';
-import { fmtInt } from '../../../lib/format';
+import { fmtInt, plural } from '../../../lib/format';
 import { ROUTE_IDS, routeColor } from '../../../lib/routes';
 import { Card, TramDots } from '../../ui/Controls';
 import { Icon } from '../../ui/Icons';
@@ -26,7 +26,8 @@ export function AlertsCard() {
       )}
       {pending && <TramDots label="Проверяем прогноз на завтра" />}
       {states.length > 0 && (
-        <p className={styles.meta}>{fired ? `Сработало ${fired} из ${states.length}` : `Все ${states.length} в норме`}</p>
+        <p className={styles.meta}>{fired ? `Сработало ${fired} из ${states.length}` : states.length === 1 ? 'Подписка в норме'
+          : `Все ${states.length} ${plural(states.length, ['подписка', 'подписки', 'подписок'])} в норме`}</p>
       )}
       <ul className={styles.rows}>
         {states.map((s) => <AlertRow key={s.rule.id} state={s} day={day} onRemove={() => removeAlert(s.rule.id)} />)}

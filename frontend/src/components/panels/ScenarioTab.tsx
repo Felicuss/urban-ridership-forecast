@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
-import { useCoefficients, useSeries } from '../../api/queries';
+import { useCoefficients, useMeta, useSeries } from '../../api/queries';
 import type { Coefficient, CoefficientValue, ScenarioEvent } from '../../api/types';
 import { useStore } from '../../state/store';
-import { HORIZON_END, HORIZON_START, dayIndex, isoDate, shortDate } from '../../lib/time';
-import { fmtCompact, fmtPct } from '../../lib/format';
+import { HORIZON_END, HORIZON_START, dayIndex, fullDate, isoDate, shortDate } from '../../lib/time';
+import { fmtCompact, fmtFixed, fmtPct } from '../../lib/format';
 import { ROUTE_COLORS } from '../../lib/routes';
 import { Card, InfoTip, Kpi, Toggle, TramDots } from '../ui/Controls';
 import { Icon } from '../ui/Icons';
@@ -25,6 +25,7 @@ const PRESETS: { label: string; make: (day: string) => ScenarioEvent }[] = [
 
 export default function ScenarioTab() {
   const catalog = useCoefficients().data;
+  const score = useMeta().data?.leaderboardWapeScore;
   const scenario = useStore((s) => s.scenario);
   const setCoefficient = useStore((s) => s.setCoefficient);
   const resetScenario = useStore((s) => s.resetScenario);
@@ -45,7 +46,7 @@ export default function ScenarioTab() {
       <Events />
       <NewsEvents />
       <h3 className={styles.groupTitle}>Коэффициенты модели
-        <InfoTip>Со значениями по умолчанию это прогноз v11, точность на проверке организаторов 0,90741. Ползунок
+        <InfoTip>Со значениями по умолчанию это прогноз v11{score != null ? `, точность на проверке организаторов ${fmtFixed(score, 5)}` : ''}. Ползунок
           сдвигает его: например, спрос в ноябре к октябрю или доля воскресенья в праздник.</InfoTip></h3>
       {groups.map(([group, items]) => (
         <section key={group} className={styles.group}>
@@ -71,7 +72,9 @@ function CoefficientRow({ c, value, onChange }: {
   const v = value ?? c.defaultValue;
   const changed = value !== undefined;
   const shown = typeof v === 'number' ? (Number.isInteger(c.step ?? 1) && c.type === 'integer' ? String(v)
-    : v.toFixed(Math.max(0, Math.min(4, -Math.floor(Math.log10(c.step ?? 0.01)))))) : String(v);
+    : fmtFixed(v, Math.max(0, Math.min(4, -Math.floor(Math.log10(c.step ?? 0.01))))))
+    : typeof v === 'string' && /^\d{4}-\d{2}-\d{2}/.test(v) ? `${fullDate(v)}${v.length > 10 ? ` ${v.slice(11, 16)}` : ''}`
+      : String(v);
   const head = (
     <div className={styles.coefHead}>
       <span className={styles.coefLabel}>{c.label}<InfoTip>{c.source}</InfoTip></span>
@@ -189,7 +192,7 @@ function Events() {
             style={{ width: 84 }} onChange={(e) => set({ hours: e.target.value || undefined })} />
         </div>
         <div className={styles.coefHead}>
-          <span>Множитель</span><span className={styles.coefValue}>×{draft.multiplier.toFixed(2)}</span>
+          <span>Множитель</span><span className={styles.coefValue}>×{fmtFixed(draft.multiplier, 2)}</span>
         </div>
         <input className={styles.range} type="range" min={0} max={2} step={0.05} value={draft.multiplier}
           aria-label="Множитель события" style={{ '--fill': `${draft.multiplier * 50}%` } as React.CSSProperties}

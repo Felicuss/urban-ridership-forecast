@@ -18,6 +18,11 @@ export function fmtCompact(value: number | null | undefined): string {
   return fmtInt(value);
 }
 
+/** Дробь с заданным числом знаков и десятичной запятой: 0.90741 -> «0,90741», -0.0074 -> «-0,0074». */
+export function fmtFixed(value: number | null | undefined, digits: number): string {
+  return value == null || !Number.isFinite(value) ? '-' : value.toFixed(digits).replace('.', ',');
+}
+
 export function fmtPct(value: number | null | undefined, signed = true): string {
   if (value == null || !Number.isFinite(value)) return '-';
   const s = ONE.format(value);
@@ -36,6 +41,11 @@ export function fmtRange(lo: number | null | undefined, hi: number | null | unde
   if (Math.abs(hi) >= 1e6) return `${ONE.format(lo / 1e6)}-${ONE.format(hi / 1e6)} млн`;
   if (Math.abs(hi) >= 1e4) return `${INT.format(lo / 1e3)}-${INT.format(hi / 1e3)} тыс.`;
   return `${INT.format(lo)}-${INT.format(hi)}`;
+}
+
+/** Первая буква заглавная: «суббота» в начале фразы -> «Суббота». */
+export function capitalize(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
 /** Форма слова для числа: plural(3, ['рейс', 'рейса', 'рейсов']) -> «рейса». */
