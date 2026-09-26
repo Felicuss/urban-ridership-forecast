@@ -38,11 +38,15 @@ export default function ScenarioTab() {
   return (
     <div className={styles.stack}>
       <p className={styles.note}>
-        Ползунки - коэффициенты модели. Сервис пересчитывает всю сетку на ноябрь-декабрь за доли миллисекунды,
-        запрос уходит через 0,18 с после последнего движения. Со значениями по умолчанию это прогноз v6, точность на проверке организаторов 0,90553; ползунки сдвигают его.
-        Сценарий меняет только прогноз ноября-декабря 2025: факт и оценка 2026 года остаются как есть.
+        «Что если»: добавьте перекрытие, мероприятие или сбой из новостей, либо сдвиньте ползунок модели.
+        Прогноз ноября-декабря 2025 пересчитается сразу, факт и оценка 2026 года не меняются.
       </p>
       <Impact />
+      <Events />
+      <NewsEvents />
+      <h3 className={styles.groupTitle}>Коэффициенты модели
+        <InfoTip>Со значениями по умолчанию это прогноз v6, точность на проверке организаторов 0,90553. Ползунок
+          сдвигает его: например, спрос в ноябре к октябрю или доля воскресенья в праздник.</InfoTip></h3>
       {groups.map(([group, items]) => (
         <section key={group} className={styles.group}>
           <h3 className={styles.groupTitle}>{GROUP_TITLES[group] ?? group}</h3>
@@ -52,8 +56,6 @@ export default function ScenarioTab() {
           ))}
         </section>
       ))}
-      <Events />
-      <NewsEvents />
       {(Object.keys(scenario.coefficients).length > 0 || scenario.events.length > 0) && (
         <button type="button" className={styles.btn} onClick={resetScenario}><Icon.reset />Вернуть значения по умолчанию</button>
       )}
@@ -117,10 +119,8 @@ function Impact() {
   const { data, isFetching } = useSeries(active ? query : null, scenario);
   if (!active) {
     return (
-      <Card title="Как читать сценарий">
-        <p className={styles.note}>Сдвиньте ползунок или добавьте событие: здесь появится разница с прогнозом по умолчанию
-          по всей сети и по каждому дню, а графики прогноза покажут базу пунктиром.</p>
-      </Card>
+      <p className={styles.note}>Здесь появится разница с прогнозом по умолчанию по сети и по дням, а графики прогноза
+        покажут базу пунктиром.</p>
     );
   }
   if (!data) return <TramDots label="Пересчитываем сценарий" />;

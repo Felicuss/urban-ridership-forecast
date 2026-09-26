@@ -82,16 +82,16 @@ export function TopBar() {
 
       <div className={styles.when}>
         <button type="button" className={styles.icon} aria-label="Предыдущий день" disabled={day === 0}
-          title={followNow ? 'Выбор другого времени выключит режим «Сейчас»' : undefined} onClick={() => setDay(day - 1)}><Icon.prev /></button>
+          title={followNow ? 'Предыдущий день: режим «Сейчас» выключится' : 'Предыдущий день'} onClick={() => setDay(day - 1)}><Icon.prev /></button>
         <button type="button" className={styles.date} onClick={() => setDateOpen((v) => !v)} aria-expanded={dateOpen}
-          title={followNow ? 'Выбор другого времени выключит режим «Сейчас»' : undefined}>
+          title={followNow ? 'Выбрать дату в календаре: режим «Сейчас» выключится' : 'Выбрать дату в календаре'}>
           <Icon.calendar />
           <DateText day={day} />
           {cal?.dayOff && <em className={cal.holiday ? styles.holiday : styles.dayoff}>{cal.holiday ? 'праздник' : 'выходной'}</em>}
           {cal && !cal.dayOff && cal.dayOfWeek >= 5 && <em className={styles.work}>рабочий выходной</em>}
         </button>
         <button type="button" className={styles.icon} aria-label="Следующий день" disabled={day === TIMELINE_DAYS - 1}
-          title={followNow ? 'Выбор другого времени выключит режим «Сейчас»' : undefined} onClick={() => setDay(day + 1)}><Icon.next /></button>
+          title={followNow ? 'Следующий день: режим «Сейчас» выключится' : 'Следующий день'} onClick={() => setDay(day + 1)}><Icon.next /></button>
         {badge && <span className={`${styles.source} ${styles[cal?.source ?? 'forecast']}`} title={badge.hint}>{badge.label}</span>}
         {dateOpen && <DatePopover day={day} calendar={calendar} onPick={(d) => { setDay(d); setDateOpen(false); }}
           onClose={() => setDateOpen(false)} />}
@@ -144,7 +144,8 @@ export function TopBar() {
             <Icon.download /><span className={styles.exportLabel}>Выгрузка</span>
           </button>
         </div>
-        <button type="button" className={styles.icon} aria-label="Настройки" onClick={() => setSettingsOpen(true)}>
+        <button type="button" className={styles.icon} aria-label="Настройки" onClick={() => setSettingsOpen(true)}
+          title="Настройки: слои карты, погода, свет по времени суток, анимации">
           <Icon.gear />
         </button>
       </div>

@@ -13,12 +13,12 @@ import { flyTo, mapHandle } from './mapHandle';
 import styles from './MapOverlay.module.css';
 
 const DOCK: { key: keyof Flags; short: string }[] = [
-  { key: 'heat', short: 'Тепло' },
+  { key: 'heat', short: 'Теплокарта' },
   { key: 'lines', short: 'Линии' },
   { key: 'stops', short: 'Остановки' },
   { key: 'trams', short: 'Трамваи' },
   { key: 'metro', short: 'Метро' },
-  { key: 'buildings', short: '3D' },
+  { key: 'buildings', short: '3D-дома' },
   { key: 'weather', short: 'Погода' },
   { key: 'satellite', short: 'Спутник' },
 ];
@@ -42,7 +42,7 @@ export function MapOverlay({ load, weather }: { load: NetworkLoad | undefined; w
           className={viewMode === 'perspective' ? styles.viewOn : ''} onClick={() => setViewMode('perspective')}
           title="Наклон камеры; объёмные дома включаются отдельно">Перспектива</button>
         <button type="button" onClick={() => mapHandle.current?.easeTo({ bearing: 0, duration: 600 })}
-          title="Повернуть карту на север" aria-label="На север">С</button>
+          title="Повернуть карту на север">На север</button>
       </div>
       <nav className={styles.dock} aria-label="Слои карты">
         {DOCK.map((d) => (
@@ -60,7 +60,7 @@ export function MapOverlay({ load, weather }: { load: NetworkLoad | undefined; w
           <span className={styles.rampLabels}><small>мало</small><small>много</small></span>
         </div>
         <div className={styles.legendNote}>
-          Толщина линии - посадки маршрута в этот час. {night ? 'Ночь: ' : ''}вагоны идут с интервалом по расписанию.
+          Толщина линии - посадки маршрута в этот час. {night ? 'Ночь: вагоны' : 'Вагоны'} идут с интервалом по расписанию.
         </div>
       </div>
       <StopCard load={load} hour={hour} />
