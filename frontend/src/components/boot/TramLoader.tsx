@@ -13,20 +13,39 @@ const TOWER = 'M40 230V185H70V150H100V185H130V150H150V112H165V82H178V58H188V40H1
   + 'H235V112H250V150H270V185H300V150H330V185H360V230Z M83 150L85 128L87 150Z M313 150L315 128L317 150Z';
 const STAR = 'M200 -2L201.4 2.1L205.7 2.2L202.3 4.7L203.5 8.9L200 6.4L196.5 8.9L197.7 4.7L194.3 2.2L198.6 2.1Z';
 
-/** Окна ярусов: светится примерно каждое пятое, узор постоянный. */
-const TIERS: { x0: number; x1: number; y0: number; y1: number }[] = [
-  { x0: 136, x1: 264, y0: 158, y1: 222 },
-  { x0: 154, x1: 246, y0: 118, y1: 146 },
-  { x0: 169, x1: 231, y0: 88, y1: 108 },
-  { x0: 181, x1: 219, y0: 63, y1: 78 },
-  { x0: 46, x1: 124, y0: 192, y1: 222 },
-  { x0: 276, x1: 354, y0: 192, y1: 222 },
+/**
+ * Фасады ярусов, как у настоящей высотки: окна идут ровными этажами, колонки симметричны оси шпиля (x = 200)
+ * и совпадают на всех ярусах. У каждого яруса свои этажи между карнизами.
+ */
+const FACADES: { x0: number; x1: number; y0: number; y1: number }[] = [
+  { x0: 40, x1: 360, y0: 185, y1: 230 },
+  { x0: 130, x1: 270, y0: 150, y1: 185 },
+  { x0: 70, x1: 100, y0: 150, y1: 185 },
+  { x0: 300, x1: 330, y0: 150, y1: 185 },
+  { x0: 150, x1: 250, y0: 112, y1: 150 },
+  { x0: 165, x1: 235, y0: 82, y1: 112 },
+  { x0: 178, x1: 222, y0: 58, y1: 82 },
 ];
-const WINDOWS = TIERS.flatMap((t, ti) => {
-  const out: { x: number; y: number }[] = [];
-  for (let y = t.y0, row = 0; y <= t.y1; y += 10, row++) {
-    for (let x = t.x0, col = 0; x <= t.x1; x += 8, col++) {
-      if ((row * 7 + col * 3 + ti) % 5 === 0) out.push({ x, y });
+const WIN_W = 3;
+const WIN_H = 4.2;
+const STEP = 8;
+const INSET = 4;
+
+/** Постоянный узор без видимого порядка: горит примерно треть окон. */
+function lit(x: number, y: number): boolean {
+  let h = Math.imul(x, 374761393) ^ Math.imul(y, 668265263);
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  return ((h ^ (h >>> 16)) >>> 0) % 100 < 32;
+}
+
+const WINDOWS = FACADES.flatMap((f) => {
+  const out: { x: number; y: number; lit: boolean }[] = [];
+  const first = Math.ceil((f.x0 + INSET + WIN_W / 2 - 200) / STEP);
+  const last = Math.floor((f.x1 - INSET - WIN_W / 2 - 200) / STEP);
+  for (let y = f.y0 + INSET; y + WIN_H <= f.y1 - 2; y += STEP) {
+    for (let k = first; k <= last; k++) {
+      const x = 200 + k * STEP - WIN_W / 2;
+      out.push({ x, y, lit: lit(200 + k * STEP, y) });
     }
   }
   return out;
@@ -51,7 +70,8 @@ export function TramLoader({ steps, leaving }: { steps: LoadStep[]; leaving: boo
             </linearGradient>
           </defs>
           <path d={TOWER} fill="url(#tower-fill)" />
-          {WINDOWS.map((w) => <rect key={`${w.x}-${w.y}`} className={styles.lit} x={w.x} y={w.y} width="2.4" height="3.4" />)}
+          {WINDOWS.map((w) => <rect key={`${w.x}-${w.y}`} className={w.lit ? styles.lit : styles.dark} x={w.x} y={w.y}
+            width={WIN_W} height={WIN_H} />)}
           <path className={styles.star} d={STAR} />
         </svg>
         <svg className={styles.city} viewBox="0 0 800 120" preserveAspectRatio="none" aria-hidden="true">
