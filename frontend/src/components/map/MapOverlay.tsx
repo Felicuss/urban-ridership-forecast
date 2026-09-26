@@ -81,7 +81,7 @@ function PrecipNote({ grid, hour }: { grid: GridPoint[] | undefined; hour: numbe
     <div className={styles.legendNote}>
       <i className={styles.precipSwatch} style={{ background: isSnow ? 'rgba(236,241,255,0.55)' : 'rgba(110,160,235,0.6)' }} />
       {isSnow ? 'Снег' : 'Дождь'} в этот час, в среднем {fmt1(rain + snow)} мм: заливка и частицы там, где он идёт,
-      по сетке Open-Meteo над Москвой. К краю сетки заливка гаснет, дальше данных нет.
+      по сетке Open-Meteo над Москвой. Сплошная линия - граница осадков, пунктир - край данных о погоде.
     </div>
   );
 }
