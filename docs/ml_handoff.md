@@ -66,8 +66,11 @@ SHA-256: `69cf0a7cf4aced43d98238fac52efb4be2c134ab08b36033f6e2f5946076e9cf`.
 [v6](research/shape_facts_v6_2026-09-25.md),
 [базовый ансамбль](research/kaggle_unified_v2_2026-09-25.md),
 [дневная модель и v4](research/round4_2026-09-25.md).
-Окружение ML-экспериментов зафиксировано в `analysis/requirements-round4-py39.txt`,
-для ARIMA — в `analysis/requirements-arima-py39.txt`.
+Раунды запускаются в общем окружении uv на Python 3.14 (`uv sync --extra fm`, на Windows
+`PYTHONUTF8=1`). На нём каждый шаг цепочки от закоммиченного входа даёт файл, который отличается
+от оценённого на 0,04–0,15 % суммы модулей (таблица в [README](../README.md#финальный-прогноз-v11)).
+Побайтно оценённые файлы повторяются в окружении, где раунды считались:
+`analysis/requirements-round4-py39.txt`, для ARIMA — `analysis/requirements-arima-py39.txt`.
 Исследовательские кэши `data/` и сырые валидации в Git не входят;
 их восстановление описано в соответствующих отчётах.
 

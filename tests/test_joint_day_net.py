@@ -6,6 +6,8 @@ if importlib.util.find_spec("torch") is None:
     raise unittest.SkipTest("torch is not installed: uv sync --extra fm or analysis/requirements-neural-py312.txt")
 import sys
 from pathlib import Path
+if not (Path(__file__).resolve().parents[1] / "data/neural_training_pack/history.parquet").exists():
+    raise unittest.SkipTest("data/neural_training_pack is missing: build it with analysis/s66_next_iteration.py")
 
 import numpy as np
 import torch

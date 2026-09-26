@@ -42,7 +42,7 @@ class Data:
         daily = frame[frame.hour == 0]
         self.kind = daily.kind.to_numpy().reshape(365, 9)
         self.dow = daily.dow.to_numpy().reshape(365, 9)
-        self.good = daily.train_quality_ok.to_numpy().reshape(365, 9)
+        self.good = daily.train_quality_ok.to_numpy(copy=True).reshape(365, 9)  # pandas 3 hands out read-only arrays
         self.good &= self.total > 100
         # Match deployed protections; validation still scores every cell.
         self.good &= ~((np.isin(ROUTES, [7, 50])[None, :]) & (self.kind != 0))
