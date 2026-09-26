@@ -1,0 +1,12 @@
+{
+ "file": "submission_v11_probe_rake.csv",
+ "sha256": "a02d70630174ca56f6adfbbbc7c84ee102833f86d9e9c84dcdbc161e9623ea54",
+ "base": "submission_seasonal_daily_v11.csv",
+ "probes": {
+  "q01": 0.06115,
+  "q02": 0.06099,
+  "q03": 0.04594,
+  "q06": 0.0717,
+  "q24": 0.0665
+ }
+}

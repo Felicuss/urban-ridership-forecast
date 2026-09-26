@@ -152,6 +152,14 @@
     "evidence": "User reported 0.90741 in direct response to the single submission_seasonal_daily_v11.csv candidate."
   },
   {
+    "file": "submission_v11_probe_rake.csv",
+    "sha256": "a02d70630174ca56f6adfbbbc7c84ee102833f86d9e9c84dcdbc161e9623ea54",
+    "leaderboard_score": 0.90764,
+    "platform_display_number": null,
+    "submitted_at": "2026-09-26",
+    "evidence": "User reported 0.90764 for the v11 raked to 8 probe sums (s84, q01-q03, q06, q24)."
+  },
+  {
     "file": "probes/p10_total.csv",
     "sha256": "ee290e01da3e04565e626c20d95f102caa16e7a61d02bd7f876a61c259860b76",
     "leaderboard_score": 0.51431,

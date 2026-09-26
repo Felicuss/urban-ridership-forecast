@@ -1,3 +1,10 @@
+import importlib.util
+import unittest
+
+if any(importlib.util.find_spec(m) is None for m in ("shapely", "plotly")):
+    raise unittest.SkipTest("shapely and plotly are needed: analysis/requirements-nspd-py39.txt "
+                            "and analysis/requirements-round4-py39.txt")
+
 import json
 import math
 from pathlib import Path
