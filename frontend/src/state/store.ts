@@ -182,6 +182,9 @@ interface State {
   toggleRoute: (route: number) => void;
   setHiddenRoutes: (routes: number[]) => void;
   settingsOpen: boolean;
+  /** Тур по разделам: сам открывается при первом входе, потом по кнопке «?» в верхней строке. */
+  tourOpen: boolean;
+  setTourOpen: (open: boolean) => void;
   alerts: AlertRule[];
   addAlert: (rule: Omit<AlertRule, 'id'>) => void;
   removeAlert: (id: string) => void;
@@ -263,6 +266,8 @@ export const useStore = create<State>((set, get) => {
       set({ hiddenRoutes: routes });
     },
     settingsOpen: false,
+    tourOpen: false,
+    setTourOpen: (tourOpen) => set({ tourOpen }),
     alerts: loadAlerts(),
     addAlert: (rule) => {
       const next = [...get().alerts, { ...rule, id: `${Date.now().toString(36)}-${rule.route}` }];

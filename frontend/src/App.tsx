@@ -18,6 +18,7 @@ import { StationMatrix } from './components/panels/StationMatrix';
 import { PanelsBoard, SplitPane } from './components/layout/Workspace';
 import { useLayout } from './state/layout';
 import { TramDots } from './components/ui/Controls';
+import { Tour, tourSeen } from './components/tour/Tour';
 import styles from './App.module.css';
 
 // Карта и правая панель грузятся отдельными чанками параллельно с данными, пока идёт заставка.
@@ -84,6 +85,13 @@ export function App() {
     return () => clearTimeout(t);
   }, [phase, motion]);
 
+  // первый вход: тур по разделам, когда заставка ушла и данные на экране
+  useEffect(() => {
+    if (phase !== 'done' || !dataReady || boardOpen || tourSeen()) return undefined;
+    const t = setTimeout(() => useStore.getState().setTourOpen(true), 800);
+    return () => clearTimeout(t);
+  }, [phase, dataReady, boardOpen]);
+
   const steps = [
     { label: 'Модель', done: Boolean(meta.data && coefficients.data) },
     { label: 'Сеть маршрутов', done: Boolean(network.data) },
@@ -100,7 +108,7 @@ export function App() {
         {stopsOpen && route != null && <StopsPanel key={route} route={route} load={load.data} />}
       </aside>
       <main className={styles.map} data-layout={layout}>
-        <div className={styles.mapPane} hidden={layout === 'panels'}>
+        <div className={styles.mapPane} hidden={layout === 'panels'} data-tour="map">
           {network.data && (
             <Suspense fallback={null}>
               <MapView
@@ -121,17 +129,18 @@ export function App() {
         {layout === 'split' && <SplitPane />}
         {layout === 'panels' && <PanelsBoard />}
       </main>
-      <aside className={styles.right}>
+      <aside className={styles.right} data-tour="panel">
         <Suspense fallback={<div className={styles.pending}><TramDots label="Загружаем панель" /></div>}>
           <RightPanel />
         </Suspense>
       </aside>
-      <footer className={styles.bottom}>
+      <footer className={styles.bottom} data-tour="timeline">
         <Timeline />
       </footer>
       {failed && <div className={styles.error}>Сервис прогноза не отвечает: {String(failed.message)}</div>}
       {intro && phase !== 'done' && <TramLoader steps={steps} leaving={phase === 'leaving'} />}
       {boardOpen && <Suspense fallback={null}><Board /></Suspense>}
+      <Tour />
     </div>
   );
 }

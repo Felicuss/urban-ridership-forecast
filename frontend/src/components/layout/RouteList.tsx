@@ -31,7 +31,7 @@ export function RouteList({ load, factors }: { load: NetworkLoad | undefined; fa
   const max = Math.max(...totals.values(), 1);
 
   return (
-    <div className={styles.panel}>
+    <div className={styles.panel} data-tour="routes">
       <Search />
       <header className={styles.head}>
         <h2>Маршруты</h2>

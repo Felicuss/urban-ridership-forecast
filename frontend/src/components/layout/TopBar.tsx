@@ -41,6 +41,7 @@ export function TopBar() {
   const togglePlay = useStore((s) => s.togglePlay);
   const setSpeed = useStore((s) => s.setSpeed);
   const setSettingsOpen = useStore((s) => s.setSettingsOpen);
+  const setTourOpen = useStore((s) => s.setTourOpen);
   const settingsOpen = useStore((s) => s.settingsOpen);
   const scenario = useStore((s) => s.scenario);
   const resetScenario = useStore((s) => s.resetScenario);
@@ -90,7 +91,7 @@ export function TopBar() {
         </div>
       </div>
 
-      <div className={styles.when}>
+      <div className={styles.when} data-tour="date">
         <button type="button" className={styles.icon} aria-label="Предыдущий день" disabled={day === 0}
           title={followNow ? 'Предыдущий день: режим «Сейчас» выключится' : 'Предыдущий день'} onClick={() => setDay(day - 1)}><Icon.prev /></button>
         <button type="button" className={styles.date} onClick={() => setDateOpen((v) => !v)} aria-expanded={dateOpen}
@@ -109,7 +110,7 @@ export function TopBar() {
           onClose={closeDate} />}
       </div>
 
-      <div className={styles.clock}>
+      <div className={styles.clock} data-tour="clock">
         <ClockField minute={minute} />
         <button type="button" className={styles.play} onClick={togglePlay} aria-label={playing ? 'Пауза' : 'Пустить время'}
           title={playing ? 'Пауза' : followNow ? 'Пустить время: режим «Сейчас» выключится'
@@ -136,7 +137,7 @@ export function TopBar() {
         </div>
       )}
 
-      <div className={styles.actions}>
+      <div className={styles.actions} data-tour="actions">
         <AgentIsland />
         {changes > 0 && !isDefaultScenario(scenario) && (
           <button type="button" className={styles.scenario} onClick={resetScenario}
@@ -158,6 +159,10 @@ export function TopBar() {
             <Icon.download /><span className={styles.exportLabel}>Выгрузка</span>
           </button>
         </div>
+        <button type="button" className={styles.icon} aria-label="Тур по сервису" data-tour="tour"
+          onClick={() => setTourOpen(true)} title="Тур по разделам сервиса: что где находится и как им пользоваться">
+          <Icon.help />
+        </button>
         <button type="button" className={styles.icon} aria-label="Настройки" onClick={() => setSettingsOpen(true)}
           title="Настройки: слои карты, погода, свет по времени суток, анимации">
           <Icon.gear />
@@ -238,7 +243,6 @@ function AlertBell() {
   );
 }
 
-/** Дата в кнопке: год прячется на узком экране, день недели остаётся всегда. */
 /** Часы: клик открывает ввод «чч:мм» (или просто час), Enter переносит время выбранного дня, Esc отменяет. */
 function ClockField({ minute }: { minute: number }) {
   const setMinute = useStore((s) => s.setMinute);
