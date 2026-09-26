@@ -182,5 +182,13 @@
     "platform_display_number": null,
     "submitted_at": "2026-09-25T22:40:00+03:00",
     "evidence": "Platform screenshot: 25.09.2026 22:40 +03:00, score 0.03692. Level probe from analysis/s65_level_probes.py, see forecasts/probes/level_probes.json."
+  },
+  {
+    "file": "submission_v11_probe_rake_r2.csv",
+    "sha256": "b3fa9fe15a4a87b392c2b584482289af13a2628ad4dd3172e98f0aeec591e0c8",
+    "leaderboard_score": 0.90939,
+    "platform_display_number": 1,
+    "submitted_at": "2026-09-26T17:15:00+03:00",
+    "evidence": "Platform screenshot: 26.09.2026 17:15 +03:00, score 0.90939. v11 raked by analysis/s84_block_probes.py apply over probes q01 q02 q03 q04 q05 q06 q20 q24 q25."
   }
 ]
