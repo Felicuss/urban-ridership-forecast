@@ -1,0 +1,89 @@
+{
+  "source": "https://github.com/matrosovcmtn/moscow-parking-occupancy",
+  "revision": "5e7ca2096959f2557c0f05714bb534a2f5bdde6c",
+  "files": [
+    {
+      "file": "README.md",
+      "url": "https://raw.githubusercontent.com/matrosovcmtn/moscow-parking-occupancy/5e7ca2096959f2557c0f05714bb534a2f5bdde6c/README.md",
+      "bytes": 14190,
+      "sha256": "475b5dcdf7da5018d48f02661a13365214bfc986bfa7d88b7251c4be83d86999"
+    },
+    {
+      "file": "DATA_LICENSE",
+      "url": "https://raw.githubusercontent.com/matrosovcmtn/moscow-parking-occupancy/5e7ca2096959f2557c0f05714bb534a2f5bdde6c/DATA_LICENSE",
+      "bytes": 3614,
+      "sha256": "6bc58019c71ddfc49d5d97e081cba1051930184ea75d5ff17f046631d44ccb3b"
+    },
+    {
+      "file": "parking_spots.parquet",
+      "url": "https://raw.githubusercontent.com/matrosovcmtn/moscow-parking-occupancy/5e7ca2096959f2557c0f05714bb534a2f5bdde6c/data/parking_spots.parquet",
+      "bytes": 26883,
+      "sha256": "95e6b891fd84706cdccfc7c5026686e5cfd3a277f42e545884208232788cb3b8"
+    },
+    {
+      "file": "occupancy_2025-03.parquet",
+      "url": "https://raw.githubusercontent.com/matrosovcmtn/moscow-parking-occupancy/5e7ca2096959f2557c0f05714bb534a2f5bdde6c/data/occupancy_2025-03.parquet",
+      "bytes": 5974,
+      "sha256": "38dbd9e55b154d0418b3941b93246a5eb156cd5d7cbdd5f04d61ae3eaef3ec14"
+    },
+    {
+      "file": "occupancy_2025-04.parquet",
+      "url": "https://raw.githubusercontent.com/matrosovcmtn/moscow-parking-occupancy/5e7ca2096959f2557c0f05714bb534a2f5bdde6c/data/occupancy_2025-04.parquet",
+      "bytes": 635950,
+      "sha256": "a121af3b0e607ee045d998033d4e901ea925d6c57bcd230a1f79190e7e0386b8"
+    },
+    {
+      "file": "occupancy_2025-05.parquet",
+      "url": "https://raw.githubusercontent.com/matrosovcmtn/moscow-parking-occupancy/5e7ca2096959f2557c0f05714bb534a2f5bdde6c/data/occupancy_2025-05.parquet",
+      "bytes": 760952,
+      "sha256": "b93a4b52f14bf66e2deb263aca2f21e1c49479fbd3f6e811bc8b9d507ec820f2"
+    },
+    {
+      "file": "occupancy_2025-06.parquet",
+      "url": "https://raw.githubusercontent.com/matrosovcmtn/moscow-parking-occupancy/5e7ca2096959f2557c0f05714bb534a2f5bdde6c/data/occupancy_2025-06.parquet",
+      "bytes": 546973,
+      "sha256": "9a11a4890626708b1cf8be4a911ea920d417a45857d720819b9b2a3cfca97dfb"
+    },
+    {
+      "file": "occupancy_2025-07.parquet",
+      "url": "https://raw.githubusercontent.com/matrosovcmtn/moscow-parking-occupancy/5e7ca2096959f2557c0f05714bb534a2f5bdde6c/data/occupancy_2025-07.parquet",
+      "bytes": 696435,
+      "sha256": "ccda065e994789f223cfe12c97c500bb4e29ec7049df7f1a9160c1c61374e763"
+    },
+    {
+      "file": "occupancy_2025-08.parquet",
+      "url": "https://raw.githubusercontent.com/matrosovcmtn/moscow-parking-occupancy/5e7ca2096959f2557c0f05714bb534a2f5bdde6c/data/occupancy_2025-08.parquet",
+      "bytes": 407165,
+      "sha256": "673c82436c42c2333f10c2c3ed7143a4582e5ea3368e7cef3f84863bf1ac9943"
+    },
+    {
+      "file": "occupancy_2025-09.parquet",
+      "url": "https://raw.githubusercontent.com/matrosovcmtn/moscow-parking-occupancy/5e7ca2096959f2557c0f05714bb534a2f5bdde6c/data/occupancy_2025-09.parquet",
+      "bytes": 510719,
+      "sha256": "a62d2665f01dcf928789cf387e44dd454bde6be3210b5fb92b2e5d9ed0b74cc7"
+    },
+    {
+      "file": "occupancy_2025-10.parquet",
+      "url": "https://raw.githubusercontent.com/matrosovcmtn/moscow-parking-occupancy/5e7ca2096959f2557c0f05714bb534a2f5bdde6c/data/occupancy_2025-10.parquet",
+      "bytes": 637599,
+      "sha256": "4c385b731ce00fdc055fd2e2d66b5ce014b8aacf4c660563693e1ca791cd49b8"
+    },
+    {
+      "file": "occupancy_2025-11.parquet",
+      "url": "https://raw.githubusercontent.com/matrosovcmtn/moscow-parking-occupancy/5e7ca2096959f2557c0f05714bb534a2f5bdde6c/data/occupancy_2025-11.parquet",
+      "bytes": 670196,
+      "sha256": "a75823b3941827208de1cb48e03f1fb603bd76ca064aa0e88f51485981bc95a1"
+    },
+    {
+      "file": "occupancy_2025-12.parquet",
+      "url": "https://raw.githubusercontent.com/matrosovcmtn/moscow-parking-occupancy/5e7ca2096959f2557c0f05714bb534a2f5bdde6c/data/occupancy_2025-12.parquet",
+      "bytes": 649919,
+      "sha256": "0d34d85a18ed46889048b74cf6196f8b97f6133967a11595e492fc8a54203e7a"
+    }
+  ],
+  "attribution": "Moscow Parking Occupancy Dataset, Danil Matrosov / ParkOut, derived from public Moscow Department of Transport parking data; CC BY 4.0.",
+  "license_url": "https://creativecommons.org/licenses/by/4.0/",
+  "retrieved_on": "2026-09-26",
+  "local_directory": "data/research_094/parking",
+  "included_in_champion": false
+}

@@ -1,0 +1,90 @@
+{
+  "file": "submission_seasonal_v10.csv",
+  "status": "scored",
+  "leaderboard_score": 0.90731,
+  "sha256": "79f790c81e396b6ddb9cbf9b2261b2890ab2da31d510cdb4eb66857d71fe0ea1",
+  "anchor": "submission_shape50_v7.csv",
+  "anchor_score": 0.9057,
+  "anchor_sha256": "16048f68932802813d4760e0907b6ed3c09892f8c4aaf191327279755308d13e",
+  "models": [
+    "fourier1_weather",
+    "fourier2_r40"
+  ],
+  "weight": 0.35,
+  "method": "Robust regularized Fourier regression of hourly shares, recent residual calibration; equal one-harmonic weather and two-harmonic ensemble, ratio-transferred onto v7.",
+  "validation": [
+    {
+      "fold": "R04",
+      "weight": 0.35,
+      "baseline": 0.8590116038218785,
+      "score": 0.8594936666720672,
+      "gain": 0.0004820628501887531
+    },
+    {
+      "fold": "R05",
+      "weight": 0.35,
+      "baseline": 0.8580924217283226,
+      "score": 0.8582952316748663,
+      "gain": 0.00020280994654370177
+    },
+    {
+      "fold": "R06",
+      "weight": 0.35,
+      "baseline": 0.8612862488102612,
+      "score": 0.8615872986926851,
+      "gain": 0.0003010498824239397
+    },
+    {
+      "fold": "R07",
+      "weight": 0.35,
+      "baseline": 0.8344307124594039,
+      "score": 0.8384204005099917,
+      "gain": 0.003989688050587793
+    },
+    {
+      "fold": "R08",
+      "weight": 0.35,
+      "baseline": 0.8571690430203152,
+      "score": 0.8619498269695277,
+      "gain": 0.004780783949212509
+    },
+    {
+      "fold": "B",
+      "weight": 0.35,
+      "baseline": 0.9064087365042216,
+      "score": 0.9090248037722466,
+      "gain": 0.0026160672680249613
+    }
+  ],
+  "deduplicated_diagnostic": {
+    "unique_days": 184,
+    "weekly_blocks": 27,
+    "gain": 0.001342763766226004,
+    "weekly_bootstrap_95_interval": [
+      0.0008883992444006161,
+      0.0017941470717618116
+    ],
+    "caveat": "Reused development dates and selected hyperparameters; not a prospective confidence interval for the leaderboard."
+  },
+  "changed_rows": 9681,
+  "absolute_difference": 128524,
+  "sum_difference": 0,
+  "daily_totals_preserved": true,
+  "scored_artifacts_verified": 17,
+  "external_information": "Previously available actual future weather/calendar/network data. No new exact target counts.",
+  "provenance_sha256": {
+    "analysis/s80_seasonal_profiles.py": "9c40a54ee3e1145edc9b5b17b2ac205017db22c1ebd84f46706ed69af3c25efc",
+    "analysis/s81_package_seasonal_v10.py": "8954b918e900306cc9547762ed95fad44be8bbb701a784f15f9ac876c0e275bc",
+    "data/neural_training_pack/history.parquet": "a86e98bbdb214dcbd2585fc2305c2a1fb011d95953be893e73356c0401d5ac51",
+    "data/neural_training_pack/future_covariates.parquet": "6a044040a616ce28f23aa2f0eac0c7a7c0958c39f61abbb6d0fc58524b3463b1",
+    "data/seasonal_profiles/fourier1_weather_future.npy": "435ac025fb15e70136f3b3d73388347287c186a43ad4452c3940c8f7fe046a7b",
+    "data/seasonal_profiles/fourier2_r40_future.npy": "d1755130c183ff32a5a273152b6e856106491b130b272092dd766a296d8cb7ce"
+  },
+  "caveats": [
+    "Overlapping historical folds were reused for development and hyperparameter selection.",
+    "The winter backcast uses later-month labels and known daily totals; it is supplemental shape diagnosis, not a forward forecast.",
+    "Historical gains are not a promise of 0.94 or any leaderboard improvement."
+  ],
+  "leaderboard_delta_vs_anchor": 0.00161,
+  "evidence": "User reported 0.90731 in direct response to the single submission_seasonal_v10.csv candidate."
+}

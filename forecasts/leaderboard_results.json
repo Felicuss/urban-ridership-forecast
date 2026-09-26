@@ -110,5 +110,45 @@
     "platform_display_number": null,
     "submitted_at": null,
     "evidence": "User reported 0.90553 in direct response to the single shape_facts_v6 submission."
+  },
+  {
+    "file": "submission_shape50_v7.csv",
+    "sha256": "16048f68932802813d4760e0907b6ed3c09892f8c4aaf191327279755308d13e",
+    "leaderboard_score": 0.9057,
+    "platform_display_number": null,
+    "submitted_at": null,
+    "evidence": "User reported 0.90570 in response to the primary shape50_v7 submission; diagnostic submissions were separately identified."
+  },
+  {
+    "file": "submission_joint_day_v8.csv",
+    "sha256": "a275ee495a20f029085e46565d9d2cd8897f50c62efbf061ac243844b91dfa63",
+    "leaderboard_score": 0.90555,
+    "platform_display_number": null,
+    "submitted_at": null,
+    "evidence": "User reported 0.90555 after receiving the verified submission_joint_day_v8.csv; the earlier evaluation log was a parsing failure, not a score."
+  },
+  {
+    "file": "submission_architecture_v9.csv",
+    "sha256": "42a4bd1e6cb7da55d6c92a2c8e3191cdfb914eaec3d3ee100e25f8b607ee5183",
+    "leaderboard_score": 0.90543,
+    "platform_display_number": null,
+    "submitted_at": null,
+    "evidence": "User explicitly reported 0.90543 for v9 during final documentation of the architecture round."
+  },
+  {
+    "file": "submission_seasonal_v10.csv",
+    "sha256": "79f790c81e396b6ddb9cbf9b2261b2890ab2da31d510cdb4eb66857d71fe0ea1",
+    "leaderboard_score": 0.90731,
+    "platform_display_number": null,
+    "submitted_at": null,
+    "evidence": "User reported 0.90731 in direct response to the single submission_seasonal_v10.csv candidate."
+  },
+  {
+    "file": "submission_seasonal_daily_v11.csv",
+    "sha256": "69cf0a7cf4aced43d98238fac52efb4be2c134ab08b36033f6e2f5946076e9cf",
+    "leaderboard_score": 0.90741,
+    "platform_display_number": null,
+    "submitted_at": null,
+    "evidence": "User reported 0.90741 in direct response to the single submission_seasonal_daily_v11.csv candidate."
   }
 ]

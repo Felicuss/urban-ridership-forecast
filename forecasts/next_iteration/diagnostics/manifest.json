@@ -1,0 +1,144 @@
+{
+  "source_commit": "90516aa8e38db66447e71c3262d6d6e466aab46e",
+  "anchor_sha256": "ae13aca28a9c388f69981fd07d9a118c687fbecbcbfafd9df6faf2180d61ea5c",
+  "carrier_records": [
+    {
+      "id": "p10",
+      "kind": "total",
+      "sum_h": 5040000,
+      "file": "p10_total.csv",
+      "sha256": "ee290e01da3e04565e626c20d95f102caa16e7a61d02bd7f876a61c259860b76",
+      "score": 0.51431
+    },
+    {
+      "id": "p11",
+      "kind": "probe",
+      "group": [
+        17,
+        "wd",
+        11
+      ],
+      "ceiling": [
+        1.6,
+        3.0
+      ],
+      "cells": 456,
+      "sum_h": 1678572,
+      "base_sum": 1048158,
+      "carriers": [],
+      "file": "p11_r17_wd_11.csv",
+      "sha256": "fcef284e7de668c594eea10d40de98e30727a713dfa98a97f61a08415cd52285",
+      "score": 0.03337
+    },
+    {
+      "id": "p12",
+      "kind": "probe",
+      "group": [
+        17,
+        "wd",
+        12
+      ],
+      "ceiling": [
+        1.6,
+        3.0
+      ],
+      "cells": 528,
+      "sum_h": 1947992,
+      "base_sum": 1216390,
+      "carriers": [],
+      "file": "p12_r17_wd_12.csv",
+      "sha256": "477e6438fca253d6c8ced207bee2d3f74141fba2805552cbc5be21ee25e2fb7c",
+      "score": 0.03692
+    }
+  ],
+  "probes": [
+    {
+      "id": "p13",
+      "kind": "probe",
+      "set": "dec29_30",
+      "ceiling": [
+        1.8,
+        4.0
+      ],
+      "cells": 432,
+      "sum_h": 754225,
+      "base_sum": 417972,
+      "carriers": [
+        "p11"
+      ],
+      "file": "d01_dec29_30.csv",
+      "sha256": "754dc0755944b3fbe957b284fd5006a72d3ccaf97f93708321aa3a6ed7ce0eef",
+      "score": null,
+      "original_file": "p13_dec29_30.csv",
+      "already_prepared": true
+    },
+    {
+      "file": "d02_nov01.csv",
+      "sha256": "418ebee798cc0daf182419066619f89842f2334805a626ae5932557b92acbc58",
+      "score": null,
+      "ceiling": [
+        1.8,
+        4
+      ],
+      "carriers": [
+        "p12"
+      ],
+      "cells": 216,
+      "sum_h": 386597,
+      "base_sum": 214253,
+      "expected_score_if_target_equals_v6": 0.04017310297222222
+    },
+    {
+      "file": "d03_r7_50_weekends.csv",
+      "sha256": "a6a5a1223946363592dfb97da0f649f97607e7bebc9f2973245c72f41f34ea4c",
+      "score": null,
+      "ceiling": [
+        1.8,
+        4
+      ],
+      "carriers": [
+        "p11",
+        "p12"
+      ],
+      "cells": 720,
+      "sum_h": 708274,
+      "base_sum": 391739,
+      "expected_score_if_target_equals_v6": 0.07612756128571428
+    },
+    {
+      "file": "d04_nov03_04.csv",
+      "sha256": "5e637d82ce8174a98fe2804258a4ac4780bfb94e62491b45b2a132a7edf9a8fd",
+      "score": null,
+      "ceiling": [
+        1.8,
+        4
+      ],
+      "carriers": [
+        "p11",
+        "p12"
+      ],
+      "cells": 432,
+      "sum_h": 379485,
+      "base_sum": 209783,
+      "expected_score_if_target_equals_v6": 0.07340120809920633
+    },
+    {
+      "file": "d05_dec31_day.csv",
+      "sha256": "ad65d1e11dd4986d89feb6c1cda01a193280af7007d5079958603baffb8d0c4d",
+      "score": null,
+      "ceiling": [
+        1.8,
+        4
+      ],
+      "carriers": [
+        "p11",
+        "p12"
+      ],
+      "cells": 180,
+      "sum_h": 180876,
+      "base_sum": 100051,
+      "expected_score_if_target_equals_v6": 0.0717823801031746
+    }
+  ],
+  "warning": "Diagnostic files intentionally have low scores. Expected scores are not platform results. d01 is byte-identical to existing p13. Decode as capped target sums unless ceilings bound all true cells."
+}
