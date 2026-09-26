@@ -29,6 +29,19 @@
   color: var(--text);
 }
 
+/* название объекта сокращается многоточием, итог суток не переносится посреди фразы */
+.dayName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dayTotal {
+  flex: none;
+  white-space: nowrap;
+}
+
 .slider {
   position: relative;
   display: grid;
@@ -143,5 +156,19 @@
 
   .matrix {
     min-height: 150px;
+  }
+}
+
+/* Открыта панель остановок, карта сузилась: матрице осталось меньше 200 px, подписи рвались в столбик.
+   На такой ширине шкала суток занимает всю полосу, матрица вернётся, когда панель закроют. */
+@media (min-width: 1025px) {
+  @container timeline (max-width: 620px) {
+    .panel {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .matrix {
+      display: none;
+    }
   }
 }

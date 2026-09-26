@@ -53,8 +53,10 @@ export function Timeline() {
     <div className={styles.panel}>
       <div className={styles.controls}>
         <div className={styles.dayHead}>
-          <span>Сутки по часам: <b>{target.name}</b></span>
-          <span className="num">{fmtInt(dayTotal)} за сутки</span>
+          <span className={styles.dayName} title={`${target.name}: посадки по часам выбранных суток`}>
+            <b>{target.name}</b> по часам
+          </span>
+          <span className={`num ${styles.dayTotal}`}>{fmtInt(dayTotal)} за сутки</span>
         </div>
         <div className={styles.slider}>
           <svg viewBox="0 0 1000 40" preserveAspectRatio="none" className={styles.area} aria-hidden="true">

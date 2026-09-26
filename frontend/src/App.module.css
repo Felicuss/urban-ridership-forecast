@@ -77,6 +77,8 @@
 .bottom {
   grid-area: bottom;
   min-height: 0;
+  /* по ширине полосы шкала решает, помещается ли рядом матрица дней и часов */
+  container: timeline / inline-size;
 }
 
 .pending {
