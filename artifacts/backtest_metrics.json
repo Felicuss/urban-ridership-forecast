@@ -65,5 +65,12 @@
   "route_stop_rows": 604,
   "osm_matched_to_reference": 124,
   "osm_stops": 257
+ },
+ "plan": {
+  "from": "2025-02-01",
+  "to": "2025-10-31",
+  "method": "профиль за 2 недели по данным до конца предыдущего дня",
+  "wape_score_hour": 0.8912,
+  "wape_score_day": 0.9249
  }
 }

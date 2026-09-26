@@ -1,8 +1,8 @@
 {
  "schema_version": 1,
  "model_version": "seasonal_daily_v11",
- "git_commit": "45aa4bd9f2d903875b41002f1a3fe0e9138738c9",
- "generated_at": "2026-09-26T18:33:51+00:00",
+ "git_commit": "6d40192c20771307e4926deeba1f270552776071",
+ "generated_at": "2026-09-26T19:20:02+00:00",
  "forecast_origin": "2025-10-31",
  "horizon": {
   "from": "2025-11-01",
@@ -58,7 +58,7 @@
    "rows": 120
   },
   "backtest_metrics.json": {
-   "sha256": "3f37b2b8a06323a249ececc6d52320f9d13dec5d97b89628109970ac5b9bbc2f",
+   "sha256": "a95dcc1f718d21fe6d5b5620faede78f1a934cacde5d31873f3f9144fb42e5da",
    "rows": null
   },
   "factors.json": {
@@ -76,6 +76,10 @@
   "outlook.csv": {
    "sha256": "d19e2a864d68fb461ab8668c8472ed09bc9856650c6f82a595acea683149f628",
    "rows": 72960
+  },
+  "plan.csv": {
+   "sha256": "ad488aa8dd545ec0043d19bed5de9721606bf828e44aa919ba05e63d05205d47",
+   "rows": 65520
   },
   "news.json": {
    "sha256": "ebf8029a17c80b0fba41558e2866add75670bf4d2afce7dd28a7d932a77d7d1e",

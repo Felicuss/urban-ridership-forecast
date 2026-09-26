@@ -27,6 +27,7 @@ from export_components import (ROUTE5_SATURDAY, ROUTE5_SUNDAY, TARGET_SUBMISSION
 from export_horizons import backtest_frame, intervals_and_metrics, year_forecast
 from export_network import build_stops, network_geojson
 from export_news import build_news
+from export_plan import check as check_plan, plan_frame, plan_quality
 from s30_ex_ante import coefficients as ex_ante_coefficients
 from s34_traffic_probe import city_tram_monthly, novdec_levels
 
@@ -162,8 +163,6 @@ def main() -> None:
     year, year_meta = year_forecast(comp, pred)
     write_json(intervals, "intervals.json")
     write_csv(year, "forecast_year.csv")
-    write_json({**metrics, "leaderboard_wape_score": LEADERBOARD_SCORE, "year": year_meta, "stops": stop_stats},
-               "backtest_metrics.json")
 
     cal = timeline_calendar()
     actuals, equipment_checks = actuals_frame()
@@ -172,6 +171,11 @@ def main() -> None:
     write_csv(cal, "timeline_calendar.csv")
     write_csv(actuals, "actuals.csv")
     write_csv(outlook, "outlook.csv")
+    plan = plan_frame()
+    check_plan(plan, ROUTES)
+    write_csv(plan, "plan.csv")
+    write_json({**metrics, "leaderboard_wape_score": LEADERBOARD_SCORE, "year": year_meta, "stops": stop_stats,
+                "plan": plan_quality(plan, actuals)}, "backtest_metrics.json")
 
     factors = {**build_factors(), "equipment_checks": equipment_checks, "gaps": build_gaps(actuals, cal)}
     check_factors(factors)
@@ -186,7 +190,7 @@ def main() -> None:
 
     files = ["forecast_components.csv", "coefficients.json", "stops.csv", "route_stops.csv", "network.geojson",
              "intervals.json", "forecast_year.csv", "backtest_metrics.json", "factors.json",
-             "timeline_calendar.csv", "actuals.csv", "outlook.csv", "news.json"]
+             "timeline_calendar.csv", "actuals.csv", "outlook.csv", "plan.csv", "news.json"]
     manifest = {
         "schema_version": SCHEMA_VERSION,
         "model_version": MODEL_VERSION,
