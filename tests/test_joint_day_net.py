@@ -1,4 +1,9 @@
 """Causality and forecast invariants of the local neural experiment."""
+import importlib.util
+import unittest
+
+if importlib.util.find_spec("torch") is None:
+    raise unittest.SkipTest("torch is not installed: uv sync --extra fm or analysis/requirements-neural-py312.txt")
 import sys
 from pathlib import Path
 
