@@ -39,6 +39,21 @@ function label(period: string, horizon: Horizon): string {
   return monthLabel(period).slice(0, 3);
 }
 
+/**
+ * Восстановленные посадки в дни пропуска данных у маршрута: по часам для суток, суммой за день для недели
+ * и месяца. Вне пропуска null, пунктира нет.
+ */
+function restoredLine(factors: Factors | undefined, series: Series, route: number | null, horizon: Horizon) {
+  const days = route != null ? factors?.gaps?.restored[String(route)] : undefined;
+  if (!days || horizon === 'year') return undefined;
+  const line = series.points.map((p) => {
+    if (horizon === 'day') return days[p.period.slice(0, 10)]?.[Number(p.period.slice(11, 13))] ?? null;
+    const hours = days[p.period];
+    return hours ? hours.reduce((a, b) => a + b, 0) : null;
+  });
+  return line.some((v) => v != null) ? line : undefined;
+}
+
 /** Факт тех же месяцев 2025 года из данных организаторов: для горизонта «год» у маршрута и сети. */
 function history2025(factors: Factors | undefined, series: Series, route: number | null, level: string) {
   if (!factors || series.granularity !== 'month' || level === 'stop') return undefined;
@@ -76,6 +91,12 @@ export function ForecastTab() {
     : { ...query, from: isoDate(horizon === 'week' ? weekStart(compareDay) : compareDay) }), [query, compareDay, horizon]);
   const other = useSeries(compareQuery, scenario).data;
 
+  const restored = useMemo(() => (series && !series.scenario ? restoredLine(factors, series, target.route, horizon) : undefined),
+    [series, factors, target.route, horizon]);
+  const gap = target.route != null
+    ? factors?.gaps?.periods.find((p) => p.route === target.route && p.from <= isoDate(day) && isoDate(day) <= p.to)
+    : undefined;
+
   const chart = useMemo<BandSeries | null>(() => {
     if (!series) return null;
     return {
@@ -83,12 +104,13 @@ export function ForecastTab() {
       p50: series.points.map((p) => p.p50),
       p10: series.points.map((p) => p.p10),
       p90: series.points.map((p) => p.p90),
-      baseline: series.scenario ? series.points.map((p) => p.baseline ?? null) : undefined,
+      baseline: series.scenario ? series.points.map((p) => p.baseline ?? null) : restored,
+      baselineLabel: series.scenario ? 'база' : 'восстановлено',
       history: history2025(factors, series, target.route, target.level),
       compare: compareQuery && other ? series.points.map((_, i) => other.points[i]?.p50 ?? null) : undefined,
       compareLabel: compareDay != null ? compareLabel(compareDay, horizon) : undefined,
     };
-  }, [series, horizon, factors, target.route, target.level, compareQuery, other, compareDay]);
+  }, [series, horizon, factors, target.route, target.level, compareQuery, other, compareDay, restored]);
 
   if (!series || !chart) return <TramDots label="Считаем прогноз" />;
 
@@ -151,6 +173,13 @@ export function ForecastTab() {
             }
           }} />
       </Card>
+      {gap && (
+        <p className={styles.gapNote}>
+          <b>Пропуск в данных {shortDate(gap.from)}{gap.to !== gap.from ? `-${shortDate(gap.to)}` : ''}:</b> {gap.reason}.
+          {gap.source && <>{' '}<a href={gap.source} target="_blank" rel="noopener noreferrer">Источник</a>.</>}
+          {' '}Белый пунктир - посадки, восстановленные по прошлым неделям: {fmtInt(gap.restored)} за период при факте {fmtInt(gap.fact)}.
+        </p>
+      )}
       <CompareBar day={day} horizon={horizon} series={series} other={compareQuery ? other : undefined} />
       {byDay && <PeakDays points={series.points} horizon={horizon} day={day}
         onPick={(d, h) => setMinute(d * MINUTES_PER_DAY + h * 60 + 30)} />}

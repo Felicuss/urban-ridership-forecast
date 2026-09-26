@@ -94,3 +94,18 @@ def test_timeline_fact_is_the_organizers_data_and_outlook_adds_up_to_the_year():
     check(cal, actuals, outlook, year)
     assert cal[cal.date == "2026-01-09"].day_off.item(), "перенос выходного 2026 из производственного календаря"
     assert cal[cal.date == "2025-11-01"].day_type.item() == "workday", "рабочая суббота 1 ноября"
+
+
+def test_gaps_name_the_reason_and_restore_from_earlier_weeks():
+    """Пропуски факта: выходные №50 осенью 2025 - закрытие по посту Дептранса, восстановленные посадки
+    по прошлым выходным на порядок больше факта; у каждого дня пропуска 24 восстановленных часа."""
+    gaps = json.loads((OUT / "factors.json").read_text(encoding="utf-8"))["gaps"]
+    by_route = {(p["route"], p["from"]): p for p in gaps["periods"]}
+    autumn = by_route[(50, "2025-09-06")]
+    assert autumn["type"] == "closure" and autumn["source"].startswith("https://t.me/DtOperativno/")
+    assert autumn["restored"] > 10 * autumn["fact"]
+    for p in gaps["periods"]:
+        days = gaps["restored"][str(p["route"])]
+        inside = [d for d in days if p["from"] <= d <= p["to"]]
+        assert len(inside) == p["days"]
+        assert all(len(days[d]) == 24 for d in inside)

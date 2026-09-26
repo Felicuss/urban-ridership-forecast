@@ -21,6 +21,7 @@ import s10_forecast as s10
 from common import FORECAST_END, FORECAST_START, ROOT, ROUTES, TEST_END
 from export_context import build_factors, check as check_factors
 from export_timeline import actuals_frame, check as check_timeline, outlook_frame, timeline_calendar
+from export_gaps import build_gaps
 from export_components import (ROUTE5_SATURDAY, ROUTE5_SUNDAY, TARGET_SUBMISSION, build_components, recompute,
                                scenario_coefficients)
 from export_horizons import backtest_frame, intervals_and_metrics, year_forecast
@@ -170,7 +171,7 @@ def main() -> None:
     write_csv(actuals, "actuals.csv")
     write_csv(outlook, "outlook.csv")
 
-    factors = {**build_factors(), "equipment_checks": equipment_checks}
+    factors = {**build_factors(), "equipment_checks": equipment_checks, "gaps": build_gaps(actuals, cal)}
     check_factors(factors)
     (OUT / "factors.json").write_text(json.dumps(factors, ensure_ascii=False, separators=(",", ":")) + "\n",
                                       encoding="utf-8")

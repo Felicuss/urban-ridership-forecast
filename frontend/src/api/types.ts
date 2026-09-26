@@ -136,6 +136,20 @@ export interface BacktestQuality {
   stops: { stops: number; osm_matched_to_reference: number; osm_stops: number };
 }
 
+export interface GapPeriod {
+  route: number;
+  from: string;
+  to: string;
+  days: number;
+  day_kinds: string;
+  fact: number;
+  expected: number;
+  restored: number;
+  reason: string;
+  type: string;
+  source: string;
+}
+
 export interface Factors {
   calendar: { date: string; dow: number; day_type: string; day_off: boolean; holiday: string | null }[];
   weather: {
@@ -161,6 +175,13 @@ export interface Factors {
     }>;
   };
   history: { source: string; dates: string[]; routes: Record<string, number[]> };
+  /** Пропуски факта 2025: период, причина со ссылкой и восстановленные по прошлым неделям посадки по часам. */
+  gaps?: {
+    rule: string;
+    restore: string;
+    periods: GapPeriod[];
+    restored: Record<string, Record<string, number[]>>;
+  };
   /** Проверки оборудования вне часов работы маршрутов: отброшены из факта. */
   equipment_checks?: {
     rule: string;

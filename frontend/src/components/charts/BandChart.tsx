@@ -13,6 +13,8 @@ export interface BandSeries {
   p10: number[];
   p90: number[];
   baseline?: (number | null)[];
+  /** Подпись пунктира в подсказке: «база» для сценария, «восстановлено» для пропуска в данных. */
+  baselineLabel?: string;
   history?: (number | null)[];
   /** Ряд другой даты для сравнения и его подпись в подсказке. */
   compare?: (number | null)[];
@@ -111,7 +113,7 @@ export function BandChart({ data, color, cursorIndex, height = 180, onPick }: Pr
       const other = d.compare?.[i];
       t.style.opacity = '1';
       t.textContent = `${d.labels[i] ?? ''}: ${fmtInt(d.p50[i])} (${fmtInt(d.p10[i])}-${fmtInt(d.p90[i])})`
-        + (base != null ? `, база ${fmtInt(base)}` : '')
+        + (base != null ? `, ${d.baselineLabel ?? 'база'} ${fmtInt(base)}` : '')
         + (other != null ? `, ${d.compareLabel ?? 'сравнение'} ${fmtInt(other)}` : '');
     }];
     const m = document.createElement('div');

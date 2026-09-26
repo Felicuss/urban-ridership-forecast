@@ -599,3 +599,56 @@
   text-align: right;
   white-space: nowrap;
 }
+
+/* Пропуск в данных: причина и восстановленные посадки под графиком */
+.gapNote {
+  margin: 0;
+  padding: 8px 10px;
+  border-left: 2px solid var(--warn);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: rgba(224, 175, 104, 0.08);
+  color: var(--text-2);
+  font-size: 12px;
+}
+
+.gapNote b {
+  color: var(--text);
+}
+
+.gapNote a {
+  color: var(--accent);
+}
+
+.gapList {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gapItem {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  color: var(--text-2);
+  font-size: 12px;
+  text-align: left;
+}
+
+.gapItem:hover {
+  border-color: var(--line-strong);
+  background: var(--surface-2);
+}
+
+.gapItem b {
+  color: var(--text);
+  font-size: 12.5px;
+}
+
+.gapItem small {
+  color: var(--muted);
+}

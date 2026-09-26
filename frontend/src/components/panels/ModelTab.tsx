@@ -1,4 +1,6 @@
 import { useFactors, useMeta } from '../../api/queries';
+import { useStore } from '../../state/store';
+import { MINUTES_PER_DAY, dayOf, shortDate } from '../../lib/time';
 import type { Granularity } from '../../api/types';
 import { fmt1, fmtInt } from '../../lib/format';
 import { Card, Kpi, TramDots } from '../ui/Controls';
@@ -22,7 +24,12 @@ const GRANULARITY: { key: Granularity; label: string }[] = [
 
 export default function ModelTab() {
   const meta = useMeta().data;
-  const checks = useFactors().data?.equipment_checks;
+  const factors = useFactors().data;
+  const checks = factors?.equipment_checks;
+  const gaps = factors?.gaps;
+  const selectRoute = useStore((s) => s.selectRoute);
+  const setMinute = useStore((s) => s.setMinute);
+  const setTab = useStore((s) => s.setTab);
   if (!meta) return <TramDots label="Загружаем паспорт модели" />;
   const q = meta.quality;
   const folds = Object.keys(q.folds);
@@ -91,6 +98,24 @@ export default function ModelTab() {
           <ul className={styles.list}>
             {Object.entries(checks.off_hours).filter(([, h]) => h.length).map(([route, hours]) => (
               <li key={route}><span>№{route}: {hours.map((h) => `${h}:00-${h + 1}:00`).join(', ')}</span></li>
+            ))}
+          </ul>
+        </Card>
+      )}
+
+      {gaps && gaps.periods.length > 0 && (
+        <Card title="Пропуски в данных"
+          info={`Пропуск - ${gaps.rule}. Восстановление ${gaps.restore}. Факт остаётся фактом: восстановленные посадки показаны пунктиром на графике и в прогноз не подмешиваются.`}>
+          <ul className={styles.gapList}>
+            {gaps.periods.map((g) => (
+              <li key={`${g.route}-${g.from}`}>
+                <button type="button" className={styles.gapItem} title="Показать этот день на графике"
+                  onClick={() => { selectRoute(g.route); setMinute(dayOf(g.from) * MINUTES_PER_DAY + 8 * 60 + 30); setTab('forecast'); }}>
+                  <b>№{g.route} · {shortDate(g.from)}{g.to !== g.from ? `-${shortDate(g.to)}` : ''} · {g.days} дн. ({g.day_kinds})</b>
+                  <span>{g.reason}</span>
+                  <small>факт {fmtInt(g.fact)}, восстановлено {fmtInt(g.restored)} посадок{g.source ? ' · есть пост Дептранса' : ''}</small>
+                </button>
+              </li>
             ))}
           </ul>
         </Card>
