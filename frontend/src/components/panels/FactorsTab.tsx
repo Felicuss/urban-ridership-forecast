@@ -44,7 +44,8 @@ export default function FactorsTab() {
             <MiniBars values={center.rain.map((v, i) => (v ?? 0) + (center.snow[i] ?? 0))} labels={HOURS} color="#7aa2f7"
               mark={hour} height={46} />
             <p className={styles.note}>Температура по часам и осадки (дождь, мм/ч, и снег, см/ч). Эффект на посадки по
-              истории 2025 года: −0,74 % на мм осадков за день.</p>
+              истории 2025 года: −0,74 % на мм осадков за день.{' '}
+              <a href="https://open-meteo.com/en/docs/historical-weather-api" target="_blank" rel="noopener noreferrer">Open-Meteo</a></p>
           </>
         ) : (
           <p className={styles.note}>{grid.isLoading ? 'Загружаем погоду…'
@@ -73,20 +74,26 @@ export default function FactorsTab() {
           {holidays.map((c) => <li key={c.date}><span>{shortDate(c.date)} - {c.holiday}</span></li>)}
           {holidays.length === 0 && <li><span className={styles.note}>Праздников в этом месяце нет.</span></li>}
         </ul>
+        <p className={styles.note}>
+          <a href="https://www.consultant.ru/law/ref/calendar/proizvodstvennye/2025/" target="_blank" rel="noopener noreferrer">Постановление № 1335</a>,{' '}
+          <a href="https://isdayoff.ru/" target="_blank" rel="noopener noreferrer">isdayoff.ru</a></p>
       </Card>
 
       <Card title="Загруженность дорог"
         info="data.mos.ru, набор 62525: средний балл пробок по месяцам. Рост на 1 балл сопровождается ростом посадок трамвая Москвы на 10,5 % (p = 0,0001). Вес трафика в уровне ноября-декабря настраивается на вкладке «Сценарий».">
         <MiniBars values={traffic.score} labels={traffic.months}
           color="#bb9af7" highlight={(i) => (traffic.months[i] ?? '') >= '2025-11' && (traffic.months[i] ?? '') <= '2025-12'} />
-        <p className={styles.note}>Ноябрь-декабрь 2025 выделены: {traffic.score.slice(-2).map((v) => fmt1(v)).join(' и ')} балла.</p>
+        <p className={styles.note}>Ноябрь-декабрь 2025 выделены: {traffic.score.slice(-2).map((v) => fmt1(v)).join(' и ')} балла.{' '}
+          <a href="https://data.mos.ru/opendata/62525" target="_blank" rel="noopener noreferrer">data.mos.ru, набор 62525</a></p>
       </Card>
 
       <Card title="Трамвай Москвы по месяцам"
         info="data.mos.ru, набор 62521: посадки в сутки по всем трамвайным маршрутам города. Из отношения месяцев прошлых лет к октябрю строится уровень ноября и декабря (амплитуда наших маршрутов 0,83) и годовой прогноз.">
         <MiniLine values={city.per_day.slice(cityFrom)} labels={city.months.slice(cityFrom)}
           color="#73daca" mark={city.months.indexOf('2025-11') - cityFrom} format={(v) => fmtCompact(v)} />
-        <p className={styles.note}>Отметка - ноябрь 2025. {monthLabel(city.months[city.months.length - 1] ?? '2026-08')}: {fmtCompact(city.per_day[city.per_day.length - 1])} посадок в сутки.</p>
+        <p className={styles.note}>Отметка - ноябрь 2025. {monthLabel(city.months[city.months.length - 1] ?? '2026-08')}: {fmtCompact(city.per_day[city.per_day.length - 1])} посадок в сутки.{' '}
+          <a href="https://data.mos.ru/opendata/7704786030-mesyachniy-passajiropotok-po-vsem-vidam-obshchestvennogo-transporta-v-gorode-moskve"
+            target="_blank" rel="noopener noreferrer">data.mos.ru, набор 62521</a></p>
       </Card>
 
       {sched && (
