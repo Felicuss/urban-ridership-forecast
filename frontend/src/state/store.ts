@@ -113,7 +113,7 @@ function saveFlags(flags: Flags): void {
   }
 }
 
-export const SPEEDS = [1, 60, 300, 900, 3600] as const;
+export const SPEEDS = [1, 60, 100, 300, 900] as const;
 
 /** Не больше 20 событий в сценарии: столько принимает сервис. */
 export const MAX_EVENTS = 20;

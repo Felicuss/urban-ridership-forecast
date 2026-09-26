@@ -26,9 +26,9 @@ const SOURCE_BADGE: Record<string, { label: string; hint: string }> = {
 const SPEED_HINT: Record<Speed, string> = {
   1: 'настоящее время',
   60: 'минута за секунду',
+  100: '1 мин 40 с за секунду',
   300: '5 минут за секунду',
   900: '15 минут за секунду',
-  3600: 'сутки за 24 секунды',
 };
 
 export function TopBar() {

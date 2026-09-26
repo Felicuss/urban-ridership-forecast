@@ -78,7 +78,7 @@ function TourRun() {
 
   const playDay = () => {
     const day = dayIndex(useStore.getState().minute);
-    useStore.setState({ minute: day * MINUTES_PER_DAY + 5 * 60, speed: 3600, playing: true, followNow: false,
+    useStore.setState({ minute: day * MINUTES_PER_DAY + 5 * 60, speed: 100, playing: true, followNow: false,
       nowNotice: null });
     close(false);
   };
@@ -190,7 +190,7 @@ function TourRun() {
             <>
               <button type="button" className={styles.second} onClick={() => close()}>Закончить</button>
               <button ref={primary} type="button" className={styles.primary} onClick={playDay}>
-                <Icon.play />Проиграть сутки
+                <Icon.play />Пустить время
               </button>
             </>
           ) : (
