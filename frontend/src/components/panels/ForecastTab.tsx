@@ -255,7 +255,7 @@ function PerTrip({ route, load, factors, dayOff, hour }: {
   const max = Math.max(...perTrip, limit, 1);
   const peakHour = perTrip.indexOf(Math.max(...perTrip));
   return (
-    <Card title="Посадок на рейс" info="Посадки маршрута в час ÷ рейсы в обе стороны по расписанию transport.mos.ru. Высокие столбики - часы, где на один вагон приходится больше всего входящих: кандидаты на дополнительные выпуски.">
+    <Card title={`Посадок на рейс: маршрут ${route}`} info="Посадки маршрута в час ÷ рейсы в обе стороны по расписанию transport.mos.ru. Высокие столбики - часы, где на один вагон приходится больше всего входящих: кандидаты на дополнительные выпуски.">
       <div className={styles.bars} role="img" aria-label="Посадок на рейс по часам">
         {perTrip.map((v, h) => (
           <span key={h} className={h === hour ? styles.barOn : styles.bar} title={`${h}:00 - ${fmtInt(v)} на рейс`}
