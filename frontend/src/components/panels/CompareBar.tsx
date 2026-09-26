@@ -55,11 +55,12 @@ export function CompareBar({ day, horizon, series, other }: {
     <div className={styles.compare}>
       <div className={styles.row} role="group" aria-label="Сравнить с другой датой">
         <span className={styles.compareLabel}>Сравнить с</span>
-        <button type="button" className={compareDay == null ? styles.chipOn : styles.chip} onClick={() => setCompareDay(null)}>
+        <button type="button" className={compareDay == null ? styles.chipOn : styles.chip} aria-pressed={compareDay == null}
+          onClick={() => setCompareDay(null)}>
           нет</button>
         {opts.map((o) => (
           <button key={o.label} type="button" className={compareDay === o.day ? styles.chipOn : styles.chip}
-            onClick={() => setCompareDay(o.day)}>{o.label}</button>
+            aria-pressed={compareDay === o.day} onClick={() => setCompareDay(o.day)}>{o.label}</button>
         ))}
         <input className={styles.input} type="date" min={TIMELINE_START} max={TIMELINE_END} aria-label="Другая дата"
           value={compareDay != null ? isoDate(compareDay) : ''}

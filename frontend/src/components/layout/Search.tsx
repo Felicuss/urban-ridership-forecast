@@ -45,6 +45,12 @@ export function Search() {
           if (e.key === 'Enter' && results[0]) pick(results[0]);
           if (e.key === 'Escape') setOpen(false);
         }} />
+      {open && query && results.length === 0 && (
+        <p className={styles.empty} role="status">
+          {stops ? `Ничего не нашлось. Наберите часть названия остановки или номер маршрута: ${Object.keys(ROUTE_COLORS).join(', ')}`
+            : 'Загружаем остановки…'}
+        </p>
+      )}
       {open && results.length > 0 && (
         <ul className={styles.list} role="listbox">
           {results.map((r) => (

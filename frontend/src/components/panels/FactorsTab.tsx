@@ -1,6 +1,6 @@
 import { useCalendar, useFactors } from '../../api/queries';
 import { useWeatherGrid } from '../../hooks/useWeather';
-import { CENTER_INDEX } from '../../lib/weatherGrid';
+import { CENTER_INDEX, beyondForecast } from '../../lib/weatherGrid';
 import { useStore } from '../../state/store';
 import { MONTHS, dayIndex, dayLabel, hourOf, isoDate, monthLabel, monthOf, shortDate } from '../../lib/time';
 import { capitalize, fmt1, fmtCompact, fmtTemp } from '../../lib/format';
@@ -49,7 +49,8 @@ export default function FactorsTab() {
           </>
         ) : (
           <p className={styles.note}>{grid.isLoading ? 'Загружаем погоду…'
-            : 'Для этой даты погоды нет: прогноз Open-Meteo выпускается на 16 дней вперёд.'}</p>
+            : beyondForecast(isoDate(day)) ? 'Для этой даты погоды нет: прогноз Open-Meteo выпускается на 16 дней вперёд.'
+              : 'Open-Meteo не ответил, погода за этот день не загрузилась.'}</p>
         )}
       </Card>
 

@@ -93,7 +93,7 @@ export function PanelsBoard() {
         <span>Панелей на экране</span>
         {COUNTS.map((c) => (
           <button key={c.value} type="button" className={count === c.value ? styles.countOn : styles.count}
-            onClick={() => setCount(c.value)}>{c.label}</button>
+            aria-pressed={count === c.value} onClick={() => setCount(c.value)}>{c.label}</button>
         ))}
         <small>Виджет выбирается в заголовке панели, место меняется перетаскиванием заголовка.</small>
       </div>

@@ -1,5 +1,5 @@
 import { useWeatherGrid } from '../../hooks/useWeather';
-import { CENTER_INDEX, SNOW_CM_TO_MM } from '../../lib/weatherGrid';
+import { CENTER_INDEX, SNOW_CM_TO_MM, beyondForecast } from '../../lib/weatherGrid';
 import { MINUTES_PER_DAY, isoDate, sunElevation } from '../../lib/time';
 import { skyOf } from '../../lib/weather';
 import { fmt1, fmtTemp } from '../../lib/format';
@@ -19,7 +19,9 @@ export function DayWeather({ day, hour }: { day: number; hour: number }) {
   if (!c) {
     return (
       <div className={styles.empty}>
-        {grid.isLoading ? 'Загружаем погоду на день…' : 'Погоды на эту дату нет: прогноз выходит на 16 дней вперёд'}
+        {grid.isLoading ? 'Загружаем погоду на день…'
+          : beyondForecast(isoDate(day)) ? 'Погоды на эту дату нет: прогноз выходит на 16 дней вперёд'
+            : 'Open-Meteo не ответил, погоды на день пока нет'}
       </div>
     );
   }

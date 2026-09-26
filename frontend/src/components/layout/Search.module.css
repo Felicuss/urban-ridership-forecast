@@ -39,6 +39,22 @@
   box-shadow: var(--shadow);
 }
 
+.empty {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 4px;
+  right: 4px;
+  z-index: 30;
+  margin: 0;
+  padding: 9px 11px;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: #121214;
+  box-shadow: var(--shadow);
+  color: var(--text-2);
+  font-size: 12px;
+}
+
 .list button {
   display: flex;
   align-items: center;

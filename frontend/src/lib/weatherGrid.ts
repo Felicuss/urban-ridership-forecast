@@ -46,9 +46,14 @@ interface OpenMeteoPoint {
 const HOURLY = 'temperature_2m,rain,showers,snowfall,weather_code,wind_speed_10m,wind_direction_10m';
 const DAY_MS = 86_400_000;
 
+/** Дата дальше 16 дней вперёд: прогноза погоды на неё ещё нет, это не сбой сети. */
+export function beyondForecast(date: string, now = Date.now()): boolean {
+  return (now - Date.parse(`${date}T00:00:00Z`)) / DAY_MS < -15;
+}
+
 function endpoint(date: string): string {
   const age = (Date.now() - Date.parse(`${date}T00:00:00Z`)) / DAY_MS;
-  if (age < -15) throw new Error('прогноз погоды дальше 16 дней не выпускается');
+  if (beyondForecast(date)) throw new Error('прогноз погоды дальше 16 дней не выпускается');
   return age > 85 ? 'https://archive-api.open-meteo.com/v1/archive' : 'https://api.open-meteo.com/v1/forecast';
 }
 
