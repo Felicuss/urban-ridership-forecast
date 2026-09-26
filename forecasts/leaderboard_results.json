@@ -107,9 +107,9 @@
     "file": "submission_shape_facts_v6.csv",
     "sha256": "ae13aca28a9c388f69981fd07d9a118c687fbecbcbfafd9df6faf2180d61ea5c",
     "leaderboard_score": 0.90553,
-    "platform_display_number": null,
-    "submitted_at": null,
-    "evidence": "User reported 0.90553 in direct response to the single shape_facts_v6 submission."
+    "platform_display_number": 1,
+    "submitted_at": "2026-09-25T21:16:00+03:00",
+    "evidence": "User reported 0.90553 in direct response to the single shape_facts_v6 submission. Upload time and score confirmed by a platform screenshot."
   },
   {
     "file": "submission_shape50_v7.csv",
@@ -158,5 +158,29 @@
     "platform_display_number": null,
     "submitted_at": "2026-09-26",
     "evidence": "User reported 0.90764 for the v11 raked to 8 probe sums (s84, q01-q03, q06, q24)."
+  },
+  {
+    "file": "probes/p10_total.csv",
+    "sha256": "ee290e01da3e04565e626c20d95f102caa16e7a61d02bd7f876a61c259860b76",
+    "leaderboard_score": 0.51431,
+    "platform_display_number": 1,
+    "submitted_at": "2026-09-25T22:38:00+03:00",
+    "evidence": "Platform screenshot: 25.09.2026 22:38 +03:00, score 0.51431. Level probe from analysis/s65_level_probes.py, see forecasts/probes/level_probes.json."
+  },
+  {
+    "file": "probes/p11_r17_wd_11.csv",
+    "sha256": "fcef284e7de668c594eea10d40de98e30727a713dfa98a97f61a08415cd52285",
+    "leaderboard_score": 0.03337,
+    "platform_display_number": null,
+    "submitted_at": "2026-09-25T22:39:00+03:00",
+    "evidence": "Platform screenshot: 25.09.2026 22:39 +03:00, score 0.03337. Level probe from analysis/s65_level_probes.py, see forecasts/probes/level_probes.json."
+  },
+  {
+    "file": "probes/p12_r17_wd_12.csv",
+    "sha256": "477e6438fca253d6c8ced207bee2d3f74141fba2805552cbc5be21ee25e2fb7c",
+    "leaderboard_score": 0.03692,
+    "platform_display_number": null,
+    "submitted_at": "2026-09-25T22:40:00+03:00",
+    "evidence": "Platform screenshot: 25.09.2026 22:40 +03:00, score 0.03692. Level probe from analysis/s65_level_probes.py, see forecasts/probes/level_probes.json."
   }
 ]
