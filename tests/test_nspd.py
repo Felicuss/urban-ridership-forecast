@@ -1,3 +1,9 @@
+import importlib.util
+import unittest
+
+if importlib.util.find_spec("shapely") is None:
+    raise unittest.SkipTest("shapely is not installed: analysis/requirements-nspd-py39.txt")
+
 import json
 import math
 from pathlib import Path
