@@ -399,4 +399,4 @@ uv run python s40_export_artifacts.py     # artifacts/: компоненты п�
 cd .. && uv run pytest                    # эталон: artifacts/ воспроизводит лучший сабмит и правила s10
 ```
 
-Среда: Windows 11, Python 3.13, uv 0.12.15, DuckDB 1.5.5, pandas 3.0.6, LightGBM 4.7.0, torch 2.14.0+cu130, RTX 5070 12 ГБ, Ryzen 5 5600X, 32 ГБ RAM. Сырые CSV (10.4 ГБ) в репозиторий не входят, `data/` с parquet и кэшами тоже.
+Среда: Python 3.14, uv 0.12.19, DuckDB 1.5.5, pandas 3.0.6, LightGBM 4.7.0, torch 2.14.0+cu130. Расчёты шли на Windows 11, RTX 5070 12 ГБ, Ryzen 5 5600X, 32 ГБ RAM, тогда на Python 3.13; на 3.14 экспорт s40 даёт те же артефакты побайтно. Сырые CSV (10.4 ГБ) в репозиторий не входят, `data/` с parquet и кэшами тоже.
