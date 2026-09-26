@@ -107,7 +107,19 @@ WAVE3: list[Block] = [
     Block("dec22_26_wd", {"routes": NOT17, "dates": [f"2025-12-{d}" for d in range(22, 27)]}, DEFAULT_CEILING,
           part=False),
 ]
-PLANS = {"1": WAVE1, "pilot": PILOT, "3": WAVE3}
+# Волна 4: хвосты месяцев по датам событий сети. Сумма месяца уже измерена или меряется в волне 1,
+# поэтому одна проба делит её на две части: до события и после.
+DEC20_31 = [f"2025-12-{d}" for d in range(20, 32)]
+DEC27_31 = [f"2025-12-{d}" for d in range(27, 32)]
+WAVE4: list[Block] = [
+    Block("r7_dec20_31", {"routes": [7], "dates": DEC20_31}, REGIME_CEILING, part=False),  # перенос остановок
+    Block("r7_nov12_30", {"routes": [7], "dates": [f"2025-11-{d}" for d in range(12, 31)]}, REGIME_CEILING,
+          part=False),  # запуск Т1 на общем участке
+    Block("r50_dec27_31", {"routes": [50], "dates": DEC27_31}, REGIME_CEILING, part=False),  # депо Баумана
+    Block("r12_dec27_31", {"routes": [12], "dates": DEC27_31}, DEFAULT_CEILING, part=False),  # депо Баумана
+    Block("r11_dec20_31", {"routes": [11], "dates": DEC20_31}, DEFAULT_CEILING, part=False),  # перенос остановок
+]
+PLANS = {"1": WAVE1, "pilot": PILOT, "3": WAVE3, "4": WAVE4}
 
 
 def grid() -> pd.DataFrame:
