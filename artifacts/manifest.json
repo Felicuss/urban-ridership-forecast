@@ -1,8 +1,8 @@
 {
  "schema_version": 1,
- "model_version": "shape_facts_v6",
- "git_commit": "6d967322cf83766e07f694c6ff7ba1758f5e5bd8",
- "generated_at": "2026-09-26T00:04:55+00:00",
+ "model_version": "seasonal_daily_v11",
+ "git_commit": "eba22474701b496a9f2cbcfa8e8c36834aa52f0b",
+ "generated_at": "2026-09-26T08:54:44+00:00",
  "forecast_origin": "2025-10-31",
  "horizon": {
   "from": "2025-11-01",
@@ -21,20 +21,20 @@
   50
  ],
  "default_scenario": {
-  "name": "shape_facts_v6",
-  "script": "analysis/s64_package_shape_facts.py",
-  "formula": "analysis/s32_ex_ante_route5.py × calib до v6",
-  "submission": "forecasts/submission_shape_facts_v6.csv",
-  "submission_sha256_lf": "ae13aca28a9c388f69981fd07d9a118c687fbecbcbfafd9df6faf2180d61ea5c",
-  "leaderboard_wape_score": 0.90553
+  "name": "seasonal_daily_v11",
+  "script": "analysis/s83_package_seasonal_daily_v11.py",
+  "formula": "analysis/s32_ex_ante_route5.py × calib до v11",
+  "submission": "forecasts/submission_seasonal_daily_v11.csv",
+  "submission_sha256_lf": "69cf0a7cf4aced43d98238fac52efb4be2c134ab08b36033f6e2f5946076e9cf",
+  "leaderboard_wape_score": 0.90741
  },
  "files": {
   "forecast_components.csv": {
-   "sha256": "f9f89065270d020eb81f427fe9c86845e644b17da8a1af907c5ce22ec8acf626",
+   "sha256": "ea1cfd03cc48fd189d89cd5c3bf179016392835fa87afe1b522387fa08e34e0d",
    "rows": 14640
   },
   "coefficients.json": {
-   "sha256": "edd4e63ad5d03b4376b7093a28f6bb514dd0c59a736c93caf01af6cd4b066ac4",
+   "sha256": "6cfde028df991ff30acfe953379d2350e51e2e5fa65bdaad1415cba98a87af36",
    "rows": null
   },
   "stops.csv": {
@@ -58,7 +58,7 @@
    "rows": 120
   },
   "backtest_metrics.json": {
-   "sha256": "43b409df478db89cd9498bb899a94f0ffa2314c174701da89d61de7d8e22605f",
+   "sha256": "3f37b2b8a06323a249ececc6d52320f9d13dec5d97b89628109970ac5b9bbc2f",
    "rows": null
   },
   "factors.json": {
@@ -74,7 +74,7 @@
    "rows": 72960
   },
   "outlook.csv": {
-   "sha256": "c7134c63f9b3e37550f246fe2f628bd0c476ee596663c61566a396c4f11e8ad6",
+   "sha256": "d19e2a864d68fb461ab8668c8472ed09bc9856650c6f82a595acea683149f628",
    "rows": 72960
   },
   "news.json": {

@@ -20,8 +20,8 @@ import tools.jackson.databind.json.JsonMapper;
 import ru.mojarung.tramload.TestArtifacts;
 
 /**
- * Эталон: формула сервиса совпадает с лучшим сабмитом v6 (0.90553) во всех 14 640 ячейках и с исходной
- * реализацией на Python (s10.make_forecast × множитель до v6) на пяти наборах коэффициентов из artifacts/golden/.
+ * Эталон: формула сервиса совпадает с лучшим сабмитом v11 (0.90741) во всех 14 640 ячейках и с исходной
+ * реализацией на Python (s10.make_forecast × множитель до v11) на пяти наборах коэффициентов из artifacts/golden/.
  */
 class ForecastEngineGoldenTest {
 

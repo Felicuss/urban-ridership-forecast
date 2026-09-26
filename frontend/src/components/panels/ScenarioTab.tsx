@@ -45,7 +45,7 @@ export default function ScenarioTab() {
       <Events />
       <NewsEvents />
       <h3 className={styles.groupTitle}>Коэффициенты модели
-        <InfoTip>Со значениями по умолчанию это прогноз v6, точность на проверке организаторов 0,90553. Ползунок
+        <InfoTip>Со значениями по умолчанию это прогноз v11, точность на проверке организаторов 0,90741. Ползунок
           сдвигает его: например, спрос в ноябре к октябрю или доля воскресенья в праздник.</InfoTip></h3>
       {groups.map(([group, items]) => (
         <section key={group} className={styles.group}>

@@ -1,6 +1,6 @@
 {
  "schema_version": 1,
- "scenario": "shape_facts_v6",
+ "scenario": "seasonal_daily_v11",
  "coefficients": [
   {
    "key": "level_nov",

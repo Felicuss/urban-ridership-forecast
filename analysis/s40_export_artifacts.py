@@ -2,7 +2,7 @@
 
 Сервис на Java модели не запускает, он читает эти файлы при старте, сверяет их с manifest.json
 по sha256 и числу строк и пересчитывает прогноз по формуле export_components.recompute.
-По умолчанию это лучший конкурсный прогноз v6 (0.90553): формула s30/s32 с множителем до v6 в каждой ячейке,
+По умолчанию это лучший конкурсный прогноз v11 (0.90741): формула s30/s32 с множителем до v11 в каждой ячейке,
 см. export_components.calibration.
 Контракт описан в docs/research/review_round1.md, п. 7.1, и docs/architecture/backend_brief.md.
 Запуск: uv run python analysis/s40_export_artifacts.py (после s33, если обновлялся трафик)
@@ -32,8 +32,8 @@ from s34_traffic_probe import city_tram_monthly, novdec_levels
 OUT = ROOT / "artifacts"
 GOLDEN = OUT / "golden"
 DEFAULT_SUBMISSION = TARGET_SUBMISSION
-LEADERBOARD_SCORE = 0.90553
-MODEL_VERSION = "shape_facts_v6"
+LEADERBOARD_SCORE = 0.90741
+MODEL_VERSION = "seasonal_daily_v11"
 SCHEMA_VERSION = 1
 
 
@@ -102,7 +102,7 @@ def coefficient_catalog(c: s10.Coefficients, traffic: dict) -> dict:
 
 
 def golden_scenarios(comp: pd.DataFrame, default: s10.Coefficients) -> tuple[pd.DataFrame, dict]:
-    """Прогноз исходной реализацией s10 на наборах коэффициентов, с тем же множителем до v6: сервис
+    """Прогноз исходной реализацией s10 на наборах коэффициентов, с тем же множителем до v11: сервис
     обязан совпасть с ним."""
     table = comp[["route", "date", "hour"]].copy()
     sets = {}
@@ -192,9 +192,9 @@ def main() -> None:
         "forecast_origin": TEST_END,
         "horizon": {"from": FORECAST_START, "to": FORECAST_END},
         "routes": ROUTES,
-        "default_scenario": {"name": MODEL_VERSION, "script": "analysis/s64_package_shape_facts.py",
-                             "formula": "analysis/s32_ex_ante_route5.py × calib до v6",
-                             "submission": "forecasts/submission_shape_facts_v6.csv",
+        "default_scenario": {"name": MODEL_VERSION, "script": "analysis/s83_package_seasonal_daily_v11.py",
+                             "formula": "analysis/s32_ex_ante_route5.py × calib до v11",
+                             "submission": "forecasts/submission_seasonal_daily_v11.csv",
                              "submission_sha256_lf": text_sha256(DEFAULT_SUBMISSION),
                              "leaderboard_wape_score": LEADERBOARD_SCORE},
         "files": {name: {"sha256": sha256(OUT / name),

@@ -18,7 +18,7 @@ export interface NewsIncident {
   location: string;
   sourceUrl: string;
   recoveryUrl: string | null;
-  /** Сбой попал в прогнозный горизонт и уже учтён в прогнозе v6. */
+  /** Сбой попал в прогнозный горизонт и уже учтён в прогнозе v11. */
   inForecast: boolean;
   /** Откуда сбой: архив, проверенный вручную, или живая лента канала. */
   origin: 'archive' | 'live';
