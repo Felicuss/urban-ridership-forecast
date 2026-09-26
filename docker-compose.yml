@@ -19,6 +19,9 @@ services:
       LLM_MODEL: ${LLM_MODEL:-gpt-oss:120b}
       MCP_URL: http://mcp:8765/mcp
       REDIS_URL: redis://redis:6379
+      # вход диспетчера: логин:пароль:имя через запятую; AUTH_SECRET - общий ключ сессий всех реплик
+      AUTH_USERS: ${AUTH_USERS:-dispatcher:chaspik:Диспетчер}
+      AUTH_SECRET: ${AUTH_SECRET:-}
     depends_on:
       redis:
         condition: service_healthy
@@ -49,6 +52,9 @@ services:
     environment:
       TRAM_API_URL: http://api:8080/api/v1
       TRAM_PUBLIC_URL: http://localhost:${API_PORT:-8080}/api/v1
+      # под этой учётной записью MCP-сервер входит в API; она должна быть в AUTH_USERS
+      TRAM_API_USER: ${MCP_API_USER:-dispatcher}
+      TRAM_API_PASSWORD: ${MCP_API_PASSWORD:-chaspik}
     ports:
       - "${MCP_PORT:-8765}:8765"
     depends_on:
@@ -78,6 +84,8 @@ services:
     environment:
       BASE_URL: http://gateway
       RATES: ${K6_RATES:-100,300,500}
+      K6_USER: ${MCP_API_USER:-dispatcher}
+      K6_PASSWORD: ${MCP_API_PASSWORD:-chaspik}
     volumes:
       - ./deploy/k6:/scripts:ro
       - ./deploy/k6/results:/results

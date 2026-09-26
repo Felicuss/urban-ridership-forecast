@@ -126,4 +126,6 @@ cp .env.example .env            # для агента впишите LLM_API_KEY
 docker compose up -d --build    # интерфейс http://localhost:8080, документация API: /swagger-ui.html
 ```
 
+Вход в интерфейс: логин `dispatcher`, пароль `chaspik`. Свои учётные записи задаёт `AUTH_USERS` в `.env`, подробности в [backend/README.md](backend/README.md#вход).
+
 Порт интерфейса меняется переменной `API_PORT`, например `API_PORT=8090 docker compose up -d`.

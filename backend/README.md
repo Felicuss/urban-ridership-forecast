@@ -26,13 +26,23 @@ cd backend
 
 Документация API: `/swagger-ui.html`, схема OpenAPI: `/api/v1/openapi`. По ней фронт может сгенерировать клиента.
 
+### Вход
+
+API и интерфейс закрыты входом. По умолчанию одна учётная запись `dispatcher` с паролем `chaspik`; свои задаёт переменная `AUTH_USERS` в виде `логин:пароль:имя` через запятую. Пароли в памяти хранятся хешами bcrypt.
+
+- Интерфейс входит через `POST /api/v1/auth/login` и получает сессию на 12 часов в cookie `chaspik_session` (HttpOnly, SameSite=Strict). Сессия - JWT HS256, подпись и проверку делает Spring Security. Сервер ничего не хранит, поэтому сессия работает на любой реплике, если у реплик общий ключ `AUTH_SECRET`; без него ключ выводится из `AUTH_USERS`.
+- Скрипты шлют тот же токен в `Authorization: Bearer`, MCP-сервер входит под `MCP_API_USER`/`MCP_API_PASSWORD` и держит cookie. Логин и пароль в Basic тоже принимаются, но каждый такой запрос проверяет bcrypt, это десятки миллисекунд.
+- Без входа ответ 401 в формате Problem Details, без заголовка `WWW-Authenticate: Basic`, чтобы браузер не показывал своё окно. После 10 неверных паролей логин закрывается на 10 минут.
+- Открыты только вход, `/actuator/health` и документация API. `AUTH_ENABLED=false` выключает вход, это нужно только для тестов контрактов.
+
 ## API
 
 Время везде местное, Europe/Moscow. Посадки - успешные валидации, как в метрике. Каждая точка ряда идёт с медианой, коридором p10-p90 и источником `source`: `fact` (коридора нет, p10 = p90), `forecast` или `outlook`. Сценарий меняет только `forecast`.
 
 | Метод и путь | Что делает |
 |---|---|
-| `GET /api/v1/forecast` | Ряд прогноза. `level=route\|stop\|segment\|network`, `id`, `from`, `to`, `granularity=hour\|day\|month`, `hours=7-9`, `horizon=day\|month\|year`. Для участка ещё `direction`, `fromStop`, `toStop` |
+| `POST /api/v1/auth/login`, `POST /api/v1/auth/logout`, `GET /api/v1/auth/me` | Вход, выход и текущий пользователь |
+| `GET /api/v1/forecast` | Ряд прогноза. `level=route\|stop\|segment\|network`, `id`, `from`, `to`, `granularity=hour\|day\|month`, `hours=7-9`, `horizon=day\|week\|month\|year`. Неделя и месяц идут по дням, у каждой точки за сутки есть `peak` и `peakAt` - самый загруженный час. Для участка ещё `direction`, `fromStop`, `toStop` |
 | `POST /api/v1/forecast/scenario` | Пересчёт по ползункам и событиям: ряд сценария, базовый ряд и разница по каждой точке |
 | `GET /api/v1/coefficients` | Ползунки: значение по умолчанию, диапазон, шаг, источник |
 | `GET /api/v1/network` | Трассы по направлениям и остановки в GeoJSON, с ETag |
@@ -159,7 +169,7 @@ ReAct-агент диспетчера (`application/AgentService`): модель
 - 10 % - сценарий с новым значением ползунка почти в каждом запросе, то есть пересчёт всей сетки;
 - 5 % - выгрузка CSV маршрута за месяц.
 
-Путь запроса: k6 в своём контейнере (2 vCPU) -> nginx -> api (`cpus: 2`, `mem_limit: 2g`, без swap). Машина: Ryzen 5 5600X, 32 ГБ, Windows 11, Docker Desktop 29.5.3 на WSL2. Повторить замер: `docker compose up -d`, затем `RATES=100,300,500 ./deploy/k6/run-load.sh`. Сырые результаты лежат в [`deploy/k6/results/`](../deploy/k6/results).
+Путь запроса: k6 в своём контейнере (2 vCPU) -> nginx -> api (`cpus: 2`, `mem_limit: 2g`, без swap). С 26.09 сервис закрыт входом: k6 входит один раз в `setup()` и дальше шлёт токен в `Authorization: Bearer`; проверка подписи HS256 занимает микросекунды, а цифры ниже сняты до входа. Машина: Ryzen 5 5600X, 32 ГБ, Windows 11, Docker Desktop 29.5.3 на WSL2. Повторить замер: `docker compose up -d`, затем `RATES=100,300,500 ./deploy/k6/run-load.sh`. Сырые результаты лежат в [`deploy/k6/results/`](../deploy/k6/results).
 
 | Частота, запросов/с | Реплик | p50, мс | p95, мс | p99, мс | Ошибок | CPU api, % от 2 vCPU | Память api |
 |---|---|---|---|---|---|---|---|

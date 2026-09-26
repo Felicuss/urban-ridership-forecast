@@ -21,6 +21,14 @@ server:
     min-response-size: 2KB
 
 tramload:
+  auth:
+    # вход в интерфейс; выключается только для замеров и тестов
+    enabled: ${AUTH_ENABLED:true}
+    # учётные записи через запятую: логин:пароль:имя; пароли в памяти хранятся хешами bcrypt
+    users: ${AUTH_USERS:dispatcher:chaspik:Диспетчер}
+    # ключ подписи сессии, общий для всех реплик; пусто - ключ выводится из AUTH_USERS
+    secret: ${AUTH_SECRET:}
+    session-ttl: 12h
   artifacts:
     dir: ${TRAMLOAD_ARTIFACTS_DIR:../artifacts}
     scenario-cache-size: 256

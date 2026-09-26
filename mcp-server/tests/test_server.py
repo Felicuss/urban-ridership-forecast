@@ -118,3 +118,22 @@ def test_news_events_come_back_in_scenario_format_and_bad_id_never_reaches_the_a
                        "multiplier": 0.74, "label": "сбой"}]
     assert bad.is_error
     assert len(seen) == 1 and seen[0].url.path == "/api/v1/news/23459/events"
+
+
+def test_client_logs_in_once_and_retries_when_the_session_is_missing():
+    seen: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        if request.url.path.endswith("/auth/login"):
+            return httpx.Response(200, json={"username": "mcp"}, headers={"Set-Cookie": "chaspik_session=t0k; Path=/"})
+        if "chaspik_session=t0k" not in request.headers.get("cookie", ""):
+            return httpx.Response(401, json={"title": "Нужен вход", "detail": "сессии нет"})
+        return httpx.Response(200, json={"ok": True})
+
+    api = TramApi("http://api.test/api/v1", transport=httpx.MockTransport(handler), user="mcp", password="secret")
+
+    assert api.get("/meta") == {"ok": True}
+    assert api.get("/meta") == {"ok": True}
+    assert [r.url.path for r in seen] == ["/api/v1/meta", "/api/v1/auth/login", "/api/v1/meta", "/api/v1/meta"]
+    assert json.loads(seen[1].content) == {"username": "mcp", "password": "secret"}

@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { signOut, useSession } from '../../api/session';
 import { FLAG_LABELS, useStore, type Flags } from '../../state/store';
 import { Toggle } from '../ui/Controls';
 import { Icon } from '../ui/Icons';
@@ -14,6 +15,7 @@ const GROUPS: { title: string; keys: (keyof Flags)[] }[] = [
 export function SettingsSheet({ onClose }: { onClose: () => void }) {
   const flags = useStore((s) => s.flags);
   const setFlag = useStore((s) => s.setFlag);
+  const user = useSession((s) => s.user);
   useEffect(() => {
     const esc = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
     document.addEventListener('keydown', esc);
@@ -27,6 +29,15 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
           <h2>Настройки</h2>
           <button type="button" aria-label="Закрыть" onClick={onClose}><Icon.close /></button>
         </header>
+        {user?.authRequired && (
+          <section className={styles.account}>
+            <div>
+              <b>{user.name}</b>
+              <small>вход: {user.username}</small>
+            </div>
+            <button type="button" onClick={() => void signOut()}>Выйти</button>
+          </section>
+        )}
         {GROUPS.map((g) => (
           <section key={g.title}>
             <h3>{g.title}</h3>
