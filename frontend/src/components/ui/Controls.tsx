@@ -112,15 +112,16 @@ export function Kpi({ label, value, sub, info, tone }: {
   );
 }
 
-export function Card({ title, info, actions, children, className }: {
+export function Card({ title, info, actions, children, className, id }: {
   title?: ReactNode;
   info?: ReactNode;
   actions?: ReactNode;
   children: ReactNode;
   className?: string;
+  id?: string;
 }) {
   return (
-    <section className={`${styles.card} ${className ?? ''}`}>
+    <section id={id} className={`${styles.card} ${className ?? ''}`}>
       {(title || actions) && (
         <header className={styles.cardHead}>
           <h3>

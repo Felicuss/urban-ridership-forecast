@@ -1,0 +1,353 @@
+/* Табло: читается с другого конца комнаты. Крупные цифры, мало подписей, цвет только по делу. */
+.board {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto auto auto;
+  gap: clamp(10px, 1.6vh, 20px);
+  padding: clamp(16px, 2.4vh, 32px) clamp(16px, 2.6vw, 48px);
+  background: radial-gradient(1200px 600px at 50% -20%, #151b2b, transparent 70%), #050608;
+  color: var(--text);
+  animation: fade 0.3s var(--ease);
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 3vw, 48px);
+}
+
+.brand {
+  font-size: clamp(16px, 1.6vw, 24px);
+  font-weight: 700;
+}
+
+.brand span {
+  margin-left: 6px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.when {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.when b {
+  font-size: clamp(36px, 5vw, 72px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.when span,
+.weather,
+.net span {
+  color: var(--text-2);
+  font-size: clamp(13px, 1.2vw, 18px);
+}
+
+.weather {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.weather b {
+  color: var(--text);
+  font-size: clamp(22px, 2.4vw, 36px);
+}
+
+.net {
+  display: grid;
+  margin-left: auto;
+  text-align: right;
+}
+
+.net b {
+  font-size: clamp(22px, 2.4vw, 36px);
+}
+
+.close {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  color: var(--text-2);
+}
+
+.close:hover {
+  color: var(--text);
+}
+
+.spot {
+  --c: #fff;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  gap: clamp(10px, 2vh, 24px);
+  min-height: 0;
+  padding: clamp(16px, 2.4vh, 32px);
+  border: 1px solid color-mix(in srgb, var(--c) 35%, transparent);
+  border-radius: 28px;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--c) 12%, transparent), transparent 55%);
+  animation: enter 0.45s var(--ease);
+}
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+.spotHead {
+  display: flex;
+  align-items: center;
+  gap: clamp(14px, 2vw, 28px);
+}
+
+.spotNo {
+  display: grid;
+  place-items: center;
+  min-width: clamp(84px, 9vw, 150px);
+  height: clamp(84px, 9vw, 150px);
+  border-radius: 28px;
+  background: var(--c);
+  color: #0b0d12;
+  font: 800 clamp(48px, 6vw, 100px) var(--mono);
+  letter-spacing: -0.04em;
+}
+
+.spotHead h2 {
+  margin: 0;
+  font-size: clamp(22px, 2.6vw, 42px);
+  line-height: 1.15;
+}
+
+.spotHead p {
+  margin: 6px 0 0;
+  color: var(--text-2);
+  font-size: clamp(14px, 1.3vw, 20px);
+}
+
+.numbers {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(10px, 1.4vw, 24px);
+}
+
+.numbers > div {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  padding: clamp(10px, 1.6vh, 20px) clamp(12px, 1.4vw, 22px);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.numbers span {
+  color: var(--muted);
+  font-size: clamp(12px, 1.1vw, 17px);
+}
+
+.numbers b {
+  font-size: clamp(40px, 5.4vw, 92px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.numbers small {
+  color: var(--text-2);
+  font-size: clamp(12px, 1vw, 16px);
+}
+
+.curve {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-height: 0;
+}
+
+.curveBox {
+  position: relative;
+  min-height: 48px;
+}
+
+.curveBox svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.curveBox svg path:last-of-type {
+  stroke-width: 3px;
+}
+
+/* текущий час: вертикальная черта поверх кривой, растяжение SVG её не искажает */
+.nowLine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--text);
+  opacity: 0.7;
+}
+
+.axis {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font: clamp(11px, 0.9vw, 14px) var(--mono);
+}
+
+.stops {
+  margin: 0;
+  color: var(--text-2);
+  font-size: clamp(13px, 1.2vw, 19px);
+}
+
+.progress {
+  height: 3px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--surface-2);
+}
+
+.progress i {
+  display: block;
+  height: 100%;
+  background: var(--text-2);
+  transform-origin: left;
+  animation: run linear forwards;
+}
+
+@keyframes run {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+.strip {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: clamp(6px, 0.8vw, 12px);
+}
+
+.tile {
+  --c: #fff;
+  display: grid;
+  justify-items: start;
+  gap: 2px;
+  padding: clamp(8px, 1.2vh, 14px) clamp(8px, 0.9vw, 14px);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  text-align: left;
+}
+
+.tileOn {
+  border-color: var(--c);
+  box-shadow: 0 0 0 1px var(--c) inset;
+}
+
+.tileNo {
+  color: var(--c);
+  font: 800 clamp(16px, 1.6vw, 26px) var(--mono);
+}
+
+.tile b {
+  font-size: clamp(20px, 2.2vw, 36px);
+  line-height: 1.05;
+}
+
+.tile small {
+  color: var(--muted);
+  font-size: clamp(10px, 0.8vw, 13px);
+}
+
+.hot b {
+  color: var(--red);
+}
+
+.warm b {
+  color: var(--warn);
+}
+
+.calm b {
+  color: var(--text);
+}
+
+.idle b {
+  color: var(--muted);
+}
+
+.upText {
+  color: var(--warn) !important;
+}
+
+.downText {
+  color: var(--ok) !important;
+}
+
+.ticker {
+  overflow: hidden;
+  padding: 10px 14px;
+  border: 1px solid rgba(239, 65, 54, 0.35);
+  border-radius: 14px;
+  background: rgba(239, 65, 54, 0.07);
+  font-size: clamp(13px, 1.2vw, 19px);
+  white-space: nowrap;
+}
+
+.ticker span {
+  display: inline-block;
+  padding-left: 100%;
+  animation: ticker 40s linear infinite;
+}
+
+@keyframes ticker {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.help {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .numbers,
+  .strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .strip {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .net {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker span {
+    padding-left: 0;
+    animation: none;
+    white-space: normal;
+  }
+}

@@ -5,6 +5,8 @@
 export const GRID_LATS = [55.56, 55.65, 55.74, 55.83, 55.92];
 export const GRID_LONS = [37.36, 37.485, 37.61, 37.735, 37.86];
 export const CENTER_INDEX = 12;
+/** Open-Meteo отдаёт снег в сантиметрах: 7 см снега - 10 мм воды. */
+export const SNOW_CM_TO_MM = 10 / 7;
 
 export interface GridPoint {
   lat: number;

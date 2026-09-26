@@ -14,12 +14,13 @@ import {
   addNetworkLayers, addTramIcons, before, ensureMetro, ensureSatellite, pathFeatures, setHour, setLoadData, setSelection, setVisibility,
   setTramMode, stopFeatures, TRAMS_3D_ZOOM, withLoad, type Scale,
 } from './layers';
-import { buildLines, headway, tramBodies, tramCollection, tramScale, tramsAt, type Line, type TramState } from './trams';
+import { buildLines, tramBodies, tramCollection, tramScale, tramsAt, type Line, type TramState } from './trams';
 import { RideRunner, rideStops } from './ride';
 import { addWeatherLayer, setWeatherData, setWeatherHour } from './weatherGrid';
 import { mapHandle } from './mapHandle';
 import { segmentBounds, segmentShape } from './segment';
 import { routeColor } from '../../lib/routes';
+import { headway } from '../../lib/dispatch';
 import styles from './MapView.module.css';
 
 // MapLibre 6 грузит воркер отдельным модулем: собираем его через Vite и отдаём адрес явно.

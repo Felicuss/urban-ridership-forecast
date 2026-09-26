@@ -11,6 +11,7 @@ import { SettingsSheet } from './SettingsSheet';
 import { ExportSheet } from './ExportSheet';
 import { AgentIsland } from '../agent/AgentIsland';
 import { DatePopover } from './DatePopover';
+import { useAlerts } from '../../hooks/useDispatch';
 import styles from './TopBar.module.css';
 
 const SOURCE_BADGE: Record<string, { label: string; hint: string }> = {
@@ -54,6 +55,11 @@ export function TopBar() {
   const changes = Object.keys(scenario.coefficients).length + scenario.events.length;
   const night = sunElevation(minute) < -4;
   const badge = SOURCE_BADGE[cal?.source ?? 'forecast'];
+  const setBoardOpen = useStore((s) => s.setBoardOpen);
+  const openBoard = () => {
+    setBoardOpen(true);
+    void document.documentElement.requestFullscreen?.().catch(() => undefined);
+  };
 
 
   return (
@@ -80,7 +86,7 @@ export function TopBar() {
         <button type="button" className={styles.date} onClick={() => setDateOpen((v) => !v)} aria-expanded={dateOpen}
           title={followNow ? 'Выбор другого времени выключит режим «Сейчас»' : undefined}>
           <Icon.calendar />
-          <span>{dayLabel(day)}</span>
+          <DateText day={day} />
           {cal?.dayOff && <em className={cal.holiday ? styles.holiday : styles.dayoff}>{cal.holiday ? 'праздник' : 'выходной'}</em>}
           {cal && !cal.dayOff && cal.dayOfWeek >= 5 && <em className={styles.work}>рабочий выходной</em>}
         </button>
@@ -98,12 +104,10 @@ export function TopBar() {
             : `Пустить время, ${SPEED_HINT[speed]}`}>
           {playing ? <Icon.pause /> : <Icon.play />}
         </button>
-        <div className={styles.speeds} role="radiogroup" aria-label="Скорость времени">
-          {SPEEDS.map((s) => (
-            <button key={s} type="button" role="radio" aria-checked={s === speed} title={SPEED_HINT[s]}
-              className={s === speed ? styles.speedOn : styles.speed} onClick={() => setSpeed(s)}>×{s}</button>
-          ))}
-        </div>
+        <select className={styles.speedSelect} value={speed} aria-label="Скорость времени"
+          title={`Скорость времени: ${SPEED_HINT[speed]}`} onChange={(e) => setSpeed(Number(e.target.value) as Speed)}>
+          {SPEEDS.map((s) => <option key={s} value={s} title={SPEED_HINT[s]}>×{s}</option>)}
+        </select>
         <button type="button" className={followNow ? styles.nowOn : styles.now} onClick={() => setFollowNow(!followNow)}
           aria-pressed={followNow} title={followNow
             ? 'Идёт настоящее время по Москве. Другая дата, час или запуск времени выключат этот режим'
@@ -123,15 +127,21 @@ export function TopBar() {
       <div className={styles.actions}>
         <AgentIsland />
         {changes > 0 && !isDefaultScenario(scenario) && (
-          <button type="button" className={styles.scenario} onClick={resetScenario} title="Вернуть прогноз по умолчанию">
-            Сценарий: {changes} {changes === 1 ? 'изменение' : changes < 5 ? 'изменения' : 'изменений'}
+          <button type="button" className={styles.scenario} onClick={resetScenario}
+            title={`Сценарий: ${changes} ${changes === 1 ? 'изменение' : changes < 5 ? 'изменения' : 'изменений'}. Клик вернёт прогноз по умолчанию`}>
+            Сценарий: {changes}
             <Icon.reset />
           </button>
         )}
+        <AlertBell />
+        <button type="button" className={styles.icon} aria-label="Табло" onClick={openBoard}
+          title="Табло на большой экран диспетчерской: крупные числа, маршруты сменяются сами">
+          <Icon.board />
+        </button>
         <div className={styles.export}>
-          <button type="button" onClick={() => setExportOpen(true)}
+          <button type="button" onClick={() => setExportOpen(true)} aria-label="Выгрузка"
             title={`Выгрузка в CSV или XLSX: ${target.name} или вся сеть, любой период и шаг`}>
-            <Icon.download />Выгрузка
+            <Icon.download /><span className={styles.exportLabel}>Выгрузка</span>
           </button>
         </div>
         <button type="button" className={styles.icon} aria-label="Настройки" onClick={() => setSettingsOpen(true)}>
@@ -166,3 +176,32 @@ function NowNotice() {
 }
 
 const NOTICE_MS = 6000;
+
+/** Колокольчик: сколько подписок сработало на завтра. Клик открывает оповещения во вкладке «Смена». */
+function AlertBell() {
+  const { states, day } = useAlerts();
+  const setTab = useStore((s) => s.setTab);
+  const fired = states.filter((s) => s.spans.length > 0).length;
+  const hint = states.length === 0
+    ? 'Оповещения: подпишитесь на маршрут во вкладке «Смена»'
+    : fired ? `Завтра, ${dayLabel(day, false)}: сработало ${fired} из ${states.length} оповещений`
+      : `Завтра, ${dayLabel(day, false)}: все ${states.length} оповещений в норме`;
+  return (
+    <button type="button" className={fired ? styles.bellOn : styles.icon} aria-label={hint} title={hint}
+      onClick={() => {
+        setTab('shift');
+        setTimeout(() => document.getElementById('shift-alerts')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 350);
+      }}>
+      <Icon.bell />
+      {fired > 0 && <i className={styles.bellCount}>{fired}</i>}
+    </button>
+  );
+}
+
+/** Дата в кнопке: год прячется на узком экране, день недели остаётся всегда. */
+function DateText({ day }: { day: number }) {
+  const label = dayLabel(day);
+  const [date, weekday] = [label.slice(0, label.indexOf(',')), label.slice(label.indexOf(','))];
+  const year = date.slice(-5);
+  return <span>{date.slice(0, -5)}<span className={styles.year}>{year}</span>{weekday}</span>;
+}

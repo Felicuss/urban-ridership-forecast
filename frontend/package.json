@@ -9,6 +9,7 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
     "api:types": "npx -y -p typescript@5 -p openapi-typescript@7.13.0 openapi-typescript http://localhost:8081/api/v1/openapi -o src/api/schema.d.ts"
   },
   "dependencies": {
@@ -29,6 +30,7 @@
     "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "6.1.1",
     "typescript": "7.0.2",
-    "vite": "8.3.1"
+    "vite": "8.3.1",
+    "vitest": "5.0.2"
   }
 }

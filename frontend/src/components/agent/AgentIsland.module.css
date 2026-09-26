@@ -239,6 +239,13 @@
   opacity: 0.45;
 }
 
+@media (max-width: 1500px) {
+  .pillName,
+  .pill kbd {
+    display: none;
+  }
+}
+
 @media (max-width: 1024px) {
   .pillText,
   .pill kbd {

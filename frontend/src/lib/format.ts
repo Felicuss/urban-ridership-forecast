@@ -37,3 +37,13 @@ export function fmtRange(lo: number | null | undefined, hi: number | null | unde
   if (Math.abs(hi) >= 1e4) return `${INT.format(lo / 1e3)}-${INT.format(hi / 1e3)} тыс.`;
   return `${INT.format(lo)}-${INT.format(hi)}`;
 }
+
+/** Форма слова для числа: plural(3, ['рейс', 'рейса', 'рейсов']) -> «рейса». */
+export function plural(n: number, forms: [string, string, string]): string {
+  const a = Math.abs(Math.round(n));
+  const mod10 = a % 10;
+  const mod100 = a % 100;
+  if (mod10 === 1 && mod100 !== 11) return forms[0];
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return forms[1];
+  return forms[2];
+}

@@ -4,12 +4,14 @@ import { TramDots } from '../ui/Controls';
 import { ForecastTab } from './ForecastTab';
 import styles from './RightPanel.module.css';
 
+const ShiftTab = lazy(() => import('./ShiftTab'));
 const ScenarioTab = lazy(() => import('./ScenarioTab'));
 const FactorsTab = lazy(() => import('./FactorsTab'));
 const ModelTab = lazy(() => import('./ModelTab'));
 
 const TABS: { id: RightTab; label: string; hint: string }[] = [
   { id: 'forecast', label: 'Прогноз', hint: 'Посадки выбранного объекта на сутки, месяц или год' },
+  { id: 'shift', label: 'Смена', hint: 'Сводка смены, оповещения на завтра, узкие места недели и расчёт выпуска вагонов' },
   { id: 'scenario', label: 'Сценарий', hint: 'Ползунки факторов и события: перекрытия, стройки' },
   { id: 'factors', label: 'Факторы', hint: 'Погода, календарь, трафик, расписание, события сети' },
   { id: 'model', label: 'Модель', hint: 'Качество прогноза и область применимости' },
@@ -33,6 +35,7 @@ export default function RightPanel() {
       <div className={styles.body} role="tabpanel">
         <Suspense fallback={<TramDots label="Загружаем раздел" />}>
           {tab === 'forecast' && <ForecastTab />}
+          {tab === 'shift' && <ShiftTab />}
           {tab === 'scenario' && <ScenarioTab />}
           {tab === 'factors' && <FactorsTab />}
           {tab === 'model' && <ModelTab />}

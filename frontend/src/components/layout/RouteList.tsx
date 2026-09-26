@@ -1,13 +1,11 @@
-import { useState } from 'react';
 import { useCalendar, useRouteStops } from '../../api/queries';
-import type { Factors, NetworkLoad, RouteStop } from '../../api/types';
+import type { Factors, NetworkLoad } from '../../api/types';
 import { useStore } from '../../state/store';
 import { dayIndex, hourOf } from '../../lib/time';
 import { fmtCompact, fmtInt } from '../../lib/format';
 import { ROUTE_COLORS, routeColor, yandexRouteBetween } from '../../lib/routes';
 import { routeTitle } from '../../hooks/useTarget';
-import { headway } from '../map/trams';
-import { flyTo } from '../map/mapHandle';
+import { headway } from '../../lib/dispatch';
 import { Sparkline } from '../charts/Sparkline';
 import { InfoTip } from '../ui/Controls';
 import { Icon } from '../ui/Icons';
@@ -93,6 +91,9 @@ function RouteCard({ route, factors, load, hour }: {
   };
   const a = ends(0);
   const b = ends(1);
+  const stopsOpen = useStore((s) => s.stopsOpen);
+  const setStopsOpen = useStore((s) => s.setStopsOpen);
+  const stopCount = Math.max(dir(0).length, dir(1).length);
 
   return (
     <section className={styles.card} style={{ '--c': routeColor(route) } as React.CSSProperties}>
@@ -127,8 +128,12 @@ function RouteCard({ route, factors, load, hour }: {
           ))
         )}
       </div>
-      <RouteStops stops={stops} load={load} hour={hour} />
-      <SegmentPicker stops={stops} />
+      <button type="button" className={stopsOpen ? styles.stopsBtnOn : styles.stopsBtn} aria-expanded={stopsOpen}
+        onClick={() => setStopsOpen(!stopsOpen)} title="Список остановок с посадками и выбор участка маршрута">
+        <span>Остановки и участок</span>
+        <small className="num">{stopCount || ''}</small>
+        <Icon.next />
+      </button>
       <div className={styles.links}>
         {schedule?.page && <a href={schedule.page} target="_blank" rel="noopener noreferrer">
           Расписание на transport.mos.ru <Icon.external /></a>}
@@ -136,104 +141,5 @@ function RouteCard({ route, factors, load, hour }: {
           Маршрут в Яндекс Картах <Icon.external /></a>}
       </div>
     </section>
-  );
-}
-
-/** Участок маршрута: прогноз посадок на остановках между двумя выбранными по ходу движения. */
-function SegmentPicker({ stops }: { stops: RouteStop[] | undefined }) {
-  const segment = useStore((s) => s.segment);
-  const setSegment = useStore((s) => s.setSegment);
-  const direction = segment?.direction ?? 0;
-  const list = (stops ?? []).filter((s) => s.direction === direction).sort((a, b) => a.seq - b.seq);
-  const last = (d: number) => {
-    const s = (stops ?? []).filter((x) => x.direction === d);
-    return s.length ? s.reduce((a, b) => (b.seq > a.seq ? b : a)).name : '';
-  };
-  if (list.length < 2) return null;
-  const from = segment?.from ?? list[0]!.stopId;
-  const to = segment?.to ?? list[list.length - 1]!.stopId;
-  const pick = (d: number, a: string, b: string) => {
-    const own = (stops ?? []).filter((s) => s.direction === d).sort((x, y) => x.seq - y.seq);
-    const i = Math.max(own.findIndex((s) => s.stopId === a), 0);
-    const j = own.findIndex((s) => s.stopId === b);
-    const k = j < 0 ? own.length - 1 : j;
-    setSegment({ direction: d, from: own[Math.min(i, k)]!.stopId, to: own[Math.max(i, k)]!.stopId });
-  };
-  return (
-    <details className={styles.segment} open={segment != null}>
-      <summary>
-        Участок маршрута
-        <InfoTip>Посадки на остановках между двумя выбранными по ходу движения: прогноз маршрута делится по долям
-          остановок. Прогноз и графики справа переключаются на участок.</InfoTip>
-      </summary>
-      <select aria-label="Направление" value={direction}
-        onChange={(e) => pick(Number(e.target.value), '', '')}>
-        <option value={0}>в сторону «{last(0)}»</option>
-        <option value={1}>в сторону «{last(1)}»</option>
-      </select>
-      <div className={styles.segRow}>
-        <select aria-label="Первая остановка участка" value={from} onChange={(e) => pick(direction, e.target.value, to)}>
-          {list.map((s) => <option key={s.stopId} value={s.stopId}>{s.seq}. {s.name}</option>)}
-        </select>
-        <select aria-label="Последняя остановка участка" value={to} onChange={(e) => pick(direction, from, e.target.value)}>
-          {list.map((s) => <option key={s.stopId} value={s.stopId}>{s.seq}. {s.name}</option>)}
-        </select>
-      </div>
-      {segment ? (
-        <button type="button" className={styles.segReset} onClick={() => setSegment(null)}>Весь маршрут</button>
-      ) : (
-        <button type="button" className={styles.segReset} onClick={() => pick(direction, from, to)}>Показать прогноз участка</button>
-      )}
-    </details>
-  );
-}
-
-/**
- * Остановки выбранного маршрута списком по направлению: посадки за выбранный час и клик, который
- * выбирает остановку так же, как на карте, и подлетает к ней.
- */
-function RouteStops({ stops, load, hour }: { stops: RouteStop[] | undefined; load: NetworkLoad | undefined; hour: number }) {
-  const selected = useStore((s) => s.stop);
-  const selectStop = useStore((s) => s.selectStop);
-  const [direction, setDirection] = useState(0);
-  const all = stops ?? [];
-  const list = all.filter((s) => s.direction === direction).sort((a, b) => a.seq - b.seq);
-  if (list.length === 0) return null;
-  const endOf = (d: number) => {
-    const own = all.filter((s) => s.direction === d);
-    return own.length ? own.reduce((a, b) => (b.seq > a.seq ? b : a)).name : '';
-  };
-  const values = list.map((s) => load?.stops.get(s.stopId)?.[hour] ?? 0);
-  const max = Math.max(...values, 1);
-  return (
-    <details className={styles.stopsBox} open>
-      <summary>
-        Остановки маршрута
-        <InfoTip>Посадки на каждой остановке в выбранный час: прогноз маршрута, разложенный по долям остановок.
-          Клик выбирает остановку: прогноз справа и графики внизу переключаются на неё.</InfoTip>
-      </summary>
-      <div className={styles.dirs} role="radiogroup" aria-label="Направление">
-        {[0, 1].filter((d) => all.some((s) => s.direction === d)).map((d) => (
-          <button key={d} type="button" role="radio" aria-checked={direction === d}
-            className={direction === d ? styles.dirOn : styles.dir} onClick={() => setDirection(d)}>
-            до «{endOf(d)}»
-          </button>
-        ))}
-      </div>
-      <ol className={styles.stopList}>
-        {list.map((s, i) => (
-          <li key={s.stopId}>
-            <button type="button" className={selected === s.stopId ? styles.stopOn : styles.stopRow}
-              aria-pressed={selected === s.stopId}
-              onClick={() => { selectStop(s.stopId); flyTo(s.lon, s.lat, 15.2); }}>
-              <span className={styles.stopSeq}>{s.seq}</span>
-              <span className={styles.stopName}>{s.name}</span>
-              <span className={styles.stopBar}><i style={{ width: `${(100 * (values[i] ?? 0)) / max}%` }} /></span>
-              <b className="num">{fmtInt(values[i])}</b>
-            </button>
-          </li>
-        ))}
-      </ol>
-    </details>
   );
 }

@@ -1,0 +1,244 @@
+/* Панель остановок: колонка справа от списка маршрутов, выезжает при открытии. */
+.panel {
+  --c: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 280px;
+  height: 100%;
+  min-height: 0;
+  padding: 10px 8px 8px;
+  border: 1px solid color-mix(in srgb, var(--c) 28%, var(--line));
+  border-radius: var(--radius);
+  background: var(--surface);
+  animation: slide 0.28s var(--ease);
+}
+
+@keyframes slide {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px;
+}
+
+.head h2 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.badge {
+  display: grid;
+  place-items: center;
+  min-width: 30px;
+  height: 24px;
+  padding: 0 6px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--c) 18%, transparent);
+  color: var(--c);
+  font: 700 12.5px var(--mono);
+}
+
+.count {
+  flex: 1;
+  color: var(--muted);
+  font: 11px var(--mono);
+}
+
+.close {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  color: var(--muted);
+}
+
+.close:hover {
+  background: var(--surface-3);
+  color: var(--text);
+}
+
+.dirs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+.dir,
+.dirOn {
+  min-width: 0;
+  overflow: hidden;
+  padding: 5px 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 11.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dir:hover {
+  color: var(--text);
+}
+
+.dirOn {
+  border-color: var(--line-strong);
+  background: var(--surface-3);
+  color: var(--text);
+}
+
+.caption {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0 4px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.list {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.row,
+.rowOn {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) 40px 40px;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 4px;
+  border-radius: 7px;
+  color: var(--text-2);
+  font-size: 12px;
+  text-align: left;
+}
+
+.row:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.rowOn {
+  background: var(--surface-3);
+  color: var(--text);
+}
+
+.inSegment {
+  box-shadow: inset 2px 0 0 var(--c);
+}
+
+.seq {
+  color: var(--muted);
+  font: 10px var(--mono);
+  text-align: right;
+}
+
+.name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bar {
+  height: 4px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--surface-3);
+}
+
+.bar i {
+  display: block;
+  height: 100%;
+  background: var(--c);
+}
+
+.row b,
+.rowOn b {
+  font-size: 11px;
+  font-weight: 500;
+  text-align: right;
+}
+
+.segment {
+  display: grid;
+  gap: 6px;
+  padding: 8px 4px 2px;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+}
+
+.segTitle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  color: var(--text-2);
+}
+
+.segField {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+}
+
+.segField select {
+  width: 100%;
+  min-width: 0;
+  padding: 5px 6px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--bg-2);
+  color: var(--text);
+  font: inherit;
+}
+
+.segBtn,
+.segBtnPrimary {
+  height: 30px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  color: var(--text);
+}
+
+.segBtn:hover {
+  background: var(--surface-3);
+}
+
+.segBtnPrimary {
+  border-color: color-mix(in srgb, var(--c) 45%, transparent);
+  background: color-mix(in srgb, var(--c) 14%, transparent);
+}
+
+.segBtnPrimary:hover {
+  background: color-mix(in srgb, var(--c) 22%, transparent);
+}
+
+@media (max-width: 1280px) {
+  .panel {
+    width: 250px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .panel {
+    width: auto;
+    height: 420px;
+  }
+}

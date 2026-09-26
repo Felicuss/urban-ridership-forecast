@@ -204,152 +204,38 @@
   gap: 6px;
 }
 
-.segment {
-  display: grid;
-  gap: 6px;
-  font-size: 12px;
-}
-
-.segment summary {
+.stopsBtn,
+.stopsBtnOn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  color: var(--text-2);
-  cursor: pointer;
-}
-
-.segment[open] {
-  gap: 6px;
-}
-
-.segment select {
-  width: 100%;
-  min-width: 0;
-  padding: 5px 6px;
+  gap: 8px;
+  height: 34px;
+  padding: 0 8px 0 10px;
   border: 1px solid var(--line-strong);
-  border-radius: 8px;
-  background: var(--bg-2);
-  color: var(--text);
-  font: inherit;
-}
-
-.segRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-}
-
-.segReset {
-  justify-self: start;
-  padding: 4px 10px;
-  border: 1px solid var(--line-strong);
-  border-radius: 8px;
-  color: var(--text);
-}
-
-.segReset:hover {
-  background: var(--surface-3);
-}
-
-.stopsBox {
-  display: grid;
-  gap: 6px;
-  font-size: 12px;
-}
-
-.stopsBox summary {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--text-2);
-  cursor: pointer;
-}
-
-.dirs {
-  display: flex;
-  gap: 4px;
-}
-
-.dir,
-.dirOn {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  padding: 4px 8px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  color: var(--muted);
-  font-size: 11px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.dirOn {
-  border-color: var(--line-strong);
-  background: var(--surface-3);
-  color: var(--text);
-}
-
-.stopList {
-  display: grid;
-  max-height: 188px;
-  margin: 0;
-  padding: 0;
-  overflow-y: auto;
-  list-style: none;
-}
-
-.stopRow,
-.stopOn {
-  display: grid;
-  grid-template-columns: 20px minmax(0, 1fr) 36px 40px;
-  align-items: center;
-  gap: 6px;
-  width: 100%;
-  padding: 3px 4px;
-  border-radius: 6px;
-  color: var(--text-2);
-  text-align: left;
-}
-
-.stopRow:hover {
+  border-radius: 10px;
   background: var(--surface-2);
   color: var(--text);
+  font-size: 12.5px;
+  text-align: left;
+  transition: border-color 0.2s, background 0.2s;
 }
 
-.stopOn {
-  background: var(--surface-3);
-  color: var(--text);
+.stopsBtn span,
+.stopsBtnOn span {
+  flex: 1;
 }
 
-.stopSeq {
+.stopsBtn small,
+.stopsBtnOn small {
   color: var(--muted);
-  font: 10px var(--mono);
-  text-align: right;
-}
-
-.stopName {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.stopBar {
-  height: 4px;
-  overflow: hidden;
-  border-radius: 2px;
-  background: var(--surface-3);
-}
-
-.stopBar i {
-  display: block;
-  height: 100%;
-  background: var(--c, var(--accent));
-}
-
-.stopRow b,
-.stopOn b {
   font-size: 11px;
-  font-weight: 500;
-  text-align: right;
+}
+
+.stopsBtn:hover {
+  border-color: var(--c);
+}
+
+.stopsBtnOn {
+  border-color: var(--c);
+  background: color-mix(in srgb, var(--c) 12%, transparent);
 }

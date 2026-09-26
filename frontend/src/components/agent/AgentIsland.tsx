@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { agentStatus, askAgent, resetAgent, type AgentStatus } from '../../lib/agent';
+import { ASK_EVENT, agentStatus, askAgent, resetAgent, type AgentStatus } from '../../lib/agent';
 import { applyUiAction } from '../../state/uiActions';
 import { useStore } from '../../state/store';
 import { dayIndex, hourOf, isoDate } from '../../lib/time';
@@ -77,6 +77,16 @@ export function AgentIsland() {
     log.current?.scrollTo({ top: log.current.scrollHeight, behavior: 'smooth' });
   }, [lines, steps]);
 
+  // вопрос из панели (например, «пересказать сводку смены») открывает плашку и уходит агенту
+  useEffect(() => {
+    const ask = (e: Event) => {
+      const text = (e as CustomEvent<string>).detail;
+      if (typeof text === 'string') void send(text);
+    };
+    window.addEventListener(ASK_EVENT, ask);
+    return () => window.removeEventListener(ASK_EVENT, ask);
+  }, [send]);
+
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
       const typing = e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement;
@@ -98,7 +108,7 @@ export function AgentIsland() {
       <button type="button" className={styles.pill} onClick={() => setOpen((v) => !v)} aria-expanded={open}
         title="Помощник диспетчера: вопрос словами или голосом, клавиша /">
         <span className={styles.orb} aria-hidden="true" />
-        <span className={styles.pillText}>{live ?? 'Спросить «Час пик»'}</span>
+        <span className={styles.pillText}>{live ?? <>Спросить<span className={styles.pillName}> «Час пик»</span></>}</span>
         {!busy && <kbd>/</kbd>}
       </button>
       {open && (

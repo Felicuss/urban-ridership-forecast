@@ -1,5 +1,5 @@
 import { useWeatherGrid } from '../../hooks/useWeather';
-import { CENTER_INDEX } from '../../lib/weatherGrid';
+import { CENTER_INDEX, SNOW_CM_TO_MM } from '../../lib/weatherGrid';
 import { MINUTES_PER_DAY, isoDate, sunElevation } from '../../lib/time';
 import { skyOf } from '../../lib/weather';
 import { fmt1, fmtTemp } from '../../lib/format';
@@ -24,7 +24,7 @@ export function DayWeather({ day, hour }: { day: number; hour: number }) {
     );
   }
   const temps = c.temp.filter((v): v is number => v != null);
-  const precip = c.rain.map((r, i) => (r ?? 0) + (c.snow[i] ?? 0));
+  const precip = c.rain.map((r, i) => (r ?? 0) + (c.snow[i] ?? 0) * SNOW_CM_TO_MM);
   const total = precip.reduce((a, b) => a + b, 0);
   const summary = `Погода за день, центр Москвы: ${fmtTemp(Math.min(...temps))}…${fmtTemp(Math.max(...temps))}`
     + (total > 0.05 ? `, осадки ${fmt1(total)} мм` : ', без осадков');
@@ -45,7 +45,7 @@ export function DayWeather({ day, hour }: { day: number; hour: number }) {
       </div>
       <div className={styles.bars} aria-hidden="true">
         {precip.map((mm, h) => (
-          <i key={h} className={(c.snow[h] ?? 0) > (c.rain[h] ?? 0) ? styles.snow : styles.rain}
+          <i key={h} className={(c.snow[h] ?? 0) * SNOW_CM_TO_MM > (c.rain[h] ?? 0) ? styles.snow : styles.rain}
             style={{ height: `${Math.min(mm / FULL_MM, 1) * 100}%`, opacity: h === hour ? 1 : 0.75 }} />
         ))}
       </div>

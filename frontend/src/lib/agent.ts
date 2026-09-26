@@ -10,7 +10,7 @@ export interface AgentEvent {
 
 export type UiAction =
   | { type: 'show'; date?: string; hour?: number; route?: number; stop?: string; view?: 'top' | 'perspective';
-    horizon?: 'day' | 'month' | 'year'; tab?: 'forecast' | 'scenario' | 'factors' | 'model' }
+    horizon?: 'day' | 'month' | 'year'; tab?: 'forecast' | 'shift' | 'scenario' | 'factors' | 'model' }
   | { type: 'layers'; enable?: string[]; disable?: string[]; hideRoutes?: number[] }
   | { type: 'ride'; route: number; direction?: 0 | 1 };
 
@@ -22,6 +22,13 @@ export interface AgentStatus {
 }
 
 const SESSION_KEY = 'chaspik.agent.session';
+
+/** Событие окна, по которому плашка агента открывается и сразу задаёт вопрос: так спрашивают из панелей. */
+export const ASK_EVENT = 'chaspik:ask';
+
+export function askFromUi(question: string): void {
+  window.dispatchEvent(new CustomEvent<string>(ASK_EVENT, { detail: question }));
+}
 
 export function agentSession(): string {
   try {

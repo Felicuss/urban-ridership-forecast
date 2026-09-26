@@ -5,7 +5,7 @@ import { HORIZON_START, MINUTES_PER_DAY, TIMELINE_MINUTES, clampMinute, dayOf, n
 // Состояние интерфейса. Время - минуты от 01.11.2025 00:00, из него карта берёт дату и час,
 // трамваи - своё положение на линии. Флаги слоёв и настроек переживают перезагрузку страницы.
 
-export type RightTab = 'forecast' | 'scenario' | 'factors' | 'model';
+export type RightTab = 'forecast' | 'shift' | 'scenario' | 'factors' | 'model';
 
 export interface Flags {
   intro: boolean;
@@ -44,6 +44,36 @@ const DEFAULT_FLAGS: Flags = {
 
 const FLAGS_KEY = 'tram-ui.flags.v1';
 const HIDDEN_KEY = 'tram-ui.hidden-routes.v1';
+const ALERTS_KEY = 'tram-ui.alerts.v1';
+
+/** Подписка на оповещение: маршрут или его участок и порог посадок на рейс на следующий день. */
+export interface AlertRule {
+  id: string;
+  route: number;
+  segment: (Segment & { label: string }) | null;
+  limit: number;
+}
+
+function loadAlerts(): AlertRule[] {
+  try {
+    const raw = localStorage.getItem(ALERTS_KEY);
+    const parsed = raw ? (JSON.parse(raw) as unknown) : [];
+    return Array.isArray(parsed)
+      ? parsed.filter((a): a is AlertRule => typeof a === 'object' && a != null && Number.isInteger((a as AlertRule).route)
+        && typeof (a as AlertRule).limit === 'number')
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveAlerts(alerts: AlertRule[]): void {
+  try {
+    localStorage.setItem(ALERTS_KEY, JSON.stringify(alerts));
+  } catch {
+    // приватный режим браузера: подписки живут до перезагрузки
+  }
+}
 
 function loadHidden(): number[] {
   try {
@@ -81,6 +111,9 @@ function saveFlags(flags: Flags): void {
 }
 
 export const SPEEDS = [1, 60, 300, 900, 3600] as const;
+
+/** Не больше 20 событий в сценарии: столько принимает сервис. */
+export const MAX_EVENTS = 20;
 
 /** Вид карты: сверху или в перспективе; объёмные дома включаются отдельно. */
 export type ViewMode = 'top' | 'perspective';
@@ -131,6 +164,9 @@ interface State {
   route: number | null;
   stop: string | null;
   segment: Segment | null;
+  /** Панель остановок выбранного маршрута справа от списка маршрутов. */
+  stopsOpen: boolean;
+  setStopsOpen: (open: boolean) => void;
   horizon: Horizon;
   tab: RightTab;
   scenario: Scenario;
@@ -140,6 +176,15 @@ interface State {
   toggleRoute: (route: number) => void;
   setHiddenRoutes: (routes: number[]) => void;
   settingsOpen: boolean;
+  alerts: AlertRule[];
+  addAlert: (rule: Omit<AlertRule, 'id'>) => void;
+  removeAlert: (id: string) => void;
+  /** Режим табло на большой экран диспетчерской. */
+  boardOpen: boolean;
+  setBoardOpen: (open: boolean) => void;
+  /** День шкалы, с которым сравнивается прогноз; null - без сравнения. */
+  compareDay: number | null;
+  setCompareDay: (day: number | null) => void;
   viewMode: ViewMode;
   setViewMode: (v: ViewMode) => void;
   /** Ручной выбор минуты: выключает режим «Сейчас». */
@@ -189,6 +234,8 @@ export const useStore = create<State>((set, get) => {
     route: null,
     stop: null,
     segment: null,
+    stopsOpen: false,
+    setStopsOpen: (stopsOpen) => set({ stopsOpen }),
     horizon: 'day',
     tab: 'forecast',
     scenario: { coefficients: {}, events: [] },
@@ -205,6 +252,21 @@ export const useStore = create<State>((set, get) => {
       set({ hiddenRoutes: routes });
     },
     settingsOpen: false,
+    alerts: loadAlerts(),
+    addAlert: (rule) => {
+      const next = [...get().alerts, { ...rule, id: `${Date.now().toString(36)}-${rule.route}` }];
+      saveAlerts(next);
+      set({ alerts: next });
+    },
+    removeAlert: (id) => {
+      const next = get().alerts.filter((a) => a.id !== id);
+      saveAlerts(next);
+      set({ alerts: next });
+    },
+    boardOpen: false,
+    setBoardOpen: (boardOpen) => set({ boardOpen }),
+    compareDay: null,
+    setCompareDay: (compareDay) => set({ compareDay }),
     viewMode: 'perspective',
     setViewMode: (viewMode) => set({ viewMode }),
     setMinute: (m) => set(manual({ minute: wrapMinute(m) })),
@@ -218,7 +280,8 @@ export const useStore = create<State>((set, get) => {
     setSpeed: (speed) => set(manual({ speed })),
     setFollowNow: (on) => set(on ? { followNow: true, playing: false, speed: 1, minute: nowOnTimeline(), nowNotice: null }
       : { followNow: false }),
-    selectRoute: (route) => set({ route, stop: null, segment: null }),
+    selectRoute: (route) => set(route == null ? { route, stop: null, segment: null, stopsOpen: false }
+      : { route, stop: null, segment: null }),
     selectStop: (stop) => set({ stop, segment: null }),
     setSegment: (segment) => set({ segment, stop: null }),
     setHorizon: (horizon) => set({ horizon }),

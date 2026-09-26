@@ -51,12 +51,49 @@ export interface paths {
         };
         /**
          * Выгрузка прогноза по умолчанию
-         * @description level=route|stop|network, ids через запятую (пусто - все объекты уровня). Маршруты по часам за весь горизонт совпадают с сабмитом.
+         * @description level=route|stop|segment|network, ids через запятую (пусто - все объекты уровня). Для участка один маршрут в ids, direction, fromStop и toStop. Маршруты по часам за весь горизонт совпадают с сабмитом.
          */
         get: operations["export"];
         put?: never;
         /** Выгрузка прогноза по сценарию */
         post: operations["exportScenario"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/agent/reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Начать диалог заново */
+        post: operations["reset"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/agent/chat": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Вопрос агенту
+         * @description Поток событий: step - вызван инструмент, ui - команда интерфейсу, answer - ответ, error - почему ответа нет. История диалога хранится по session сутки.
+         */
+        post: operations["chat"];
         delete?: never;
         options?: never;
         head?: never;
@@ -106,6 +143,40 @@ export interface paths {
         };
         /** Остановки маршрута по направлениям и доли посадок (оценка) */
         get: operations["routeStops"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/news": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Сбои трамваев: проверенный архив 2025 года и свежие сообщения канала t.me/DtOperativno */
+        get: operations["feed"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/news/{id}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** События сценария, если такой же сбой случится в выбранный день прогноза */
+        get: operations["tryOn"];
         put?: never;
         post?: never;
         delete?: never;
@@ -211,6 +282,23 @@ export interface paths {
         };
         /** Календарь шкалы: тип дня, праздник и источник данных (fact, forecast, outlook) на каждый день */
         get: operations["calendar"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/agent/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Настроен ли агент и где его память */
+        get: operations["status"];
         put?: never;
         post?: never;
         delete?: never;
@@ -375,12 +463,21 @@ export interface components {
              */
             format?: string;
             /**
-             * @description route, stop или network
+             * @description route, stop, segment или network
              * @example route
              */
             level?: string;
-            /** @description пусто - все объекты уровня */
+            /** @description пусто - все объекты уровня; для участка один маршрут */
             ids?: string[];
+            /**
+             * Format: int32
+             * @description направление участка, 0 или 1
+             */
+            direction?: number;
+            /** @description первая остановка участка */
+            fromStop?: string;
+            /** @description последняя остановка участка */
+            toStop?: string;
             from?: string;
             to?: string;
             hours?: string;
@@ -392,6 +489,26 @@ export interface components {
             events?: components["schemas"]["EventDto"][];
         };
         DataBuffer: unknown;
+        AgentResetRequest: {
+            session?: string;
+        };
+        AgentChatRequest: {
+            /**
+             * @description идентификатор диалога, 8-64 символа: латиница, цифры, - и _
+             * @example b3f1c2d4-e5f6
+             */
+            session?: string;
+            /**
+             * @description вопрос, до 1000 символов
+             * @example Покажи 17 маршрут завтра в 8 утра
+             */
+            message?: string;
+            /** @description экран: date, hour, route, stop, view, tab, horizon */
+            context?: {
+                [key: string]: unknown;
+            };
+        };
+        ServerSentEventAgentEventDto: unknown;
         StopDto: {
             id?: string;
             name?: string;
@@ -425,6 +542,65 @@ export interface components {
             lon?: number;
             /** Format: double */
             share?: number;
+        };
+        /** @description Сбой: сообщение «задерживаются трамваи» и ответ «движение восстановлено» */
+        IncidentDto: {
+            /**
+             * @description номер сообщения в канале
+             * @example 23459
+             */
+            id?: string;
+            /**
+             * @example [
+             *       12
+             *     ]
+             */
+            routes?: number[];
+            /**
+             * @description начало, время публикации сообщения
+             * @example 2025-11-08T10:28:51+03:00
+             */
+            start?: string;
+            /**
+             * @description конец; пусто, пока движение не восстановлено
+             * @example 2025-11-08T11:09:05+03:00
+             */
+            end?: string;
+            /**
+             * Format: double
+             * @example 40.2
+             */
+            minutes?: number;
+            /** @example technical_or_unspecified */
+            cause?: string;
+            /** @example технические причины */
+            causeLabel?: string;
+            /** @example В районе Авиамоторной и 3-й Владимирской улиц по техническим причинам */
+            location?: string;
+            /** @example https://t.me/DtOperativno/23459 */
+            sourceUrl?: string;
+            recoveryUrl?: string;
+            /** @description день сбоя в горизонте: сбой уже учтён в прогнозе по умолчанию */
+            inForecast?: boolean;
+            /** @description archive - проверенный архив 2025 года, live - свежая лента канала */
+            origin?: string;
+            /** @description события сценария на день сбоя; пусто вне горизонта прогноза */
+            events?: components["schemas"]["EventDto"][];
+        };
+        NewsFeedDto: {
+            incidents?: components["schemas"]["IncidentDto"][];
+            /**
+             * Format: double
+             * @description доля посадок, которую маршрут теряет за час полной остановки
+             * @example 0.5
+             */
+            alpha?: number;
+            /** @description откуда оценка доли */
+            alphaSource?: string;
+            /** @description когда читалась живая лента; пусто, если она выключена */
+            liveCheckedAt?: string;
+            /** @description почему живую ленту прочитать не удалось */
+            liveError?: string;
         };
         MetaResponse: {
             modelVersion?: string;
@@ -497,6 +673,12 @@ export interface components {
             dayOff?: boolean;
             holiday?: string;
             source?: string;
+        };
+        AgentStatusDto: {
+            configured?: boolean;
+            model?: string;
+            memory?: string;
+            memoryHealthy?: boolean;
         };
     };
     responses: never;
@@ -595,6 +777,12 @@ export interface operations {
                  * @example 17,25
                  */
                 ids?: string;
+                /** @description направление участка, 0 или 1 */
+                direction?: number;
+                /** @description первая остановка участка */
+                fromStop?: string;
+                /** @description последняя остановка участка */
+                toStop?: string;
                 from?: string;
                 to?: string;
                 hours?: string;
@@ -638,6 +826,52 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["DataBuffer"][];
+                };
+            };
+        };
+    };
+    reset: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AgentResetRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    chat: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AgentChatRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/event-stream": components["schemas"]["ServerSentEventAgentEventDto"][];
                 };
             };
         };
@@ -700,6 +934,50 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["RouteStopDto"][];
+                };
+            };
+        };
+    };
+    feed: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["NewsFeedDto"];
+                };
+            };
+        };
+    };
+    tryOn: {
+        parameters: {
+            query: {
+                date: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EventDto"][];
                 };
             };
         };
@@ -847,6 +1125,26 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["CalendarDayDto"][];
+                };
+            };
+        };
+    };
+    status: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AgentStatusDto"];
                 };
             };
         };

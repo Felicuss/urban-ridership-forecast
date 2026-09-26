@@ -12,9 +12,9 @@
 
 .brand {
   display: flex;
+  flex: none;
   align-items: center;
   gap: 10px;
-  min-width: 190px;
 }
 
 .logo {
@@ -255,37 +255,54 @@
   transform: scale(1.06);
 }
 
-.speeds {
-  display: flex;
-  gap: 2px;
-  padding: 2px;
+/* Скорость времени: закрытый список показывает только «×60», в раскрытом - что значит каждая скорость. */
+.speedSelect {
+  width: 64px;
+  height: 30px;
+  padding: 0 6px;
   border: 1px solid var(--line);
   border-radius: 9px;
-}
-
-.speed,
-.speedOn {
-  padding: 3px 6px;
-  border-radius: 7px;
-  color: var(--muted);
-  font: 11px var(--mono);
-}
-
-.speedOn {
-  background: var(--surface-3);
+  background: var(--surface);
   color: var(--text);
+  font: 12px var(--mono);
+  color-scheme: dark;
+  cursor: pointer;
+}
+
+.speedSelect:hover {
+  border-color: var(--line-strong);
+}
+
+.scenario {
+  white-space: nowrap;
+}
+
+@media (max-width: 1700px) {
+  .subtitle,
+  .year {
+    display: none;
+  }
 }
 
 @media (max-width: 1500px) {
-  .subtitle,
   .wlabel {
     display: none;
   }
+}
 
-  .brand {
-    min-width: 0;
+@media (max-width: 1366px) {
+  .brand > div {
+    display: none;
   }
 }
+
+@media (max-width: 1440px) {
+  .exportLabel {
+    display: none;
+  }
+}
+
+
 
 @media (max-width: 1024px) {
   .bar {
@@ -389,4 +406,32 @@
     bottom: 12px;
     font-size: 12px;
   }
+}
+
+.bellOn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: rgba(239, 65, 54, 0.14);
+  color: #ffb3ad;
+}
+
+.bellCount {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  display: grid;
+  place-items: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: var(--red);
+  color: #fff;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 700;
 }

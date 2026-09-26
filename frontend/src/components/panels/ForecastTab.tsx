@@ -5,9 +5,10 @@ import { useStore } from '../../state/store';
 import { MINUTES_PER_DAY, dayIndex, dayOf, hourOf, isoDate, monthLabel, shortDate } from '../../lib/time';
 import { fmtCompact, fmtInt, fmtPct, fmtRange } from '../../lib/format';
 import { targetQuery, useTarget } from '../../hooks/useTarget';
-import { headway } from '../map/trams';
+import { CAPACITY, MIN_HEADWAY, headway } from '../../lib/dispatch';
 import { BandChart, type BandSeries } from '../charts/BandChart';
 import { Card, InfoTip, Kpi, Segmented, TramDots } from '../ui/Controls';
+import { CompareBar, compareLabel } from './CompareBar';
 import styles from './Panels.module.css';
 
 const SOURCE_LABEL: Record<string, string> = { fact: 'факт', forecast: 'прогноз', outlook: 'оценка' };
@@ -66,6 +67,10 @@ export function ForecastTab() {
     return { ...base, horizon: 'year' };
   }, [target, horizon, day]);
   const { data: series, isFetching } = useSeries(query, scenario);
+  const compareDay = useStore((s) => s.compareDay);
+  const compareQuery = useMemo<SeriesQuery | null>(() => (compareDay == null || horizon === 'year' ? null
+    : { ...query, from: isoDate(compareDay) }), [query, compareDay, horizon]);
+  const other = useSeries(compareQuery, scenario).data;
 
   const chart = useMemo<BandSeries | null>(() => {
     if (!series) return null;
@@ -76,8 +81,10 @@ export function ForecastTab() {
       p90: series.points.map((p) => p.p90),
       baseline: series.scenario ? series.points.map((p) => p.baseline ?? null) : undefined,
       history: history2025(factors, series, target.route, target.level),
+      compare: compareQuery && other ? series.points.map((_, i) => other.points[i]?.p50 ?? null) : undefined,
+      compareLabel: compareDay != null ? compareLabel(compareDay, horizon) : undefined,
     };
-  }, [series, horizon, factors, target.route, target.level]);
+  }, [series, horizon, factors, target.route, target.level, compareQuery, other, compareDay]);
 
   if (!series || !chart) return <TramDots label="Считаем прогноз" />;
 
@@ -123,7 +130,7 @@ export function ForecastTab() {
         )}
       </div>
       <Card title={horizon === 'day' ? 'Посадки по часам' : horizon === 'month' ? 'Посадки по дням' : 'Посадки по месяцам'}
-        info="Линия - прогноз, заливка - коридор, куда факт попадает в 8 случаях из 10. Пунктир - прогноз по умолчанию, когда включён сценарий. Серым на годе - факт тех же месяцев 2025 года. Клик по графику переносит время.">
+        info="Линия - прогноз, заливка - коридор, куда факт попадает в 8 случаях из 10. Белый пунктир - прогноз по умолчанию, когда включён сценарий. Жёлтые точки - другая дата из «Сравнить с». Серым на годе - факт тех же месяцев 2025 года. Клик по графику переносит время.">
         <BandChart data={chart} color={target.color} cursorIndex={cursor >= 0 ? cursor : undefined} height={190}
           onPick={(i) => {
             if (horizon === 'day') setMinute(day * MINUTES_PER_DAY + i * 60 + 30);
@@ -133,6 +140,7 @@ export function ForecastTab() {
             }
           }} />
       </Card>
+      <CompareBar day={day} horizon={horizon} series={series} other={compareQuery ? other : undefined} />
       {horizon === 'day' && target.route != null && <PerTrip route={target.route} load={load?.routes.get(target.route)}
         factors={factors} dayOff={calendar?.[day]?.dayOff ?? false} hour={hour} />}
       {series.notes.map((n) => <p key={n} className={styles.note}>{n}</p>)}
@@ -184,12 +192,8 @@ function PerTrip({ route, load, factors, dayOff, hour }: {
   );
 }
 
-/** Вместимость «Витязя-М» при 5 чел/м² - порог по умолчанию; ниже QUIET_LIMIT посадок рейс почти пустой. */
-const CAPACITY = 185;
+/** Ниже QUIET_LIMIT посадок на рейс вагон почти пустой. */
 const QUIET_LIMIT = 15;
-
-/** Чаще, чем раз в 3 минуты в каждую сторону, трамваи на линию не выпустить. */
-const MIN_HEADWAY = 3;
 
 interface HourAdvice {
   h: number;

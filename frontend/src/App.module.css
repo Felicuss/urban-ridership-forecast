@@ -2,7 +2,7 @@
    прогноз и сценарии, снизу время и тепловая карта по дням и часам. */
 .app {
   display: grid;
-  grid-template-columns: minmax(250px, 290px) minmax(0, 1fr) minmax(340px, 400px);
+  grid-template-columns: auto minmax(0, 1fr) minmax(340px, 400px);
   grid-template-rows: 56px minmax(0, 1fr) 164px;
   grid-template-areas:
     'top top top'
@@ -16,9 +16,16 @@
     var(--bg);
 }
 
+/* слева список маршрутов, рядом по кнопке выезжает панель остановок: колонка растёт, карта сужается */
 .left {
   grid-area: left;
+  display: flex;
+  gap: var(--gap);
   min-height: 0;
+}
+
+.left > :first-child {
+  width: 290px;
 }
 
 .map {
@@ -65,7 +72,11 @@
 
 @media (max-width: 1280px) {
   .app {
-    grid-template-columns: 240px minmax(0, 1fr) 340px;
+    grid-template-columns: auto minmax(0, 1fr) 340px;
+  }
+
+  .left > :first-child {
+    width: 240px;
   }
 }
 
@@ -91,5 +102,13 @@
   .right,
   .left {
     min-height: 480px;
+  }
+
+  .left {
+    flex-direction: column;
+  }
+
+  .left > :first-child {
+    width: auto;
   }
 }

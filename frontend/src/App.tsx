@@ -10,6 +10,7 @@ import { TIMELINE_DAYS, dayIndex, isoDate } from './lib/time';
 import { LEAVE_MS, TramLoader } from './components/boot/TramLoader';
 import { TopBar } from './components/layout/TopBar';
 import { RouteList } from './components/layout/RouteList';
+import { StopsPanel } from './components/layout/StopsPanel';
 import { Timeline } from './components/layout/Timeline';
 import { MapOverlay } from './components/map/MapOverlay';
 import { TramDots } from './components/ui/Controls';
@@ -18,6 +19,7 @@ import styles from './App.module.css';
 // Карта и правая панель грузятся отдельными чанками параллельно с данными, пока идёт заставка.
 const MapView = lazy(() => import('./components/map/MapView'));
 const RightPanel = lazy(() => import('./components/panels/RightPanel'));
+const Board = lazy(() => import('./components/board/Board').then((m) => ({ default: m.Board })));
 
 type Phase = 'loading' | 'leaving' | 'done';
 
@@ -31,6 +33,8 @@ export function App() {
   const day = useStore((s) => dayIndex(s.minute));
   const scenario = useStore((s) => s.scenario);
   const route = useStore((s) => s.route);
+  const stopsOpen = useStore((s) => s.stopsOpen);
+  const boardOpen = useStore((s) => s.boardOpen);
   const meta = useMeta();
   const network = useNetwork();
   const factors = useFactors();
@@ -80,6 +84,7 @@ export function App() {
       <TopBar />
       <aside className={styles.left}>
         <RouteList load={load.data} factors={factors.data} />
+        {stopsOpen && route != null && <StopsPanel key={route} route={route} load={load.data} />}
       </aside>
       <main className={styles.map}>
         {network.data && (
@@ -108,6 +113,7 @@ export function App() {
       </footer>
       {failed && <div className={styles.error}>Сервис прогноза не отвечает: {String(failed.message)}</div>}
       {intro && phase !== 'done' && <TramLoader steps={steps} leaving={phase === 'leaving'} />}
+      {boardOpen && <Suspense fallback={null}><Board /></Suspense>}
     </div>
   );
 }
