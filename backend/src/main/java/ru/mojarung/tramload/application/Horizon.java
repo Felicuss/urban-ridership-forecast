@@ -1,9 +1,9 @@
 package ru.mojarung.tramload.application;
 
-/** Горизонт из задания: день по часам, месяц по дням, год по месяцам (качественный прогноз). */
+/** Горизонт: день по часам, неделя и месяц по дням (пики нагрузки по суткам), год по месяцам (качественный прогноз). */
 public enum Horizon {
 
-	DAY, MONTH, YEAR;
+	DAY, WEEK, MONTH, YEAR;
 
 	public String code() {
 		return name().toLowerCase();

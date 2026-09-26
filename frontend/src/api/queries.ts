@@ -140,6 +140,7 @@ function point(p: Schemas['ScenarioPointDto'] | Schemas['PointDto']): Point {
   return {
     source: (p.source ?? 'forecast') as Point['source'],
     period: p.period ?? '', p50: p.p50 ?? 0, p10: p.p10 ?? 0, p90: p.p90 ?? 0,
+    peak: p.peak ?? null, peakAt: p.peakAt ?? null,
     baseline: s.baseline, delta: s.delta, deltaPct: s.deltaPct ?? null,
   };
 }

@@ -54,7 +54,10 @@ export function Board() {
   const factors = useFactors().data;
   const dayOff = useCalendar().data?.[day]?.dayOff ?? false;
   const weather = centerWeather(useWeatherGrid(isoDate(day)).data, hour);
-  const routes = ROUTE_IDS.map((r) => routeNow(r, load, factors, dayOff, hour));
+  const hidden = useStore((s) => s.hiddenRoutes);
+  // все маршруты скрыты фильтром - табло всё равно показывает сеть целиком, пустым оно не бывает
+  const shown = ROUTE_IDS.filter((r) => !hidden.includes(r));
+  const routes = (shown.length ? shown : ROUTE_IDS).map((r) => routeNow(r, load, factors, dayOff, hour));
   const running = routes.filter((r) => r.now > 0);
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);

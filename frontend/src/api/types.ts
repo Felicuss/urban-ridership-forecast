@@ -3,7 +3,7 @@
 
 export type Level = 'route' | 'stop' | 'segment' | 'network';
 export type Granularity = 'hour' | 'day' | 'month';
-export type Horizon = 'day' | 'month' | 'year';
+export type Horizon = 'day' | 'week' | 'month' | 'year';
 
 export type Source = 'fact' | 'forecast' | 'outlook';
 
@@ -23,6 +23,10 @@ export interface Point {
   p50: number;
   p10: number;
   p90: number;
+  /** Посадки в самый загруженный час внутри точки за сутки или месяц; у почасовых точек нет. */
+  peak?: number | null;
+  /** Этот час: 2025-11-14T08:00. */
+  peakAt?: string | null;
   baseline?: number;
   delta?: number;
   deltaPct?: number | null;

@@ -44,6 +44,21 @@ class ApiContractTest {
 	}
 
 	@Test
+	void weekHorizonGivesSevenDaysWithTheirPeakHour() {
+		ForecastResponse week = get("/api/v1/forecast?level=route&id=17&horizon=week&from=2025-11-10", ForecastResponse.class);
+		ForecastResponse day = get("/api/v1/forecast?level=route&id=17&horizon=day&from=2025-11-14", ForecastResponse.class);
+
+		assertThat(week.granularity()).isEqualTo("day");
+		assertThat(week.points()).extracting(PointDto::period).hasSize(7).startsWith("2025-11-10").endsWith("2025-11-16");
+		PointDto friday = week.points().get(4);
+		PointDto busiest = day.points().stream().max((a, b) -> Double.compare(a.p50(), b.p50())).orElseThrow();
+		assertThat(friday.peakAt()).isEqualTo(busiest.period());
+		assertThat(friday.peak()).isCloseTo(busiest.p50(), within(0.1));
+		assertThat(day.points()).allSatisfy(p -> assertThat(p.peak()).isNull());
+		assertThat(week.total().peak()).isEqualTo(week.points().stream().mapToDouble(PointDto::peak).max().orElseThrow());
+	}
+
+	@Test
 	void yearHorizonCoversNovember2025ToOctober2026() {
 		ForecastResponse r = get("/api/v1/forecast?level=network&horizon=year", ForecastResponse.class);
 
@@ -58,7 +73,7 @@ class ApiContractTest {
 			"level=route&id=17&from=2027-01-05|from",
 			"level=route&id=17&horizon=month&from=2024-10-10|from",
 			"level=route&id=17&from=2025-11-10&to=2025-11-05|to",
-			"level=route&id=17&horizon=week|horizon",
+			"level=route&id=17&horizon=decade|horizon",
 			"level=network&horizon=year&granularity=hour|granularity",
 			"level=route&id=17&hours=20-7|hours",
 			"level=stop&id=nope|id",

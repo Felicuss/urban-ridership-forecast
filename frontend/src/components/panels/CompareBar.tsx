@@ -1,6 +1,8 @@
 import type { Horizon, Series } from '../../api/types';
 import { useStore } from '../../state/store';
-import { TIMELINE_DAYS, TIMELINE_END, TIMELINE_START, dayOf, isoDate, monthLabel, monthOf, shortDate, weekdayName } from '../../lib/time';
+import {
+  TIMELINE_DAYS, TIMELINE_END, TIMELINE_START, dayOf, isoDate, monthLabel, monthOf, shortDate, weekStart, weekdayName,
+} from '../../lib/time';
 import { fmtCompact, fmtPct } from '../../lib/format';
 import { COMPARE_COLOR } from '../charts/BandChart';
 import styles from './Panels.module.css';
@@ -14,7 +16,7 @@ interface Option {
 }
 
 function options(day: number, horizon: Horizon): Option[] {
-  if (horizon === 'day') {
+  if (horizon === 'day' || horizon === 'week') {
     return [
       { label: 'неделей раньше', day: day - 7 },
       { label: 'год назад', day: day - 364 },
@@ -31,9 +33,11 @@ function options(day: number, horizon: Horizon): Option[] {
   ].filter((o) => o.day >= 0 && o.day < TIMELINE_DAYS);
 }
 
-/** Подпись второй даты: «7.11, пт» для суток, «ноябрь 2025» для месяца. */
+/** Подпись второй даты: «7.11, пт» для суток, «неделя с 3.11» для недели, «ноябрь 2025» для месяца. */
 export function compareLabel(day: number, horizon: Horizon): string {
-  return horizon === 'day' ? `${shortDate(isoDate(day))}, ${weekdayName(day, true)}` : monthLabel(isoDate(day).slice(0, 7));
+  if (horizon === 'day') return `${shortDate(isoDate(day))}, ${weekdayName(day, true)}`;
+  if (horizon === 'week') return `неделя с ${shortDate(isoDate(weekStart(day)))}`;
+  return monthLabel(isoDate(day).slice(0, 7));
 }
 
 export function CompareBar({ day, horizon, series, other }: {

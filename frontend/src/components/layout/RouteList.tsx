@@ -21,6 +21,8 @@ function sum(values: number[] | undefined): number {
 export function RouteList({ load, factors }: { load: NetworkLoad | undefined; factors: Factors | undefined }) {
   const route = useStore((s) => s.route);
   const selectRoute = useStore((s) => s.selectRoute);
+  const hidden = useStore((s) => s.hiddenRoutes);
+  const visible = ROUTES.filter((r) => r === route || !hidden.includes(r));
   const hour = useStore((s) => hourOf(s.minute));
   const sourceLabel = load?.source === 'fact' ? 'факт' : load?.source === 'outlook' ? 'оценка' : 'прогноз';
   const totals = new Map(ROUTES.map((r) => [r, sum(load?.routes.get(r))]));
@@ -45,7 +47,7 @@ export function RouteList({ load, factors }: { load: NetworkLoad | undefined; fa
         <Sparkline values={networkHours} color="#e9eef5" hour={hour} width={78} />
       </button>
       <div className={styles.list}>
-        {ROUTES.map((r) => {
+        {visible.map((r) => {
           const total = totals.get(r) ?? 0;
           const color = routeColor(r);
           return (

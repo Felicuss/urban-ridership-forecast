@@ -29,11 +29,11 @@ LAYERS = ("heat", "lines", "stops", "trams", "metro", "buildings", "weather", "d
 
 Level = Literal["network", "route", "stop", "segment"]
 Granularity = Literal["hour", "day", "month"]
-Horizon = Literal["day", "month", "year"]
+Horizon = Literal["day", "week", "month", "year"]
 
 INSTRUCTIONS = """Ты помощник диспетчера трамвайной сети Москвы. Отвечаешь только про посадки на 10 трамвайных
 маршрутах (1, 5, 7, 11, 12, 17, 25, 26, 28, 50) с 1 января 2025 по 31 октября 2026: январь-октябрь 2025 -
-факт, ноябрь-декабрь 2025 - прогноз модели v6, 2026 год - оценка по сезонности. На другие темы вежливо
+факт, ноябрь-декабрь 2025 - прогноз модели v11, 2026 год - оценка по сезонности. На другие темы вежливо
 отказывай одной фразой. Числа бери только из инструментов, не придумывай; называй источник: факт, прогноз
 или оценка. Если для запроса не хватает даты, маршрута или периода, спроси, чего не хватает, а не угадывай.
 Чтобы показать что-то на экране, вызывай ui_show, ui_layers или ui_ride и передай их результат интерфейсу."""
@@ -108,7 +108,8 @@ def forecast(level: Level, id: str | None = None, date_from: str | None = None, 
              direction: int | None = None, from_stop: str | None = None, to_stop: str | None = None) -> dict[str, Any]:
     """Посадки по сети, маршруту (id - номер), остановке (id из find_stops) или участку (id - маршрут,
     direction 0/1, from_stop и to_stop). Период: date_from и date_to с шагом granularity, или horizon
-    (day, month от date_from; year - ноябрь 2025 - октябрь 2026). hours - окно часов, например «7-10»."""
+    (day - сутки по часам, week - 7 суток по дням с пиковым часом каждого дня, month - месяц по дням от date_from;
+    year - ноябрь 2025 - октябрь 2026). hours - окно часов, например «7-10»."""
     if level == "route":
         _route(int(id) if id and id.isdigit() else None)
     query = {"level": level, "id": id, "from": _date(date_from, "date_from"), "to": _date(date_to, "date_to"),

@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useCalendar, useFactors, useNetworkLoad, useSeries, type SeriesQuery } from '../../api/queries';
 import type { Factors, Horizon, Series } from '../../api/types';
 import { useStore } from '../../state/store';
-import { MINUTES_PER_DAY, dayIndex, dayOf, hourOf, isoDate, monthLabel, shortDate } from '../../lib/time';
+import { MINUTES_PER_DAY, dayIndex, dayOf, hourOf, isoDate, monthLabel, shortDate, weekStart, weekdayName } from '../../lib/time';
 import { fmtCompact, fmtInt, fmtPct, fmtRange } from '../../lib/format';
 import { targetQuery, useTarget } from '../../hooks/useTarget';
 import { CAPACITY, MIN_HEADWAY, headway } from '../../lib/dispatch';
@@ -20,18 +20,21 @@ function band(p10: number, p90: number): string {
 
 const HORIZONS: { value: Horizon; label: string; hint: string }[] = [
   { value: 'day', label: 'Сутки', hint: 'По часам выбранного дня' },
-  { value: 'month', label: 'Месяц', hint: 'По дням месяца' },
+  { value: 'week', label: 'Неделя', hint: 'По дням с понедельника по воскресенье, у каждого дня пиковый час' },
+  { value: 'month', label: 'Месяц', hint: 'По дням месяца, у каждого дня пиковый час' },
   { value: 'year', label: 'Год', hint: 'По месяцам: ноябрь 2025 - октябрь 2026' },
 ];
 
 const UNIT: Record<Horizon, { total: string; peak: string; now: string }> = {
   day: { total: 'Посадок за сутки', peak: 'Пиковый час', now: 'В выбранный час' },
-  month: { total: 'Посадок за месяц', peak: 'Пиковый день', now: 'В выбранный день' },
+  week: { total: 'Посадок за неделю', peak: 'Пиковый час недели', now: 'В выбранный день' },
+  month: { total: 'Посадок за месяц', peak: 'Пиковый час месяца', now: 'В выбранный день' },
   year: { total: 'Посадок за 12 месяцев', peak: 'Пиковый месяц', now: 'Ноябрь 2025' },
 };
 
 function label(period: string, horizon: Horizon): string {
   if (horizon === 'day') return period.slice(11, 13);
+  if (horizon === 'week') return `${weekdayName(dayOf(period), true)} ${shortDate(period)}`;
   if (horizon === 'month') return shortDate(period);
   return monthLabel(period).slice(0, 3);
 }
@@ -63,13 +66,14 @@ export function ForecastTab() {
   const query = useMemo<SeriesQuery>(() => {
     const base = targetQuery(target);
     if (horizon === 'day') return { ...base, horizon: 'day', from: isoDate(day) };
+    if (horizon === 'week') return { ...base, horizon: 'week', from: isoDate(weekStart(day)) };
     if (horizon === 'month') return { ...base, horizon: 'month', from: isoDate(day) };
     return { ...base, horizon: 'year' };
   }, [target, horizon, day]);
   const { data: series, isFetching } = useSeries(query, scenario);
   const compareDay = useStore((s) => s.compareDay);
   const compareQuery = useMemo<SeriesQuery | null>(() => (compareDay == null || horizon === 'year' ? null
-    : { ...query, from: isoDate(compareDay) }), [query, compareDay, horizon]);
+    : { ...query, from: isoDate(horizon === 'week' ? weekStart(compareDay) : compareDay) }), [query, compareDay, horizon]);
   const other = useSeries(compareQuery, scenario).data;
 
   const chart = useMemo<BandSeries | null>(() => {
@@ -88,9 +92,11 @@ export function ForecastTab() {
 
   if (!series || !chart) return <TramDots label="Считаем прогноз" />;
 
-  const cursor = horizon === 'day' ? hour : horizon === 'month'
+  const byDay = horizon === 'week' || horizon === 'month';
+  const cursor = horizon === 'day' ? hour : byDay
     ? series.points.findIndex((p) => p.period === isoDate(day)) : series.points.findIndex((p) => p.period === isoDate(day).slice(0, 7));
   const peak = series.points.reduce((a, p) => (p.p50 > a.p50 ? p : a), series.points[0]!);
+  const peakHour = byDay ? series.total : null;
   const current = series.points[cursor] ?? series.points[0]!;
   const spread = series.total.p50 > 0 ? (100 * (series.total.p90 - series.total.p10)) / 2 / series.total.p50 : 0;
   const delta = series.scenario && series.total.baseline
@@ -112,9 +118,14 @@ export function ForecastTab() {
         <Kpi label={UNIT[horizon].total} value={fmtCompact(series.total.p50)}
           sub={band(series.total.p10, series.total.p90)}
           info="Прогноз и коридор: на проверке по прошлым месяцам факт попадал в коридор в 8 случаях из 10. Коридор за сутки или месяц складывается из коридоров часов, поэтому он шире реального." />
-        <Kpi label={UNIT[horizon].peak} value={fmtCompact(peak.p50)}
-          sub={horizon === 'day' ? `${peak.period.slice(11, 13)}:00-${Number(peak.period.slice(11, 13)) + 1}:00`
-            : horizon === 'month' ? shortDate(peak.period) : monthLabel(peak.period)} tone="accent" />
+        {peakHour?.peak != null && peakHour.peakAt ? (
+          <Kpi label={UNIT[horizon].peak} value={fmtInt(peakHour.peak)} sub={peakLabel(peakHour.peakAt)} tone="accent"
+            info="Самый загруженный час за период: посадки в этот час по всему объекту. По нему видно пиковую нагрузку, а не только сумму за сутки." />
+        ) : (
+          <Kpi label={UNIT[horizon].peak} value={fmtCompact(peak.p50)}
+            sub={horizon === 'day' ? `${peak.period.slice(11, 13)}:00-${Number(peak.period.slice(11, 13)) + 1}:00`
+              : monthLabel(peak.period)} tone="accent" />
+        )}
         <Kpi label={UNIT[horizon].now} value={fmtInt(current.p50)}
           sub={band(current.p10, current.p90)} />
         {delta != null ? (
@@ -129,22 +140,73 @@ export function ForecastTab() {
             info="Чем шире коридор, тем меньше уверенность. Для года коридор ±12 %: сезонный индекс ошибался до 12,6 % на реальных месяцах." />
         )}
       </div>
-      <Card title={horizon === 'day' ? 'Посадки по часам' : horizon === 'month' ? 'Посадки по дням' : 'Посадки по месяцам'}
+      <Card title={horizon === 'day' ? 'Посадки по часам' : byDay ? 'Посадки по дням' : 'Посадки по месяцам'}
         info="Линия - прогноз, заливка - коридор, куда факт попадает в 8 случаях из 10. Белый пунктир - прогноз по умолчанию, когда включён сценарий. Жёлтые точки - другая дата из «Сравнить с». Серым на годе - факт тех же месяцев 2025 года. Клик по графику переносит время.">
         <BandChart data={chart} color={target.color} cursorIndex={cursor >= 0 ? cursor : undefined} height={190}
           onPick={(i) => {
             if (horizon === 'day') setMinute(day * MINUTES_PER_DAY + i * 60 + 30);
-            if (horizon === 'month') {
+            if (byDay) {
               const p = series.points[i];
               if (p) setMinute(dayOf(p.period) * MINUTES_PER_DAY + hour * 60);
             }
           }} />
       </Card>
       <CompareBar day={day} horizon={horizon} series={series} other={compareQuery ? other : undefined} />
+      {byDay && <PeakDays points={series.points} horizon={horizon} day={day}
+        onPick={(d, h) => setMinute(d * MINUTES_PER_DAY + h * 60 + 30)} />}
       {horizon === 'day' && target.route != null && <PerTrip route={target.route} load={load?.routes.get(target.route)}
         factors={factors} dayOff={calendar?.[day]?.dayOff ?? false} hour={hour} />}
       {series.notes.map((n) => <p key={n} className={styles.note}>{n}</p>)}
     </div>
+  );
+}
+
+/** «пт 14.11, 8:00-9:00» по метке часа 2025-11-14T08:00. */
+function peakLabel(at: string): string {
+  const h = Number(at.slice(11, 13));
+  return `${weekdayName(dayOf(at.slice(0, 10)), true)} ${shortDate(at.slice(0, 10))}, ${h}:00-${h + 1}:00`;
+}
+
+/** Сколько самых напряжённых дней месяца показывать списком. */
+const TOP_DAYS = 7;
+
+/**
+ * Пики по дням: в каждом дне недели или месяца самый загруженный час и посадки в него. Для месяца - семь
+ * самых напряжённых дней. Клик по строке переносит время на этот час.
+ */
+function PeakDays({ points, horizon, day, onPick }: {
+  points: Series['points'];
+  horizon: Horizon;
+  day: number;
+  onPick: (day: number, hour: number) => void;
+}) {
+  const withPeak = points.filter((p) => p.peak != null && p.peakAt);
+  const rows = horizon === 'month' ? [...withPeak].sort((a, b) => (b.peak ?? 0) - (a.peak ?? 0)).slice(0, TOP_DAYS) : withPeak;
+  const max = Math.max(...rows.map((p) => p.peak ?? 0), 1);
+  if (!rows.length) return null;
+  return (
+    <Card title={horizon === 'month' ? 'Самые напряжённые дни месяца' : 'Пики нагрузки по дням'}
+      info="Для каждого дня - час с наибольшим числом посадок, посадки в этот час и справа посадки за сутки. Сумма за сутки прячет пики: день с меньшей суммой может дать более острый утренний час.">
+      <ul className={styles.peaks}>
+        {rows.map((p) => {
+          const d = dayOf(p.period);
+          const h = Number((p.peakAt ?? '').slice(11, 13));
+          const top = p.peak === max;
+          return (
+            <li key={p.period}>
+              <button type="button" className={d === day ? styles.peakRowOn : styles.peakRow} onClick={() => onPick(d, h)}
+                title="Перейти к этому часу">
+                <span className={styles.peakDay}>{weekdayName(d, true)} {shortDate(p.period)}</span>
+                <span className={styles.peakHour}>{h}:00</span>
+                <span className={styles.peakBar}><i style={{ width: `${(100 * (p.peak ?? 0)) / max}%` }} className={top ? styles.peakTop : undefined} /></span>
+                <b className="num">{fmtInt(p.peak ?? 0)}</b>
+                <small className="num" title="Посадок за сутки">{fmtCompact(p.p50)}</small>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    </Card>
   );
 }
 

@@ -431,6 +431,9 @@ export interface components {
             /** Format: double */
             deltaPct?: number;
             source?: string;
+            /** Format: double */
+            peak?: number;
+            peakAt?: string;
         };
         ScenarioResponse: {
             target?: components["schemas"]["TargetDto"];
@@ -650,6 +653,9 @@ export interface components {
             /** Format: double */
             p90?: number;
             source?: string;
+            /** Format: double */
+            peak?: number;
+            peakAt?: string;
         };
         CoefficientDto: {
             key?: string;
@@ -1049,7 +1055,7 @@ export interface operations {
                 hours?: string;
                 /** @description hour, day, month */
                 granularity?: string;
-                /** @description day, month, year */
+                /** @description day, week, month, year */
                 horizon?: string;
             };
             header?: never;

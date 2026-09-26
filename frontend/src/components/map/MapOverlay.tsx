@@ -166,7 +166,7 @@ function RouteFilter() {
   return (
     <div className={styles.filterWrap}>
       <button type="button" className={hidden.length ? styles.dockOn : styles.dockBtn} aria-expanded={open}
-        title="Показать или скрыть маршруты на карте" onClick={() => setOpen((v) => !v)}>
+        title="Показать или скрыть маршруты на карте и в списке" onClick={() => setOpen((v) => !v)}>
         <i />Маршруты {shown}/{ROUTES.length}
       </button>
       {open && (

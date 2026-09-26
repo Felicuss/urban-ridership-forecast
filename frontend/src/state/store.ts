@@ -43,7 +43,9 @@ const DEFAULT_FLAGS: Flags = {
 };
 
 const FLAGS_KEY = 'tram-ui.flags.v1';
-const HIDDEN_KEY = 'tram-ui.hidden-routes.v1';
+const HIDDEN_KEY = 'tram-ui.hidden-routes.v2';
+/** №5 запущен только 16.12.2025, команда от него отказалась: по умолчанию скрыт, включается в фильтре маршрутов. */
+const DEFAULT_HIDDEN = [5];
 const ALERTS_KEY = 'tram-ui.alerts.v1';
 
 /** Подписка на оповещение: маршрут или его участок и порог посадок на рейс на следующий день. */
@@ -78,10 +80,11 @@ function saveAlerts(alerts: AlertRule[]): void {
 function loadHidden(): number[] {
   try {
     const raw = localStorage.getItem(HIDDEN_KEY);
-    const parsed = raw ? (JSON.parse(raw) as unknown) : [];
-    return Array.isArray(parsed) ? parsed.filter((r): r is number => Number.isInteger(r)) : [];
+    if (raw == null) return DEFAULT_HIDDEN;
+    const parsed = JSON.parse(raw) as unknown;
+    return Array.isArray(parsed) ? parsed.filter((r): r is number => Number.isInteger(r)) : DEFAULT_HIDDEN;
   } catch {
-    return [];
+    return DEFAULT_HIDDEN;
   }
 }
 

@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { download, useStops, type SeriesQuery } from '../../api/queries';
 import { isDefaultScenario, useStore } from '../../state/store';
-import { HORIZON_END, HORIZON_START, TIMELINE_END, TIMELINE_START, dayIndex, dayOf, isoDate, monthOf } from '../../lib/time';
+import {
+  HORIZON_END, HORIZON_START, TIMELINE_DAYS, TIMELINE_END, TIMELINE_START, dayIndex, dayOf, isoDate, monthOf, weekStart,
+} from '../../lib/time';
 import { fmtInt } from '../../lib/format';
 import { targetQuery, useTarget } from '../../hooks/useTarget';
 import { Segmented, Toggle } from '../ui/Controls';
@@ -13,7 +15,7 @@ import styles from './ExportSheet.module.css';
 // Число строк считается до запроса: лист Excel вмещает 1 048 575 строк, сервис откажет в большем.
 
 type What = 'target' | 'routes' | 'stops' | 'network';
-type Period = 'day' | 'month' | 'horizon' | 'year' | 'custom';
+type Period = 'day' | 'week' | 'month' | 'horizon' | 'year' | 'custom';
 type Step = 'hour' | 'day' | 'month';
 
 const MAX_ROWS = 1_048_575;
@@ -22,6 +24,7 @@ const HOURS_PATTERN = /^(\d{1,2})-(\d{1,2})$/;
 
 const PERIODS: { value: Period; label: string; hint: string }[] = [
   { value: 'day', label: 'Сутки', hint: 'Выбранный день' },
+  { value: 'week', label: 'Неделя', hint: 'Понедельник-воскресенье выбранного дня' },
   { value: 'month', label: 'Месяц', hint: 'Месяц выбранного дня' },
   { value: 'horizon', label: 'Ноябрь-декабрь', hint: 'Горизонт прогноза из задания' },
   { value: 'year', label: 'Год', hint: 'Ноябрь 2025 - октябрь 2026 по месяцам' },
@@ -36,6 +39,10 @@ const STEPS: { value: Step; label: string }[] = [
 
 function range(period: Period, day: number, from: string, to: string): [string, string] {
   if (period === 'day') return [isoDate(day), isoDate(day)];
+  if (period === 'week') {
+    const first = weekStart(day);
+    return [isoDate(first), isoDate(Math.min(first + 6, TIMELINE_DAYS - 1))];
+  }
   if (period === 'month') {
     const m = monthOf(day);
     return [isoDate(m.first), isoDate(m.first + m.days - 1)];
