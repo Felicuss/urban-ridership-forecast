@@ -114,7 +114,7 @@
   "base_sum": 671267,
   "file": "q04_r50_12.csv",
   "sha256": "165ddba1348b252c6ae5e45ec4b614aa103c5a8883835c4f2544775538259241",
-  "score": null
+  "score": 0.0586
  },
  {
   "id": "q05",
@@ -139,7 +139,7 @@
   "base_sum": 747441,
   "file": "q05_r7_12.csv",
   "sha256": "1ce9f1b9adc3b227ccaefe9c17c814c3aae995754aa01c91d9f6c741c5269d47",
-  "score": null
+  "score": 0.0425
  },
  {
   "id": "q06",
@@ -539,7 +539,7 @@
   "base_sum": 84426,
   "file": "q20_r5_12.csv",
   "sha256": "91b3146fb7cc9fa37e13fcae59dd51bfb787feb2b17cc1cf74b91149272307b0",
-  "score": null
+  "score": 0.06197
  },
  {
   "id": "q21",
@@ -687,6 +687,43 @@
   "base_sum": 2358985,
   "file": "q25_h_wd_16_19.csv",
   "sha256": "bc58ff57ff158b7c768c62801b9288b9ad61849f73e5a55f12fed822d06b36ae",
+  "score": 0.0696
+ },
+ {
+  "id": "q26",
+  "name": "dec22_26_wd",
+  "spec": {
+   "routes": [
+    1,
+    5,
+    7,
+    11,
+    12,
+    25,
+    26,
+    28,
+    50
+   ],
+   "dates": [
+    "2025-12-22",
+    "2025-12-23",
+    "2025-12-24",
+    "2025-12-25",
+    "2025-12-26"
+   ]
+  },
+  "ceiling": [
+   2.0,
+   15.0
+  ],
+  "part": false,
+  "floor_ref": null,
+  "floor_dates": [],
+  "cells": 1080,
+  "sum_h": 1997240,
+  "base_sum": 990520,
+  "file": "q26_dec22_26_wd.csv",
+  "sha256": "bd31b569ca379b747de80be3eba4204fd7c39214e64874a3b3e01b82acf8cd60",
   "score": null
  }
 ]
