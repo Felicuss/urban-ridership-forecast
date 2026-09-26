@@ -1,8 +1,8 @@
 {
  "schema_version": 1,
  "model_version": "seasonal_daily_v11",
- "git_commit": "596e54cad8056f864f06f2d33884bc42a463bec6",
- "generated_at": "2026-09-26T09:46:26+00:00",
+ "git_commit": "45aa4bd9f2d903875b41002f1a3fe0e9138738c9",
+ "generated_at": "2026-09-26T18:33:51+00:00",
  "forecast_origin": "2025-10-31",
  "horizon": {
   "from": "2025-11-01",
@@ -34,7 +34,7 @@
    "rows": 14640
   },
   "coefficients.json": {
-   "sha256": "6cfde028df991ff30acfe953379d2350e51e2e5fa65bdaad1415cba98a87af36",
+   "sha256": "a0172e3d21acb645c13f307a45222094eecc150e269e3cfb49f869e816c6b00a",
    "rows": null
   },
   "stops.csv": {
