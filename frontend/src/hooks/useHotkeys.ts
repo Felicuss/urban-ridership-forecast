@@ -62,7 +62,9 @@ export function useHotkeys(): void {
         s.setSettingsOpen(true);
         return;
       }
-      if (e.key === 'Escape' && !s.matrixOpen && s.route != null && !s.settingsOpen) {
+      // Esc в окне выгрузки, календаре или помощнике закрывает только их, выбранный маршрут остаётся
+      if (e.key === 'Escape' && !s.matrixOpen && s.route != null && !s.settingsOpen
+        && !document.querySelector('[role="dialog"]')) {
         s.selectRoute(null);
         return;
       }

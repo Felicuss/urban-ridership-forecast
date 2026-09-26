@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { NetworkLoad } from '../../api/types';
 import { SNOW_CM_TO_MM, type GridPoint } from '../../lib/weatherGrid';
 import { useStops } from '../../api/queries';
@@ -165,9 +165,31 @@ function RouteFilter() {
   const toggleRoute = useStore((s) => s.toggleRoute);
   const setHiddenRoutes = useStore((s) => s.setHiddenRoutes);
   const [open, setOpen] = useState(false);
+  const box = useRef<HTMLDivElement>(null);
   const shown = ROUTES.length - hidden.length;
+
+  // список закрывается кликом мимо него или Esc, как календарь в верхней строке; Esc ловим на погружении,
+  // чтобы он не снял заодно выбор маршрута
+  useEffect(() => {
+    if (!open) return undefined;
+    const outside = (e: MouseEvent) => {
+      if (box.current && !box.current.contains(e.target as Node)) setOpen(false);
+    };
+    const esc = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      e.preventDefault();
+      setOpen(false);
+    };
+    document.addEventListener('mousedown', outside);
+    document.addEventListener('keydown', esc, true);
+    return () => {
+      document.removeEventListener('mousedown', outside);
+      document.removeEventListener('keydown', esc, true);
+    };
+  }, [open]);
+
   return (
-    <div className={styles.filterWrap}>
+    <div ref={box} className={styles.filterWrap}>
       <button type="button" className={hidden.length ? styles.dockOn : styles.dockBtn} aria-expanded={open}
         title="Показать или скрыть маршруты на карте и в списке" onClick={() => setOpen((v) => !v)}>
         <i />Маршруты {shown}/{ROUTES.length}

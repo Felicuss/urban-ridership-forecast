@@ -87,14 +87,25 @@ export function AgentIsland() {
     return () => window.removeEventListener(ASK_EVENT, ask);
   }, [send]);
 
+  const openRef = useRef(open);
+  useEffect(() => {
+    openRef.current = open;
+  }, [open]);
+
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
       const typing = e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement;
-      if ((e.key === '/' && !typing) || (e.key === 'k' && (e.ctrlKey || e.metaKey))) {
+      // в русской раскладке на клавише «/» точка, а Ctrl+K даёт «л»: смотрим и на физическую клавишу
+      const slash = e.key === '/' || (e.code === 'Slash' && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey);
+      if ((slash && !typing) || ((e.key === 'k' || e.code === 'KeyK') && (e.ctrlKey || e.metaKey))) {
         e.preventDefault();
         setOpen(true);
       }
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key === 'Escape' && openRef.current) {
+        // Esc закрывает помощника, а выбор маршрута не снимает
+        e.preventDefault();
+        setOpen(false);
+      }
     };
     document.addEventListener('keydown', key);
     return () => document.removeEventListener('keydown', key);

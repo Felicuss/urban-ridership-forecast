@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useCalendar, useFactors, useMeta } from '../../api/queries';
 import { SPEEDS, isDefaultScenario, useStore, type Speed } from '../../state/store';
 import { useLayout, type LayoutMode } from '../../state/layout';
@@ -49,6 +49,10 @@ export function TopBar() {
   const target = useTarget();
   const [dateOpen, setDateOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
+  // постоянные ссылки: окна не переподписываются на Esc при каждой перерисовке верхней строки
+  const closeDate = useCallback(() => setDateOpen(false), []);
+  const closeExport = useCallback(() => setExportOpen(false), []);
+  const closeSettings = useCallback(() => setSettingsOpen(false), [setSettingsOpen]);
   const day = dayIndex(minute);
   const hour = hourOf(minute);
   const cal = calendar?.[day];
@@ -102,7 +106,7 @@ export function TopBar() {
           title={followNow ? 'Следующий день: режим «Сейчас» выключится' : 'Следующий день'} onClick={() => setDay(day + 1)}><Icon.next /></button>
         {badge && <span className={`${styles.source} ${styles[cal?.source ?? 'forecast']}`} title={badgeHint}>{badge.label}</span>}
         {dateOpen && <DatePopover day={day} calendar={calendar} onPick={(d) => { setDay(d); setDateOpen(false); }}
-          onClose={() => setDateOpen(false)} />}
+          onClose={closeDate} />}
       </div>
 
       <div className={styles.clock}>
@@ -159,8 +163,8 @@ export function TopBar() {
           <Icon.gear />
         </button>
       </div>
-      {settingsOpen && <SettingsSheet onClose={() => setSettingsOpen(false)} />}
-      {exportOpen && <ExportSheet onClose={() => setExportOpen(false)} />}
+      {settingsOpen && <SettingsSheet onClose={closeSettings} />}
+      {exportOpen && <ExportSheet onClose={closeExport} />}
       <NowNotice />
     </header>
   );
