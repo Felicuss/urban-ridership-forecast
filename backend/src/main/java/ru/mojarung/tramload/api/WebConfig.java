@@ -10,8 +10,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.config.CorsRegistry;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 
 /** CORS для фронта и описание OpenAPI, по которому фронт генерирует клиента. */
 @Configuration(proxyBeanMethods = false)
@@ -43,7 +46,12 @@ public class WebConfig implements WebFluxConfigurer {
 		return new OpenAPI().info(new Info().title("Час пик: прогноз загрузки трамвайных маршрутов Москвы")
 			.version("v1")
 			.description("Почасовой прогноз посадок на ноябрь-декабрь 2025, сценарии с ползунками, остановки и "
-					+ "участки, тепловая карта, выгрузка CSV и XLSX. Ошибки - Problem Details (RFC 9457)."));
+					+ "участки, тепловая карта, выгрузка CSV и XLSX. Ошибки - Problem Details (RFC 9457)."))
+			// без схемы в Swagger UI нет кнопки Authorize, и «Try it out» без входа в интерфейс получает 401
+			.components(new Components().addSecuritySchemes("basic", new SecurityScheme()
+				.type(SecurityScheme.Type.HTTP).scheme("basic")
+				.description("Логин и пароль диспетчера из AUTH_USERS, значения по умолчанию - в README")))
+			.addSecurityItem(new SecurityRequirement().addList("basic"));
 	}
 
 }
