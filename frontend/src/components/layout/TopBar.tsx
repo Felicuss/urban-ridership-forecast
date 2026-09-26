@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { useCalendar, useFactors } from '../../api/queries';
 import { SPEEDS, isDefaultScenario, useStore, type Speed } from '../../state/store';
 import { useLayout, type LayoutMode } from '../../state/layout';
-import { TIMELINE_DAYS, clock, dayIndex, dayLabel, hourOf, isoDate, sunElevation } from '../../lib/time';
+import { TIMELINE_DAYS, clock, dayIndex, dayLabel, hourOf, isoDate, sunElevation, weekdayName } from '../../lib/time';
 import { fmtTemp, fmt1 } from '../../lib/format';
 import { SKY_LABEL, weatherAt } from '../../lib/weather';
 import { useTarget } from '../../hooks/useTarget';
@@ -225,9 +225,9 @@ function AlertBell() {
 }
 
 /** Дата в кнопке: год прячется на узком экране, день недели остаётся всегда. */
+/** «сб, 25 октября»: короткий день недели, чтобы ширина кнопки почти не менялась при листании стрелками. */
 function DateText({ day }: { day: number }) {
   const label = dayLabel(day);
-  const [date, weekday] = [label.slice(0, label.indexOf(',')), label.slice(label.indexOf(','))];
-  const year = date.slice(-5);
-  return <span>{date.slice(0, -5)}<span className={styles.year}>{year}</span>{weekday}</span>;
+  const date = label.slice(0, label.indexOf(','));
+  return <span>{weekdayName(day, true)}, {date.slice(0, -5)}<span className={styles.year}>{date.slice(-5)}</span></span>;
 }

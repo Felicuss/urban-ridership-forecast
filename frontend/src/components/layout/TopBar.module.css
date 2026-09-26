@@ -70,6 +70,8 @@
   background: var(--surface);
   font-weight: 500;
   white-space: nowrap;
+  /* ширина под самую длинную дату шкалы с плашкой: стрелки не прыгают при листании */
+  min-width: 290px;
 }
 
 .date:hover {
@@ -77,6 +79,7 @@
 }
 
 .date em {
+  margin-left: auto;
   padding: 1px 7px;
   border-radius: 6px;
   font-size: 10.5px;
@@ -281,6 +284,10 @@
   .subtitle,
   .year {
     display: none;
+  }
+
+  .date {
+    min-width: 270px;
   }
 }
 
