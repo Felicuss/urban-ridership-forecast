@@ -6,6 +6,11 @@ spring:
   webflux:
     problemdetails:
       enabled: true
+  data:
+    redis:
+      # память агента; без REDIS_URL агент хранит историю в процессе и в Redis не ходит
+      url: ${REDIS_URL:redis://localhost:6379}
+      timeout: 1s
 
 server:
   port: ${PORT:8080}
@@ -16,11 +21,33 @@ server:
     min-response-size: 2KB
 
 tramload:
+  auth:
+    # вход в интерфейс; выключается только для замеров и тестов
+    enabled: ${AUTH_ENABLED:true}
+    # учётные записи через запятую: логин:пароль:имя; пароли в памяти хранятся хешами bcrypt
+    users: ${AUTH_USERS:dispatcher:chaspik:Диспетчер}
+    # ключ подписи сессии, общий для всех реплик; пусто - ключ выводится из AUTH_USERS
+    secret: ${AUTH_SECRET:}
+    session-ttl: 12h
   artifacts:
     dir: ${TRAMLOAD_ARTIFACTS_DIR:../artifacts}
     scenario-cache-size: 256
   cors:
-    allowed-origins: ${TRAMLOAD_CORS_ORIGINS:http://localhost:5173,http://localhost:3000}
+    allowed-origins: ${TRAMLOAD_CORS_ORIGINS:http://localhost:5173,http://localhost:4173,http://localhost:3000}
+  agent:
+    # Ollama Cloud через OpenAI-совместимый API; ключ только из окружения (.env), в репозитории его нет
+    llm-base-url: ${LLM_BASE_URL:https://ollama.com/v1}
+    llm-api-key: ${LLM_API_KEY:}
+    llm-model: ${LLM_MODEL:gpt-oss:120b}
+    llm-timeout: 60s
+    mcp-url: ${MCP_URL:http://localhost:8765/mcp}
+    mcp-timeout: 20s
+    redis-url: ${REDIS_URL:}
+  news:
+    # веб-версия канала Дептранса; пусто - только проверенный архив 2025 года
+    live-url: ${NEWS_LIVE_URL:https://t.me/s/DtOperativno}
+    refresh: 10m
+    timeout: 6s
 
 management:
   endpoints:
@@ -31,6 +58,10 @@ management:
     health:
       probes:
         enabled: true
+  health:
+    redis:
+      # Redis нужен только агенту: без него сервис прогноза здоров
+      enabled: false
 
 springdoc:
   api-docs:

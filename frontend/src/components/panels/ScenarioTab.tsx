@@ -2,11 +2,12 @@ import { useMemo, useState } from 'react';
 import { useCoefficients, useSeries } from '../../api/queries';
 import type { Coefficient, CoefficientValue, ScenarioEvent } from '../../api/types';
 import { useStore } from '../../state/store';
-import { HORIZON_START, dayIndex, isoDate, shortDate } from '../../lib/time';
+import { HORIZON_END, HORIZON_START, dayIndex, isoDate, shortDate } from '../../lib/time';
 import { fmtCompact, fmtPct } from '../../lib/format';
 import { ROUTE_COLORS } from '../../lib/routes';
 import { Card, InfoTip, Kpi, Toggle, TramDots } from '../ui/Controls';
 import { Icon } from '../ui/Icons';
+import { NewsEvents } from './NewsEvents';
 import styles from './Panels.module.css';
 
 const GROUP_TITLES: Record<string, string> = {
@@ -37,11 +38,15 @@ export default function ScenarioTab() {
   return (
     <div className={styles.stack}>
       <p className={styles.note}>
-        Ползунки - коэффициенты модели. Сервис пересчитывает всю сетку на ноябрь-декабрь за доли миллисекунды,
-        запрос уходит через 0,18 с после последнего движения. Со значениями по умолчанию точность на проверке организаторов 0,8995.
-        Сценарий меняет только прогноз ноября-декабря 2025: факт и оценка 2026 года остаются как есть.
+        «Что если»: добавьте перекрытие, мероприятие или сбой из новостей, либо сдвиньте ползунок модели.
+        Прогноз ноября-декабря 2025 пересчитается сразу, факт и оценка 2026 года не меняются.
       </p>
       <Impact />
+      <Events />
+      <NewsEvents />
+      <h3 className={styles.groupTitle}>Коэффициенты модели
+        <InfoTip>Со значениями по умолчанию это прогноз v11, точность на проверке организаторов 0,90741. Ползунок
+          сдвигает его: например, спрос в ноябре к октябрю или доля воскресенья в праздник.</InfoTip></h3>
       {groups.map(([group, items]) => (
         <section key={group} className={styles.group}>
           <h3 className={styles.groupTitle}>{GROUP_TITLES[group] ?? group}</h3>
@@ -51,7 +56,6 @@ export default function ScenarioTab() {
           ))}
         </section>
       ))}
-      <Events />
       {(Object.keys(scenario.coefficients).length > 0 || scenario.events.length > 0) && (
         <button type="button" className={styles.btn} onClick={resetScenario}><Icon.reset />Вернуть значения по умолчанию</button>
       )}
@@ -111,14 +115,12 @@ function CoefficientRow({ c, value, onChange }: {
 function Impact() {
   const scenario = useStore((s) => s.scenario);
   const active = Object.keys(scenario.coefficients).length > 0 || scenario.events.length > 0;
-  const query = useMemo(() => ({ level: 'network' as const, from: HORIZON_START, to: isoDate(60), granularity: 'day' as const }), []);
+  const query = useMemo(() => ({ level: 'network' as const, from: HORIZON_START, to: HORIZON_END, granularity: 'day' as const }), []);
   const { data, isFetching } = useSeries(active ? query : null, scenario);
   if (!active) {
     return (
-      <Card title="Как читать сценарий">
-        <p className={styles.note}>Сдвиньте ползунок или добавьте событие: здесь появится разница с прогнозом по умолчанию
-          по всей сети и по каждому дню, а графики прогноза покажут базу пунктиром.</p>
-      </Card>
+      <p className={styles.note}>Здесь появится разница с прогнозом по умолчанию по сети и по дням, а графики прогноза
+        покажут базу пунктиром.</p>
     );
   }
   if (!data) return <TramDots label="Пересчитываем сценарий" />;
@@ -161,10 +163,10 @@ function Events() {
           1,3 - на 30 % больше пассажиров. Так подключаются внешние данные, которых нет в модели.</InfoTip></h3>
       {events.map((e, i) => (
         <div key={`${e.from}-${i}`} className={styles.event}>
-          <b>{e.label || 'событие'}: {e.route ? `маршрут ${e.route}` : 'все маршруты'} ×{e.multiplier}</b>
+          <b>{e.label || 'событие'}: {e.route ? `маршрут ${e.route}` : 'все маршруты'} ×{fmtMultiplier(e.multiplier)}</b>
           <button type="button" className={styles.reset} aria-label="Удалить событие" onClick={() => removeEvent(i)}>
             <Icon.close /></button>
-          <small>{e.from === e.to ? e.from : `${e.from} - ${e.to}`}{e.hours ? `, ${e.hours} ч` : ', весь день'}</small>
+          <small>{e.from === e.to ? shortDate(e.from) : `${shortDate(e.from)} - ${shortDate(e.to)}`}, {hoursLabel(e.hours)}</small>
         </div>
       ))}
       <div className={styles.row}>
@@ -200,4 +202,17 @@ function Events() {
       </div>
     </section>
   );
+}
+
+/** Окно часов события на циферблате: «10-17» включает 17-й час, то есть 10:00-18:00. */
+function hoursLabel(hours: string | undefined): string {
+  if (!hours) return 'весь день';
+  const [a, b] = hours.split('-').map(Number);
+  const first = a ?? 0;
+  const last = b ?? first;
+  return `${first}:00-${last + 1}:00`;
+}
+
+function fmtMultiplier(m: number): string {
+  return String(Math.round(m * 100) / 100).replace('.', ',');
 }

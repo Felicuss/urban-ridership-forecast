@@ -1,20 +1,25 @@
 import { useEffect, useRef } from 'react';
-import { precipAt, type GridPoint } from '../../lib/weatherGrid';
+import { SNOW_CM_TO_MM, edgeFade, precipAt, type GridPoint } from '../../lib/weatherGrid';
 import { mapHandle } from './mapHandle';
 
-// Осадки там, где они идут: частица рисуется, только если в её точке карты по сетке Open-Meteo есть дождь
-// или снег, и тем плотнее, чем сильнее осадки. Нет осадков нигде - нет холста и кадров анимации.
+// Осадки там, где они идут: частица живёт в координатах карты, поэтому при сдвиге и зуме едет вместе с ней,
+// а падает по экрану. Рисуется, только если в её точке по сетке Open-Meteo есть дождь или снег, и гаснет
+// на краю сетки там же, где заливка осадков. Нет осадков нигде - нет холста и кадров анимации.
 
 interface Particle {
-  x: number;
-  y: number;
+  lng: number;
+  lat: number;
   v: number;
   r: number;
   seed: number;
+  intensity: number;
+  snow: boolean;
 }
 
 const COUNT = 420;
 const SAMPLE_EVERY = 6;
+/** Запас за краем экрана, после которого частица возрождается внутри. */
+const MARGIN = 24;
 
 export function WeatherFx({ grid, hour }: { grid: GridPoint[] | undefined; hour: number }) {
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -27,17 +32,35 @@ export function WeatherFx({ grid, hour }: { grid: GridPoint[] | undefined; hour:
     let raf = 0;
     let frame = 0;
     let parts: Particle[] = [];
-    const cache = new Map<Particle, { rain: number; snow: number }>();
+
+    const place = (p: Particle, x: number, y: number) => {
+      const map = mapHandle.current;
+      if (!map) return;
+      const ll = map.unproject([x, y]);
+      p.lng = ll.lng;
+      p.lat = ll.lat;
+      sample(p);
+    };
+    const sample = (p: Particle) => {
+      const { rain, snow } = precipAt(grid, p.lng, p.lat, hour);
+      const snowMm = snow * SNOW_CM_TO_MM;
+      p.snow = snowMm > 0.03 && snowMm * 2 >= rain;
+      p.intensity = (p.snow ? Math.min(snowMm / 1.2, 1) : Math.min(rain / 1.5, 1)) * edgeFade(p.lng, p.lat);
+    };
     const resize = () => {
       el.width = el.clientWidth;
       el.height = el.clientHeight;
-      parts = Array.from({ length: COUNT }, () => ({ x: Math.random() * el.width, y: Math.random() * el.height,
-        v: 0.6 + Math.random(), r: 0.8 + Math.random() * 1.6, seed: Math.random() }));
-      cache.clear();
+      parts = Array.from({ length: COUNT }, () => {
+        const p: Particle = { lng: 0, lat: 0, v: 0.6 + Math.random(), r: 0.8 + Math.random() * 1.6,
+          seed: Math.random(), intensity: 0, snow: false };
+        place(p, Math.random() * el.width, Math.random() * el.height);
+        return p;
+      });
     };
     resize();
     const ro = new ResizeObserver(resize);
     ro.observe(el);
+
     const draw = () => {
       raf = requestAnimationFrame(draw);
       frame += 1;
@@ -45,31 +68,31 @@ export function WeatherFx({ grid, hour }: { grid: GridPoint[] | undefined; hour:
       if (!map) return;
       ctx.clearRect(0, 0, el.width, el.height);
       for (const p of parts) {
-        if (frame % SAMPLE_EVERY === 0 || !cache.has(p)) {
-          const ll = map.unproject([p.x, p.y]);
-          cache.set(p, precipAt(grid, ll.lng, ll.lat, hour));
+        const s = map.project([p.lng, p.lat]);
+        const off = s.x < -MARGIN || s.x > el.width + MARGIN || s.y < -MARGIN * 4 || s.y > el.height + MARGIN;
+        if (off) {
+          // упала за нижний край - сверху, ушла вбок при сдвиге карты - в случайное место кадра
+          const fell = s.y > el.height && s.x >= -MARGIN && s.x <= el.width + MARGIN;
+          place(p, Math.random() * el.width, fell ? -6 : Math.random() * el.height);
+          continue;
         }
-        const here = cache.get(p)!;
-        const snow = here.snow > 0.02 && here.snow * 3 >= here.rain;
-        const intensity = snow ? Math.min(here.snow * 2.5, 1) : Math.min(here.rain / 1.5, 1);
-        p.y += snow ? p.v * 0.7 : p.v * 9;
-        p.x += snow ? Math.sin((p.y + p.seed * 100) / 28) * 0.35 : 1.2;
-        if (p.y > el.height) {
-          p.y = -6;
-          p.x = Math.random() * el.width;
-        }
-        if (p.x > el.width) p.x -= el.width;
-        if (p.seed > intensity) continue;
-        if (snow) {
+        const x = s.x + (p.snow ? Math.sin((s.y + p.seed * 100) / 28) * 0.35 : 1.2);
+        const y = s.y + (p.snow ? p.v * 0.7 : p.v * 9);
+        const ll = map.unproject([x, y]);
+        p.lng = ll.lng;
+        p.lat = ll.lat;
+        if (frame % SAMPLE_EVERY === 0) sample(p);
+        if (p.seed > p.intensity) continue;
+        if (p.snow) {
           ctx.fillStyle = 'rgba(240,242,248,0.7)';
           ctx.beginPath();
-          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.arc(x, y, p.r, 0, Math.PI * 2);
           ctx.fill();
         } else {
           ctx.strokeStyle = 'rgba(170,190,225,0.35)';
           ctx.beginPath();
-          ctx.moveTo(p.x, p.y);
-          ctx.lineTo(p.x - 1.5, p.y - 11);
+          ctx.moveTo(x, y);
+          ctx.lineTo(x - 1.5, y - 11);
           ctx.stroke();
         }
       }

@@ -6,33 +6,42 @@ import {
 import { useWeatherGrid } from './hooks/useWeather';
 import { useStore } from './state/store';
 import { useClock } from './hooks/useClock';
+import { useHotkeys } from './hooks/useHotkeys';
 import { TIMELINE_DAYS, dayIndex, isoDate } from './lib/time';
-import { TramLoader } from './components/boot/TramLoader';
-import { CloudReveal } from './components/boot/CloudReveal';
+import { LEAVE_MS, TramLoader } from './components/boot/TramLoader';
 import { TopBar } from './components/layout/TopBar';
 import { RouteList } from './components/layout/RouteList';
+import { StopsPanel } from './components/layout/StopsPanel';
 import { Timeline } from './components/layout/Timeline';
 import { MapOverlay } from './components/map/MapOverlay';
+import { StationMatrix } from './components/panels/StationMatrix';
+import { PanelsBoard, SplitPane } from './components/layout/Workspace';
+import { useLayout } from './state/layout';
 import { TramDots } from './components/ui/Controls';
 import styles from './App.module.css';
 
 // Карта и правая панель грузятся отдельными чанками параллельно с данными, пока идёт заставка.
 const MapView = lazy(() => import('./components/map/MapView'));
 const RightPanel = lazy(() => import('./components/panels/RightPanel'));
+const Board = lazy(() => import('./components/board/Board').then((m) => ({ default: m.Board })));
 
-type Phase = 'loading' | 'clouds' | 'revealing' | 'done';
+type Phase = 'loading' | 'leaving' | 'done';
 
-/** Трамвай виден не меньше 1,4 с, облака стоят 0,7 с перед тем, как разойтись. */
+/** Трамвай виден не меньше 1,4 с, даже если данные пришли из кэша. */
 const LOADER_MIN_MS = 1400;
-const CLOUDS_HOLD_MS = 700;
 
 export function App() {
   useClock();
+  useHotkeys();
   const intro = useStore((s) => s.flags.intro);
   const motion = useStore((s) => s.flags.motion);
   const day = useStore((s) => dayIndex(s.minute));
   const scenario = useStore((s) => s.scenario);
   const route = useStore((s) => s.route);
+  const stopsOpen = useStore((s) => s.stopsOpen);
+  const boardOpen = useStore((s) => s.boardOpen);
+  const matrixOpen = useStore((s) => s.matrixOpen);
+  const layout = useLayout((s) => s.mode);
   const meta = useMeta();
   const network = useNetwork();
   const factors = useFactors();
@@ -54,21 +63,20 @@ export function App() {
   const failed = meta.error ?? network.error ?? factors.error ?? load.error;
 
   const [minLoader, setMinLoader] = useState(!intro);
-  const [cloudsHeld, setCloudsHeld] = useState(false);
   useEffect(() => {
     const t = setTimeout(() => setMinLoader(true), LOADER_MIN_MS);
     return () => clearTimeout(t);
   }, []);
-  useEffect(() => {
-    if (phase !== 'clouds') return undefined;
-    const t = setTimeout(() => setCloudsHeld(true), CLOUDS_HOLD_MS);
-    return () => clearTimeout(t);
-  }, [phase]);
 
+  // трамвай уезжает в тоннель, только когда готовы и данные, и карта: под заставкой уже всё нарисовано
   useEffect(() => {
-    if (phase === 'loading' && dataReady && minLoader) setPhase('clouds');
-    if (phase === 'clouds' && mapReady && cloudsHeld) setPhase('revealing');
-  }, [phase, dataReady, mapReady, minLoader, cloudsHeld]);
+    if (phase === 'loading' && dataReady && mapReady && minLoader) setPhase('leaving');
+  }, [phase, dataReady, mapReady, minLoader]);
+  useEffect(() => {
+    if (phase !== 'leaving') return undefined;
+    const t = setTimeout(() => setPhase('done'), motion ? LEAVE_MS : 0);
+    return () => clearTimeout(t);
+  }, [phase, motion]);
 
   const steps = [
     { label: 'Модель', done: Boolean(meta.data && coefficients.data) },
@@ -83,23 +91,29 @@ export function App() {
       <TopBar />
       <aside className={styles.left}>
         <RouteList load={load.data} factors={factors.data} />
+        {stopsOpen && route != null && <StopsPanel key={route} route={route} load={load.data} />}
       </aside>
-      <main className={styles.map}>
-        {network.data && (
-          <Suspense fallback={null}>
-            <MapView
-              network={network.data}
-              load={load.data}
-              factors={factors.data}
-              calendar={calendar.data}
-              weather={weatherOn ? weather.data : undefined}
-              rideStopsData={routeStops.data}
-              revealed={phase === 'revealing' || phase === 'done'}
-              onReady={() => setMapReady(true)}
-            />
-          </Suspense>
-        )}
-        {phase === 'done' || !intro ? <MapOverlay load={load.data} weather={weatherOn ? weather.data : undefined} /> : null}
+      <main className={styles.map} data-layout={layout}>
+        <div className={styles.mapPane} hidden={layout === 'panels'}>
+          {network.data && (
+            <Suspense fallback={null}>
+              <MapView
+                network={network.data}
+                load={load.data}
+                factors={factors.data}
+                calendar={calendar.data}
+                weather={weatherOn ? weather.data : undefined}
+                rideStopsData={routeStops.data}
+                revealed={phase !== 'loading'}
+                onReady={() => setMapReady(true)}
+              />
+            </Suspense>
+          )}
+          {phase === 'done' || !intro ? <MapOverlay load={load.data} weather={weatherOn ? weather.data : undefined} /> : null}
+          {matrixOpen && route != null && <StationMatrix key={route} route={route} />}
+        </div>
+        {layout === 'split' && <SplitPane />}
+        {layout === 'panels' && <PanelsBoard />}
       </main>
       <aside className={styles.right}>
         <Suspense fallback={<div className={styles.pending}><TramDots label="Загружаем панель" /></div>}>
@@ -110,10 +124,8 @@ export function App() {
         <Timeline />
       </footer>
       {failed && <div className={styles.error}>Сервис прогноза не отвечает: {String(failed.message)}</div>}
-      {intro && (phase === 'loading' || phase === 'clouds') && <TramLoader steps={steps} leaving={phase === 'clouds'} />}
-      {intro && (phase === 'clouds' || phase === 'revealing') && (
-        <CloudReveal open={phase === 'revealing'} onDone={() => setPhase('done')} />
-      )}
+      {intro && phase !== 'done' && <TramLoader steps={steps} leaving={phase === 'leaving'} />}
+      {boardOpen && <Suspense fallback={null}><Board /></Suspense>}
     </div>
   );
 }

@@ -1,0 +1,391 @@
+{
+ "channel": "https://t.me/s/DtOperativno",
+ "alpha": 0.5,
+ "alpha_source": "analysis/s45_incident_adjustment.py: 15 сбоев января-октября 2025 года, 48 часов под сбоем; с этой долей ошибка на часах сбоев меньше на 51 %",
+ "incidents": [
+  {
+   "id": "22183",
+   "routes": [
+    17
+   ],
+   "start": "2025-08-01T23:49:00+03:00",
+   "end": "2025-08-02T00:19:24+03:00",
+   "cause": "contact_network",
+   "location": "На проспекте Мира (в районе остановки «Улица Сергея Эйзенштейна») из-за обрыва контактной сети сторонним транспортом",
+   "source_url": "https://t.me/DtOperativno/22183",
+   "recovery_url": "https://t.me/DtOperativno/22186"
+  },
+  {
+   "id": "22298",
+   "routes": [
+    11,
+    12
+   ],
+   "start": "2025-08-09T22:50:56+03:00",
+   "end": "2025-08-09T23:12:42+03:00",
+   "cause": "road_accident",
+   "location": "В районе станции метро «Семёновская» из-за ДТП на путях",
+   "source_url": "https://t.me/DtOperativno/22298",
+   "recovery_url": "https://t.me/DtOperativno/22299"
+  },
+  {
+   "id": "22363",
+   "routes": [
+    7,
+    50
+   ],
+   "start": "2025-08-15T13:35:00+03:00",
+   "end": "2025-08-15T14:25:50+03:00",
+   "cause": "technical_or_unspecified",
+   "location": "В районе метро «Проспект Мира», «Новослободская» и «Белорусская» по техническим причинам",
+   "source_url": "https://t.me/DtOperativno/22363",
+   "recovery_url": "https://t.me/DtOperativno/22366"
+  },
+  {
+   "id": "22498",
+   "routes": [
+    7,
+    50
+   ],
+   "start": "2025-08-26T14:01:05+03:00",
+   "end": "2025-08-26T16:26:38+03:00",
+   "cause": "contact_network",
+   "location": "На улице Дурова (в районе остановки «Театр зверей имени Дурова») из-за повреждения контактной сети сторонним транспортом",
+   "source_url": "https://t.me/DtOperativno/22498",
+   "recovery_url": "https://t.me/DtOperativno/22499"
+  },
+  {
+   "id": "22707",
+   "routes": [
+    11,
+    12
+   ],
+   "start": "2025-09-12T12:55:11+03:00",
+   "end": "2025-09-12T13:34:28+03:00",
+   "cause": "contact_network",
+   "location": "На Щербаковской улице (в районе остановки «Фортунатовская улица») из-за повреждения контактной сети сторонним транспортом",
+   "source_url": "https://t.me/DtOperativno/22707",
+   "recovery_url": "https://t.me/DtOperativno/22709"
+  },
+  {
+   "id": "22764",
+   "routes": [
+    11,
+    17,
+    25
+   ],
+   "start": "2025-09-16T15:23:29+03:00",
+   "end": "2025-09-16T16:09:39+03:00",
+   "cause": "technical_or_unspecified",
+   "location": "В Продольном проезде (в районе остановки «Метро ВДНХ»)",
+   "source_url": "https://t.me/DtOperativno/22764",
+   "recovery_url": "https://t.me/DtOperativno/22765"
+  },
+  {
+   "id": "22837",
+   "routes": [
+    26
+   ],
+   "start": "2025-09-22T10:58:10+03:00",
+   "end": "2025-09-22T11:28:51+03:00",
+   "cause": "blocked_tracks",
+   "location": "В 4-м Рощинском проезде (в районе остановки «Духовской переулок») из-за автомобиля, застрявшего на путях,",
+   "source_url": "https://t.me/DtOperativno/22837",
+   "recovery_url": "https://t.me/DtOperativno/22838"
+  },
+  {
+   "id": "22840",
+   "routes": [
+    11,
+    12
+   ],
+   "start": "2025-09-22T13:52:08+03:00",
+   "end": "2025-09-22T15:17:03+03:00",
+   "cause": "contact_network",
+   "location": "На Измайловском проспекте (в районе остановки «Метро Партизанская») из-за дерева, наклонившегося на контактную сеть,",
+   "source_url": "https://t.me/DtOperativno/22840",
+   "recovery_url": "https://t.me/DtOperativno/22842"
+  },
+  {
+   "id": "22857",
+   "routes": [
+    17
+   ],
+   "start": "2025-09-24T08:47:23+03:00",
+   "end": "2025-09-24T09:41:44+03:00",
+   "cause": "technical_or_unspecified",
+   "location": "На проспекте Мира (в районе остановки «Сельскохозяйственная улица»)",
+   "source_url": "https://t.me/DtOperativno/22857",
+   "recovery_url": "https://t.me/DtOperativno/22858"
+  },
+  {
+   "id": "22883",
+   "routes": [
+    7,
+    50
+   ],
+   "start": "2025-09-24T21:22:10+03:00",
+   "end": "2025-09-24T21:46:18+03:00",
+   "cause": "technical_or_unspecified",
+   "location": "На Краснопрудной улице (в районе остановки «Метро Комсомольская»)",
+   "source_url": "https://t.me/DtOperativno/22883",
+   "recovery_url": "https://t.me/DtOperativno/22884"
+  },
+  {
+   "id": "23028",
+   "routes": [
+    17
+   ],
+   "start": "2025-10-06T19:18:02+03:00",
+   "end": "2025-10-06T20:30:42+03:00",
+   "cause": "road_accident",
+   "location": "На Полярной улице (в районе остановки «Культурно-досуговый центр») из-за ДТП на путях",
+   "source_url": "https://t.me/DtOperativno/23028",
+   "recovery_url": "https://t.me/DtOperativno/23031"
+  },
+  {
+   "id": "23050",
+   "routes": [
+    11,
+    12
+   ],
+   "start": "2025-10-08T20:14:08+03:00",
+   "end": "2025-10-08T21:24:43+03:00",
+   "cause": "technical_or_unspecified",
+   "location": "❗️ На Первомайской улице (в районе остановки «3-я Парковая улица») по техническим причинам",
+   "source_url": "https://t.me/DtOperativno/23050",
+   "recovery_url": "https://t.me/DtOperativno/23052"
+  },
+  {
+   "id": "23184",
+   "routes": [
+    12
+   ],
+   "start": "2025-10-17T14:22:32+03:00",
+   "end": "2025-10-17T14:37:18+03:00",
+   "cause": "technical_or_unspecified",
+   "location": "В 3-м Крутицком переулке (в районе остановки «Метро Пролетарская») по техническим причинам",
+   "source_url": "https://t.me/DtOperativno/23184",
+   "recovery_url": "https://t.me/DtOperativno/23185"
+  },
+  {
+   "id": "23287",
+   "routes": [
+    7
+   ],
+   "start": "2025-10-28T14:19:30+03:00",
+   "end": "2025-10-28T15:03:55+03:00",
+   "cause": "road_accident",
+   "location": "В Погонном проезде (в районе остановки «Погонный проезд») из-за ДТП на путях",
+   "source_url": "https://t.me/DtOperativno/23287",
+   "recovery_url": "https://t.me/DtOperativno/23290"
+  },
+  {
+   "id": "23311",
+   "routes": [
+    50
+   ],
+   "start": "2025-10-29T16:04:32+03:00",
+   "end": "2025-10-29T16:20:44+03:00",
+   "cause": "technical_or_unspecified",
+   "location": "На Красноказарменной улице (в районе остановки «Лефортовский мост») по техническим причинам",
+   "source_url": "https://t.me/DtOperativno/23311",
+   "recovery_url": "https://t.me/DtOperativno/23312"
+  },
+  {
+   "id": "23384",
+   "routes": [
+    7,
+    50
+   ],
+   "start": "2025-11-01T22:00:30+03:00",
+   "end": "2025-11-01T22:32:24+03:00",
+   "cause": "technical_or_unspecified",
+   "location": "На улице Дурова",
+   "source_url": "https://t.me/DtOperativno/23384",
+   "recovery_url": "https://t.me/DtOperativno/23386"
+  },
+  {
+   "id": "23459",
+   "routes": [
+    12
+   ],
+   "start": "2025-11-08T10:28:51+03:00",
+   "end": "2025-11-08T11:09:05+03:00",
+   "cause": "technical_or_unspecified",
+   "location": "В районе Авиамоторной и 3-й Владимирской улиц по техническим причинам",
+   "source_url": "https://t.me/DtOperativno/23459",
+   "recovery_url": "https://t.me/DtOperativno/23460"
+  },
+  {
+   "id": "23479",
+   "routes": [
+    50
+   ],
+   "start": "2025-11-10T17:42:19+03:00",
+   "end": "2025-11-10T17:56:29+03:00",
+   "cause": "road_accident",
+   "location": "На Красноказарменной улице (в районе остановки «Лефортовский мост») из-за ДТП на путях",
+   "source_url": "https://t.me/DtOperativno/23479",
+   "recovery_url": "https://t.me/DtOperativno/23481"
+  },
+  {
+   "id": "23569",
+   "routes": [
+    12,
+    50
+   ],
+   "start": "2025-11-16T06:44:58+03:00",
+   "end": "2025-11-16T07:23:49+03:00",
+   "cause": "contact_network",
+   "location": "На шоссе Энтузиастов (в районе остановки «Дом культуры Компрессор») из-за повреждения контактной сети сторонним транспортом",
+   "source_url": "https://t.me/DtOperativno/23569",
+   "recovery_url": "https://t.me/DtOperativno/23570"
+  },
+  {
+   "id": "23614",
+   "routes": [
+    1
+   ],
+   "start": "2025-11-18T08:27:02+03:00",
+   "end": "2025-11-18T08:45:20+03:00",
+   "cause": "blocked_tracks",
+   "location": "На Чертановской улице (в районе остановки «Чертановская улица, 28») из-за автомобиля, застрявшего на путях,",
+   "source_url": "https://t.me/DtOperativno/23614",
+   "recovery_url": "https://t.me/DtOperativno/23615"
+  },
+  {
+   "id": "23678",
+   "routes": [
+    17
+   ],
+   "start": "2025-11-20T06:47:39+03:00",
+   "end": "2025-11-20T07:02:37+03:00",
+   "cause": "technical_or_unspecified",
+   "location": "На Полярной улице (в районе остановки «Улица Молодцова») по техническим причинам",
+   "source_url": "https://t.me/DtOperativno/23678",
+   "recovery_url": "https://t.me/DtOperativno/23679"
+  },
+  {
+   "id": "23722",
+   "routes": [
+    17
+   ],
+   "start": "2025-11-21T22:49:28+03:00",
+   "end": "2025-11-21T23:51:41+03:00",
+   "cause": "road_accident",
+   "location": "В проезде Дежнева (в районе остановки «Проезд Шокальского») из-за ДТП на путях",
+   "source_url": "https://t.me/DtOperativno/23722",
+   "recovery_url": "https://t.me/DtOperativno/23723"
+  },
+  {
+   "id": "23749",
+   "routes": [
+    50
+   ],
+   "start": "2025-11-24T19:27:04+03:00",
+   "end": "2025-11-24T19:48:45+03:00",
+   "cause": "road_accident",
+   "location": "На Красноказарменной улице (в районе остановки «1-й Краснокурсантский проезд») из-за ДТП на путях",
+   "source_url": "https://t.me/DtOperativno/23749",
+   "recovery_url": "https://t.me/DtOperativno/23751"
+  },
+  {
+   "id": "23818",
+   "routes": [
+    17
+   ],
+   "start": "2025-11-28T11:45:37+03:00",
+   "end": "2025-11-28T12:12:32+03:00",
+   "cause": "technical_or_unspecified",
+   "location": "В районе метро «Бабушкинская»",
+   "source_url": "https://t.me/DtOperativno/23818",
+   "recovery_url": "https://t.me/DtOperativno/23822"
+  },
+  {
+   "id": "23928",
+   "routes": [
+    28
+   ],
+   "start": "2025-12-04T19:48:11+03:00",
+   "end": "2025-12-04T19:54:15+03:00",
+   "cause": "blocked_tracks",
+   "location": "На Живописной улице (в районе остановки «Проспект Маршала Жукова») из-за автомобиля, застрявшего на путях,",
+   "source_url": "https://t.me/DtOperativno/23928",
+   "recovery_url": "https://t.me/DtOperativno/23929"
+  },
+  {
+   "id": "24109",
+   "routes": [
+    11,
+    25
+   ],
+   "start": "2025-12-13T13:52:03+03:00",
+   "end": "2025-12-13T14:45:32+03:00",
+   "cause": "technical_or_unspecified",
+   "location": "В Ростокинском проезде (в районе остановки «Лингвистический университет»)",
+   "source_url": "https://t.me/DtOperativno/24109",
+   "recovery_url": "https://t.me/DtOperativno/24110"
+  },
+  {
+   "id": "24115",
+   "routes": [
+    26
+   ],
+   "start": "2025-12-14T16:35:51+03:00",
+   "end": "2025-12-14T16:41:32+03:00",
+   "cause": "road_accident",
+   "location": "На Большой Черёмушкинской улице (в районе остановки «Загородное шоссе») из-за ДТП на путях",
+   "source_url": "https://t.me/DtOperativno/24115",
+   "recovery_url": "https://t.me/DtOperativno/24116"
+  },
+  {
+   "id": "24137",
+   "routes": [
+    17
+   ],
+   "start": "2025-12-16T21:55:26+03:00",
+   "end": "2025-12-17T05:01:23+03:00",
+   "cause": "technical_or_unspecified",
+   "location": "На проспекте Мира (в районе остановки «Улица Докукина»)",
+   "source_url": "https://t.me/DtOperativno/24137",
+   "recovery_url": "https://t.me/DtOperativno/24138"
+  },
+  {
+   "id": "24207",
+   "routes": [
+    7
+   ],
+   "start": "2025-12-18T19:32:17+03:00",
+   "end": "2025-12-18T19:52:03+03:00",
+   "cause": "technical_or_unspecified",
+   "location": "В Погонном проезде (в районе остановки «Ланинский переулок»)",
+   "source_url": "https://t.me/DtOperativno/24207",
+   "recovery_url": "https://t.me/DtOperativno/24208"
+  },
+  {
+   "id": "24294",
+   "routes": [
+    17
+   ],
+   "start": "2025-12-23T22:50:38+03:00",
+   "end": "2025-12-23T23:46:51+03:00",
+   "cause": "road_accident",
+   "location": "В проезде Дежнёва (в районе остановки «Проезд Шокальского») из-за ДТП на путях",
+   "source_url": "https://t.me/DtOperativno/24294",
+   "recovery_url": "https://t.me/DtOperativno/24295"
+  },
+  {
+   "id": "24410",
+   "routes": [
+    50
+   ],
+   "start": "2025-12-28T09:46:26+03:00",
+   "end": "2025-12-28T10:53:14+03:00",
+   "cause": "technical_or_unspecified",
+   "location": "На Красноказарменной улице (в районе остановки «Лефортовский мост»)",
+   "source_url": "https://t.me/DtOperativno/24410",
+   "recovery_url": "https://t.me/DtOperativno/24416"
+  }
+ ]
+}

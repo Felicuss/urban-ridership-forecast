@@ -4,6 +4,12 @@
 целиком (выходные 7 и 50, маршрут 5, 31.12). Поэтому на каждую ячейку пишем обе базы, календарные
 флаги, форму суток маршрута 5 и погоду, а сама формула повторена в recompute(). Сервис на Java
 считает по той же формуле, эталонные тесты сверяют её с s10.make_forecast (tests/test_artifacts.py).
+
+По умолчанию сервис отдаёт лучший конкурсный прогноз v11 (0.90741, forecasts/submission_seasonal_daily_v11.csv).
+Его модели (адаптивные профили, LightGBM, сезонная модель долей часов, распределение объёма между днями) в формулу
+не переносятся, поэтому в каждую ячейку пишем множитель calib = v11 / формула s10 по умолчанию. При коэффициентах
+по умолчанию сервис отдаёт v11 до ячейки, а ползунки и события сдвигают прогноз относительно v11 так же, как
+сдвигали бы формулу s10.
 """
 
 import dataclasses
@@ -12,12 +18,16 @@ import numpy as np
 import pandas as pd
 
 import s10_forecast as s10
+from common import ROOT
 
 WEEKEND_ROUTES = (7, 50)
 PRE_NEW_YEAR = pd.to_datetime(["2025-12-29", "2025-12-30"])
 NEW_YEAR_EVE = pd.Timestamp("2025-12-31")
 # доли выходных маршрута 5 к будню, как в s10.apply_rules
 ROUTE5_SATURDAY, ROUTE5_SUNDAY = 0.6, 0.5
+# прогноз, который сервис отдаёт при коэффициентах по умолчанию
+TARGET_SUBMISSION = ROOT / "forecasts" / "submission_seasonal_daily_v11.csv"
+ZERO = 1e-9
 
 
 def restored_base(hist: pd.DataFrame, grid: pd.DataFrame, base: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -53,13 +63,27 @@ def route5_shape(hist: pd.DataFrame, grid: pd.DataFrame) -> np.ndarray:
     return out
 
 
+def calibration(comp: pd.DataFrame, c: s10.Coefficients) -> np.ndarray:
+    """Множитель до целевого прогноза в каждой ячейке. Где формула s10 даёт ноль, целевой прогноз тоже
+    обязан быть нулём: прибавкой такую ячейку ползунки уже не смогли бы двигать."""
+    target = pd.read_csv(TARGET_SUBMISSION, sep=";")
+    if not (comp[["route", "date", "hour"]].to_numpy() == target[["route", "date", "hour"]].to_numpy()).all():
+        raise ValueError(f"ячейки {TARGET_SUBMISSION.name} не совпадают с сеткой прогноза")
+    rules = recompute(comp, c)
+    v = target.prediction.to_numpy(dtype=float)
+    zero = rules <= ZERO
+    if (v[zero] > 0).any():
+        raise ValueError(f"{TARGET_SUBMISSION.name} даёт посадки там, где формула s10 даёт ноль")
+    return np.where(zero, 1.0, v / np.where(zero, 1.0, rules))
+
+
 def build_components(c: s10.Coefficients) -> pd.DataFrame:
     hist = s10.load_history()
     grid = s10.forecast_grid()
     base = s10.base_profile(hist, grid, c.profile_weeks)
     base_restored, restorable = restored_base(hist, grid, base)
     g = grid
-    return pd.DataFrame({
+    comp = pd.DataFrame({
         "route": g.route, "date": g.date.dt.strftime("%Y-%m-%d"), "hour": g.hour, "dow": g.dow,
         "kind": g.kind,
         "is_holiday": g.is_holiday.astype(int),
@@ -71,6 +95,7 @@ def build_components(c: s10.Coefficients) -> pd.DataFrame:
         "precip_day": g.precip_day.fillna(0), "precip_hour": g.precipitation.fillna(0),
         "temp_day": g.temp_day.fillna(0),
     })
+    return comp.assign(calib=calibration(comp, c))
 
 
 def _on_or_after(dates: pd.Series, when: str) -> np.ndarray:
@@ -78,7 +103,8 @@ def _on_or_after(dates: pd.Series, when: str) -> np.ndarray:
 
 
 def recompute(comp: pd.DataFrame, c: s10.Coefficients) -> np.ndarray:
-    """Та же арифметика, что в s10.apply_rules, только по готовым столбцам. Эталон для сервиса."""
+    """Та же арифметика, что в s10.apply_rules, только по готовым столбцам, и множитель до v11. Эталон для
+    сервиса. Без столбца calib - чистая формула s10."""
     date = pd.to_datetime(comp.date)
     month = date.dt.month.to_numpy()
     hour = comp.hour.to_numpy()
@@ -114,6 +140,8 @@ def recompute(comp: pd.DataFrame, c: s10.Coefficients) -> np.ndarray:
                + c.hour_precip_coef * np.clip(comp.precip_hour.to_numpy(), 0, 3)
                + c.frost_coef * np.clip(-10 - comp.temp_day.to_numpy(), 0, None))
         pred = pred * np.exp(adj)
+    if "calib" in comp:
+        pred = pred * comp.calib.to_numpy()
     return np.clip(pred, 0, None)
 
 

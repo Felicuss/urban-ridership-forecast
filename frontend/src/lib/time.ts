@@ -46,6 +46,11 @@ export function weekday(day: number): number {
   return (new Date(START_UTC + day * DAY_MS).getUTCDay() + 6) % 7;
 }
 
+/** Понедельник недели, в которую входит день; не раньше начала шкалы. */
+export function weekStart(day: number): number {
+  return Math.max(day - weekday(day), 0);
+}
+
 export function weekdayName(day: number, short = false): string {
   return (short ? WEEKDAYS_SHORT : WEEKDAYS)[weekday(day)] ?? '';
 }

@@ -1,0 +1,25 @@
+[project]
+name = "tram-mcp"
+version = "0.1.0"
+description = "MCP-сервер агента диспетчера: инструменты поверх API прогноза посадок трамваев и команды интерфейсу"
+readme = "README.md"
+authors = [
+    { name = "verikirill", email = "verikirill@mail.ru" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "httpx>=0.28.1",
+    "mcp>=2.2.0",
+]
+
+[project.scripts]
+tram-mcp = "tram_mcp.server:main"
+
+[build-system]
+requires = ["uv_build>=0.12.15,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]

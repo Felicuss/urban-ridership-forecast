@@ -1,0 +1,338 @@
+{
+  "file": "submission_architecture_v9.csv",
+  "sha256": "42a4bd1e6cb7da55d6c92a2c8e3191cdfb914eaec3d3ee100e25f8b607ee5183",
+  "status": "scored",
+  "leaderboard_score": 0.90543,
+  "anchor": "submission_shape50_v7.csv",
+  "anchor_sha256": "16048f68932802813d4760e0907b6ed3c09892f8c4aaf191327279755308d13e",
+  "anchor_score": 0.9057,
+  "method": "50% graph-based hourly-shape replacement + 50% structural STL/ETS daily-level replacement of the v7 core; probe-based aggregate reconciliation",
+  "members": [
+    [
+      "graph",
+      "shape"
+    ],
+    [
+      "graph",
+      "level"
+    ],
+    [
+      "chronos500",
+      "shape"
+    ],
+    [
+      "chronos500",
+      "level"
+    ],
+    [
+      "stl_ets",
+      "level"
+    ],
+    [
+      "varx",
+      "level"
+    ]
+  ],
+  "global_weights": [
+    0.5,
+    0.0,
+    0.0,
+    0.0,
+    0.5,
+    0.0
+  ],
+  "selected_validation_model": "fixed_graph50_ets50_oracle_reconciled",
+  "rejected_components": [
+    "learned temporal stack",
+    "graph daily level",
+    "Chronos-2 LoRA-500",
+    "VARX"
+  ],
+  "raw_aggregate_targets": {
+    "total": 12882776.954143452,
+    "route17_workday_month": {
+      "11": 1054235.1334798834,
+      "12": 1211812.062573488
+    }
+  },
+  "aggregate_provenance": {
+    "total_rounding_interval": [
+      12882447.665056363,
+      12883106.26006493
+    ],
+    "source_sha256": "5f259255ebcbbc2d225e5531c123cf8c43f1388af1d06925a8c5bddaae9cf36d",
+    "records": {
+      "p10": {
+        "id": "p10",
+        "kind": "total",
+        "sum_h": 5040000,
+        "file": "p10_total.csv",
+        "sha256": "ee290e01da3e04565e626c20d95f102caa16e7a61d02bd7f876a61c259860b76",
+        "score": 0.51431
+      },
+      "p11": {
+        "id": "p11",
+        "kind": "probe",
+        "group": [
+          17,
+          "wd",
+          11
+        ],
+        "ceiling": [
+          1.6,
+          3.0
+        ],
+        "cells": 456,
+        "sum_h": 1678572,
+        "base_sum": 1048158,
+        "carriers": [],
+        "file": "p11_r17_wd_11.csv",
+        "sha256": "fcef284e7de668c594eea10d40de98e30727a713dfa98a97f61a08415cd52285",
+        "score": 0.03337
+      },
+      "p12": {
+        "id": "p12",
+        "kind": "probe",
+        "group": [
+          17,
+          "wd",
+          12
+        ],
+        "ceiling": [
+          1.6,
+          3.0
+        ],
+        "cells": 528,
+        "sum_h": 1947992,
+        "base_sum": 1216390,
+        "carriers": [],
+        "file": "p12_r17_wd_12.csv",
+        "sha256": "477e6438fca253d6c8ced207bee2d3f74141fba2805552cbc5be21ee25e2fb7c",
+        "score": 0.03692
+      }
+    },
+    "caveat": "Total assumes zero true route-5 November cells. Route-17 estimates are capped sums min(y,H), not guaranteed exact group sums; prior historical clipping audit found small but nonzero violations."
+  },
+  "sum_prediction": 12882783,
+  "sum_difference": 69133,
+  "changed_rows": 10005,
+  "changed_daily_totals": 509,
+  "absolute_difference": 320357,
+  "route_sum_difference": {
+    "1": -1473,
+    "5": 0,
+    "7": -2034,
+    "11": 929,
+    "12": 27232,
+    "17": 2338,
+    "25": 5925,
+    "26": 12520,
+    "28": 2711,
+    "50": 20985
+  },
+  "validation": [
+    {
+      "fold": "R04",
+      "model": "purged_stack",
+      "score": 0.8590116038218785,
+      "gain": 0.0,
+      "prior_folds": 0
+    },
+    {
+      "fold": "R04",
+      "model": "fixed_graph50_ets50",
+      "score": 0.8677149372848403,
+      "gain": 0.0087033334629618,
+      "prior_folds": 0
+    },
+    {
+      "fold": "R04",
+      "model": "purged_stack_oracle_reconciled",
+      "score": 0.8633151829295025,
+      "gain": 0.004303579107624,
+      "prior_folds": 0
+    },
+    {
+      "fold": "R04",
+      "model": "fixed_graph50_ets50_oracle_reconciled",
+      "score": 0.8708021978055474,
+      "gain": 0.0117905939836689,
+      "prior_folds": 0
+    },
+    {
+      "fold": "R05",
+      "model": "purged_stack",
+      "score": 0.8580924217283226,
+      "gain": 0.0,
+      "prior_folds": 0
+    },
+    {
+      "fold": "R05",
+      "model": "fixed_graph50_ets50",
+      "score": 0.8593472079429527,
+      "gain": 0.0012547862146301,
+      "prior_folds": 0
+    },
+    {
+      "fold": "R05",
+      "model": "purged_stack_oracle_reconciled",
+      "score": 0.8726172485941301,
+      "gain": 0.0145248268658075,
+      "prior_folds": 0
+    },
+    {
+      "fold": "R05",
+      "model": "fixed_graph50_ets50_oracle_reconciled",
+      "score": 0.8727544203314263,
+      "gain": 0.0146619986031036,
+      "prior_folds": 0
+    },
+    {
+      "fold": "R06",
+      "model": "purged_stack",
+      "score": 0.8480058061704661,
+      "gain": -0.013280442639795,
+      "prior_folds": 1
+    },
+    {
+      "fold": "R06",
+      "model": "fixed_graph50_ets50",
+      "score": 0.8603883026502119,
+      "gain": -0.0008979461600491,
+      "prior_folds": 1
+    },
+    {
+      "fold": "R06",
+      "model": "purged_stack_oracle_reconciled",
+      "score": 0.8546228192218677,
+      "gain": -0.0066634295883934,
+      "prior_folds": 1
+    },
+    {
+      "fold": "R06",
+      "model": "fixed_graph50_ets50_oracle_reconciled",
+      "score": 0.8614032375923012,
+      "gain": 0.00011698878204,
+      "prior_folds": 1
+    },
+    {
+      "fold": "R07",
+      "model": "purged_stack",
+      "score": 0.83220081394354,
+      "gain": -0.002229898515864,
+      "prior_folds": 2
+    },
+    {
+      "fold": "R07",
+      "model": "fixed_graph50_ets50",
+      "score": 0.8384971382206174,
+      "gain": 0.0040664257612135,
+      "prior_folds": 2
+    },
+    {
+      "fold": "R07",
+      "model": "purged_stack_oracle_reconciled",
+      "score": 0.8355527158949809,
+      "gain": 0.0011220034355769,
+      "prior_folds": 2
+    },
+    {
+      "fold": "R07",
+      "model": "fixed_graph50_ets50_oracle_reconciled",
+      "score": 0.8461410785040732,
+      "gain": 0.0117103660446692,
+      "prior_folds": 2
+    },
+    {
+      "fold": "R08",
+      "model": "purged_stack",
+      "score": 0.8585344056976065,
+      "gain": 0.0013653626772913,
+      "prior_folds": 3
+    },
+    {
+      "fold": "R08",
+      "model": "fixed_graph50_ets50",
+      "score": 0.8619103931304126,
+      "gain": 0.0047413501100973,
+      "prior_folds": 3
+    },
+    {
+      "fold": "R08",
+      "model": "purged_stack_oracle_reconciled",
+      "score": 0.8621329231739593,
+      "gain": 0.0049638801536441,
+      "prior_folds": 3
+    },
+    {
+      "fold": "R08",
+      "model": "fixed_graph50_ets50_oracle_reconciled",
+      "score": 0.864731480287233,
+      "gain": 0.0075624372669177,
+      "prior_folds": 3
+    },
+    {
+      "fold": "B",
+      "model": "purged_stack",
+      "score": 0.9072648802476888,
+      "gain": 0.0008561437434673,
+      "prior_folds": 4
+    },
+    {
+      "fold": "B",
+      "model": "fixed_graph50_ets50",
+      "score": 0.9109861216075628,
+      "gain": 0.0045773851033411,
+      "prior_folds": 4
+    },
+    {
+      "fold": "B",
+      "model": "purged_stack_oracle_reconciled",
+      "score": 0.906557969090423,
+      "gain": 0.0001492325862014,
+      "prior_folds": 4
+    },
+    {
+      "fold": "B",
+      "model": "fixed_graph50_ets50_oracle_reconciled",
+      "score": 0.9101752844660068,
+      "gain": 0.0037665479617852,
+      "prior_folds": 4
+    }
+  ],
+  "caveats": [
+    "New architecture does not guarantee improvement; consult the recorded leaderboard score.",
+    "Base-model and fixed-blend choices used overlapping development periods. Purged learned meta-stacking was tested and rejected.",
+    "Oracle-reconciled historical scores use known evaluation group totals and must not be reported as ordinary forecasting validation.",
+    "Future reconciliation uses previously scored probes, not hidden cell labels. Their assumptions and rounding uncertainty are recorded.",
+    "Actual future weather and city facts are intentionally permitted external information.",
+    "Route 5, non-workday routes 7/50 and all zero hours remain unchanged."
+  ],
+  "source_sha256": {
+    "s72_graph_regime_moe.py": "dcbebdf9c686159f5b3159dfe6830e98d72a34399f4ec823475ab3de2ddc1ee2",
+    "s73_structural_statistical.py": "f58f041deed7920e9bb3ea624862e42dcbd77482a9a2fcffaaa710f989a3ac5e",
+    "s74_architecture_round.py": "ed3f53975205f6c64e5c8423d163dee54391f7af98d36d455c12bf184bbe1c2e",
+    "s75_temporal_stacker.py": "b76aabafe2c881b740670b60bed13822ea9c12c6a18e99a85f6fcd9995bd27b1",
+    "s76_package_architecture_v9.py": "a0c57bd84052ca3b7d0c106799a30d0bb54b01f98e26b9db121a50895e0f0b65"
+  },
+  "artifact_sha256": {
+    "stack_validation.csv": "c6c0a472d40b8cf0d5aff92f56aa44ff46dbd9bc8f6ebc2e24aaf4ce15fb579f",
+    "oracle_diagnostics.csv": "739c23bf9cc8a73c9c25921b49da781e4e559c3c341315ba67081fbbf04572bf",
+    "summary.csv": "2f6fc5ee9e5693f1ce3fd0c9c8de360591ccbd442187bebba80c0e037c937eb9",
+    "validation.csv": "e497c1d67b7f61f5bca69fd3f7d707a74353e88ecb29f83ebe46b50412c9900a",
+    "chronos500_future.npy": "dd808d68fdb2786fdf84753fc9719eb38894c6f7724b1cc9e8fb8f61177626ea",
+    "stl_ets_future.npy": "bca677f649e41adc77533e1ccc0eb61306d8a180cf0212b2a5fb270b7196213a",
+    "stack_weights.json": "f4a98112f51cdc5586b9e9f97b6bda3c13670fc39794060201d3d84b693febe0",
+    "chronos0_future.npy": "8bca5c47c289a295417ae64a06d996873cf8e3ef0a0f1efccdc10ec101a94909",
+    "README.md": "11a2b0966d406094d6f6d37213b29bb710681a9b9996c72df382df1cfdc13f3d",
+    "graph_seed2028.pt": "096e00083a602dea87d37fbbac2a95ff3d664d78ee269f11afd7b9e094ecd18d",
+    "varx_future.npy": "1eceabea41da10106e9e0d27f0a089b2aa710da8677b2682aff0de97dc97541a",
+    "canonical_prediction.npy": "64f9fb73f40ff73e27806def2cd03bdbee8f4970faf33f1aa6491a0981694df4",
+    "fixed_route_validation.csv": "7c1ff2c1ccdad1b31b97698dafd4d011b0b941aee14e65577c14ebd952616b96",
+    "graph_seed2026.pt": "8a3871712cdebbac342bed942224e18865c41699e408a03281fad68ab9cf2bdd",
+    "graph_seed2027.pt": "2f34c5d7bedc2d83d589e724f3d1b278b1f849a8133d6cbc5a732b9a3da2a415",
+    "graph_future.npy": "c69e241d8d978a32671a25051151437d53be5b1232c7443fa65c4a9751f3d7ad"
+  },
+  "leaderboard_delta_vs_anchor": -0.00027,
+  "evidence": "User explicitly reported 0.90543 for v9 during final documentation of the architecture round."
+}

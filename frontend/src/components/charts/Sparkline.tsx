@@ -14,7 +14,7 @@ export function Sparkline({ values, color, hour, width = 96, height = 26 }: {
   const area = `${line}L${x(values.length - 1)},${height}L${x(0)},${height}Z`;
   const id = `sp${color.replace('#', '')}`;
   return (
-    <svg width={width} height={height} aria-hidden="true">
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" aria-hidden="true">
       <defs>
         <linearGradient id={id} x1="0" x2="0" y1="0" y2="1">
           <stop offset="0" stopColor={color} stopOpacity="0.35" />
@@ -22,7 +22,7 @@ export function Sparkline({ values, color, hour, width = 96, height = 26 }: {
         </linearGradient>
       </defs>
       <path d={area} fill={`url(#${id})`} />
-      <path d={line} fill="none" stroke={color} strokeWidth="1.4" strokeLinejoin="round" />
+      <path d={line} fill="none" stroke={color} strokeWidth="1.4" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
       {hour != null && values[hour] != null && (
         <circle cx={x(hour)} cy={y(values[hour] ?? 0)} r="2.4" fill="#fff" stroke={color} strokeWidth="1.2" />
       )}

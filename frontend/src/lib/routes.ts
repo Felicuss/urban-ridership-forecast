@@ -12,6 +12,9 @@ export const ROUTE_COLORS: Record<number, string> = {
   50: '#a9b1d6',
 };
 
+/** Номера десяти маршрутов по возрастанию. */
+export const ROUTE_IDS: number[] = Object.keys(ROUTE_COLORS).map(Number).sort((a, b) => a - b);
+
 export function routeColor(route: number | null | undefined): string {
   return route == null ? '#e9eef5' : (ROUTE_COLORS[route] ?? '#e9eef5');
 }

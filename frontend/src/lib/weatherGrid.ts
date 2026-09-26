@@ -5,6 +5,28 @@
 export const GRID_LATS = [55.56, 55.65, 55.74, 55.83, 55.92];
 export const GRID_LONS = [37.36, 37.485, 37.61, 37.735, 37.86];
 export const CENTER_INDEX = 12;
+/** Open-Meteo отдаёт снег в сантиметрах: 7 см снега - 10 мм воды. */
+export const SNOW_CM_TO_MM = 10 / 7;
+
+/** Область сетки с запасом в полшага за крайними узлами: за ней данных о погоде нет. */
+export const GRID_BOUNDS = {
+  west: 37.36 - 0.0625,
+  east: 37.86 + 0.0625,
+  south: 55.56 - 0.045,
+  north: 55.92 + 0.045,
+};
+/** Доля области у края, на которой осадки гаснут: узкая, край данных виден пунктиром. */
+const FADE = 0.03;
+
+/** 1 внутри сетки и плавно до 0 к её краю: заливка осадков и частицы обрываются на одной границе. */
+export function edgeFade(lon: number, lat: number): number {
+  const u = (lon - GRID_BOUNDS.west) / (GRID_BOUNDS.east - GRID_BOUNDS.west);
+  const v = (lat - GRID_BOUNDS.south) / (GRID_BOUNDS.north - GRID_BOUNDS.south);
+  const d = Math.min(u, 1 - u, v, 1 - v);
+  if (d <= 0) return 0;
+  const t = Math.min(d / FADE, 1);
+  return t * t * (3 - 2 * t);
+}
 
 export interface GridPoint {
   lat: number;

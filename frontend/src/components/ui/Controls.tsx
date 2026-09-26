@@ -1,4 +1,5 @@
-import { useId, type ReactNode } from 'react';
+import { useId, useRef, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import styles from './Controls.module.css';
 
 export function Segmented<T extends string>({ value, options, onChange, label }: {
@@ -46,11 +47,48 @@ export function Toggle({ checked, onChange, label, hint }: {
 }
 
 /** Значок «?» с объяснением: что значит показатель и откуда он. */
+const TIP_WIDTH = 280;
+const TIP_MARGIN = 10;
+/** Если снизу меньше места, подсказка открывается вверх. */
+const TIP_ROOM = 180;
+
+interface TipPlace {
+  left: number;
+  top: number;
+  width: number;
+  above: boolean;
+}
+
+/**
+ * Пояснение по наведению или фокусу. Рисуется поверх страницы в портале, поэтому его не обрезают
+ * панели с прокруткой, и прижимается к краям экрана: влезает и у правого края, и на телефоне.
+ */
 export function InfoTip({ children }: { children: ReactNode }) {
+  const icon = useRef<HTMLSpanElement>(null);
+  const id = useId();
+  const [place, setPlace] = useState<TipPlace | null>(null);
+  const show = () => {
+    const r = icon.current?.getBoundingClientRect();
+    if (!r) return;
+    const width = Math.min(TIP_WIDTH, window.innerWidth - 2 * TIP_MARGIN);
+    const left = Math.min(Math.max(r.left + r.width / 2 - width / 2, TIP_MARGIN), window.innerWidth - width - TIP_MARGIN);
+    const below = window.innerHeight - r.bottom;
+    const above = below < TIP_ROOM && r.top > below;
+    setPlace({ left, width, above, top: above ? r.top - 8 : r.bottom + 8 });
+  };
+  const hide = () => setPlace(null);
   return (
-    <span className={styles.info} tabIndex={0} aria-label="Пояснение">
+    <span ref={icon} className={styles.info} tabIndex={0} aria-label="Пояснение" aria-describedby={place ? id : undefined}
+      onMouseEnter={show} onMouseLeave={hide} onFocus={show} onBlur={hide}>
       ?
-      <span className={styles.infoBody} role="tooltip">{children}</span>
+      {place && createPortal(
+        <span id={id} className={styles.infoBody} role="tooltip"
+          style={{ left: place.left, top: place.top, width: place.width,
+            transform: place.above ? 'translateY(-100%)' : undefined }}>
+          {children}
+        </span>,
+        document.body,
+      )}
     </span>
   );
 }
@@ -74,15 +112,16 @@ export function Kpi({ label, value, sub, info, tone }: {
   );
 }
 
-export function Card({ title, info, actions, children, className }: {
+export function Card({ title, info, actions, children, className, id }: {
   title?: ReactNode;
   info?: ReactNode;
   actions?: ReactNode;
   children: ReactNode;
   className?: string;
+  id?: string;
 }) {
   return (
-    <section className={`${styles.card} ${className ?? ''}`}>
+    <section id={id} className={`${styles.card} ${className ?? ''}`}>
       {(title || actions) && (
         <header className={styles.cardHead}>
           <h3>

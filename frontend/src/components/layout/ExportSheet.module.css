@@ -1,0 +1,167 @@
+.group {
+  display: grid;
+  gap: 6px;
+}
+
+.option,
+.optionOn {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.optionOn {
+  border-color: var(--line-strong);
+  background: var(--surface-2);
+}
+
+.option input,
+.optionOn input {
+  margin-top: 3px;
+  accent-color: var(--text);
+}
+
+.option span,
+.optionOn span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.option b,
+.optionOn b {
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.option small,
+.optionOn small {
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+.wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.pill,
+.pillOn {
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text-2);
+  font-size: 12px;
+}
+
+.pillOn {
+  border-color: var(--line-strong);
+  background: var(--surface-3);
+  color: var(--text);
+}
+
+.dates {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dates input,
+.hours input {
+  min-width: 0;
+  padding: 5px 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--bg-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 12.5px;
+}
+
+.dates input {
+  flex: 1;
+}
+
+.hours {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--text-2);
+  font-size: 12.5px;
+}
+
+.hours input {
+  width: 130px;
+}
+
+.note {
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+.summary {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 12.5px;
+}
+
+.summary b {
+  color: var(--text);
+  font-size: 18px;
+}
+
+.problem {
+  color: var(--red) !important;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.primary,
+.secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.primary {
+  flex: 1;
+  background: var(--text);
+  color: var(--bg);
+}
+
+.secondary {
+  border: 1px solid var(--line-strong);
+  color: var(--text);
+}
+
+.primary:disabled,
+.secondary:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.message {
+  color: var(--text-2) !important;
+}

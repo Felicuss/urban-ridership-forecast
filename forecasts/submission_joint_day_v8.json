@@ -1,0 +1,126 @@
+{
+  "file": "submission_joint_day_v8.csv",
+  "sha256": "a275ee495a20f029085e46565d9d2cd8897f50c62efbf061ac243844b91dfa63",
+  "status": "scored",
+  "leaderboard_score": 0.90555,
+  "anchor": "submission_shape50_v7.csv",
+  "anchor_sha256": "16048f68932802813d4760e0907b6ed3c09892f8c4aaf191327279755308d13e",
+  "anchor_score": 0.9057,
+  "method": "Shape ensemble: 42.25% v7, 22.75% 3-seed JointDayNet, 35% pretrained Chronos-2; exact v7 daily integer totals",
+  "parameters_per_model": 202212,
+  "seeds": [
+    2026,
+    2027,
+    2028
+  ],
+  "training_steps": 600,
+  "context_days": 56,
+  "device": "Apple M5 Pro / PyTorch MPS",
+  "route_order": [
+    1,
+    7,
+    11,
+    12,
+    17,
+    25,
+    26,
+    28,
+    50
+  ],
+  "shape_weight": 0.35,
+  "chronos_weight": 0.35,
+  "chronos": {
+    "fold": "future",
+    "origin": "2025-10-31",
+    "steps": 0,
+    "device": "mps",
+    "trainable_parameters": 0,
+    "training_seconds": 0.0,
+    "total_seconds": 1.1539633750217035,
+    "peft": "0.21.0",
+    "torch": "2.8.0",
+    "model_revision": "29ec3766d36d6f73f0696f85560a422f50e8498c",
+    "mps_driver_allocated_bytes": 1107050496
+  },
+  "selection": "JointDayNet 35% first, then Chronos zero-shot 35%; best mean of tested fixed blends across all six reused development folds, positive on all six",
+  "validation": [
+    {
+      "fold": "R04",
+      "model": "joint35_then_chronos0_0.35",
+      "score": 0.8591448633059006,
+      "gain": 0.0001332594840221,
+      "gain_vs_joint35": -0.0001525724865124
+    },
+    {
+      "fold": "R05",
+      "model": "joint35_then_chronos0_0.35",
+      "score": 0.8586661572541205,
+      "gain": 0.000573735525798,
+      "gain_vs_joint35": -0.0008122882870351
+    },
+    {
+      "fold": "R06",
+      "model": "joint35_then_chronos0_0.35",
+      "score": 0.8623973346942169,
+      "gain": 0.0011110858839557,
+      "gain_vs_joint35": 0.0003733036926135
+    },
+    {
+      "fold": "R07",
+      "model": "joint35_then_chronos0_0.35",
+      "score": 0.835378440944103,
+      "gain": 0.000947728484699,
+      "gain_vs_joint35": 0.0023296515276066
+    },
+    {
+      "fold": "R08",
+      "model": "joint35_then_chronos0_0.35",
+      "score": 0.8627551436361901,
+      "gain": 0.0055861006158748,
+      "gain_vs_joint35": 0.0028428527070046
+    },
+    {
+      "fold": "B",
+      "model": "joint35_then_chronos0_0.35",
+      "score": 0.9087458514146944,
+      "gain": 0.0023371149104728,
+      "gain_vs_joint35": 0.000577576111406
+    }
+  ],
+  "mean_gain": 0.0017815041508037332,
+  "worst_gain": 0.0001332594840221,
+  "wins": 6,
+  "october_gain": 0.0023371149104728,
+  "changed_rows": 9837,
+  "sum_difference": 0,
+  "training_data_sha256": "a86e98bbdb214dcbd2585fc2305c2a1fb011d95953be893e73356c0401d5ac51",
+  "source_sha256": {
+    "s69_package_joint_day.py": "a4b93c3678a595807990a9f6b9eb0d85575185911f8f325c227e11af3949c3e2",
+    "s67_joint_day_net.py": "ec5193316bb0ba539e652ecdc0cd87d3044eceea1c1a79ff854bf3a44837c46f",
+    "s68_chronos_local.py": "6db69fe769e7fe6b850f9927afb5f002120b6865744277c8af77770acef86b21",
+    "s71_local_model_comparison.py": "84d76e601594ad050fcb4cc6c07d0f92f1ee39e69f362fd75bdb1478cd6b8ee4"
+  },
+  "artifacts_sha256": {
+    "profile_control.csv": "6a586b9e535687f66abdf62f79189f1583eaae16e803dbe4a07b7105d143220c",
+    "summary.csv": "cf2a141ca5d2bbbe1ee2790738769fa2e69322adaba66cb0cbca45c29fbde60c",
+    "joint_day_net_seed2028.pt": "b3307c808a8297010838c4828cabc1688cb29946d7dc71f945de41080870c284",
+    "validation.csv": "34f6a3fa569f19169d8bb7a7f97da6d01bd2168544d5d8090ee85b57d46d47f0",
+    "model_comparison.csv": "3e736b0e03b0b81a21df6c36d1600d8df117c4bb1857ef326efbadb88ec48b1d",
+    "chronos_future.npy": "8bca5c47c289a295417ae64a06d996873cf8e3ef0a0f1efccdc10ec101a94909",
+    "joint_day_net_seed2026.pt": "4d03bd719ea348f0cdd9bef3a8109b93d9f10ff1c817cd2dcf21380171b960cd",
+    "future_shares.npy": "d210d5c784fb1cedfd1a9d3ecf70c37dba654f2eb27ea10f048df5ee711b85f5",
+    "joint_day_net_seed2027.pt": "ae9fae38d693ea44b318b38a8de46616b70d54303e065af90b4326d4f3a1f1b6",
+    "README.md": "e028d65dd4c7bde5b57bff0b6fea78bc91eed45c698b3255b85ff96e0035b05b",
+    "run.json": "fd4920cdbf291e8823ae98f37102f66e8698ab00eb77c3fb32b17c7c5fc708fb"
+  },
+  "caveats": [
+    "Historical improvement does not guarantee leaderboard improvement; consult the recorded platform score.",
+    "Six development periods overlap and were reused for model/blend selection.",
+    "Actual future weather is an explicitly permitted external covariate.",
+    "Future route targets are unknown; only labels through Oct31 train final weights.",
+    "All daily totals, zero hours, route 5, and non-workday 7/50 are preserved.",
+    "Chronos is used without fine-tuning. Tested LoRA and TiRex variants are not part of this candidate."
+  ],
+  "leaderboard_delta_vs_anchor": -0.00015,
+  "evidence": "User reported 0.90555 after receiving the verified submission_joint_day_v8.csv; the earlier evaluation log was a parsing failure, not a score."
+}

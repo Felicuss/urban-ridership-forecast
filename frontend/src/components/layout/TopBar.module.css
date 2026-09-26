@@ -12,9 +12,9 @@
 
 .brand {
   display: flex;
+  flex: none;
   align-items: center;
   gap: 10px;
-  min-width: 190px;
 }
 
 .logo {
@@ -208,16 +208,6 @@
   color: var(--text-2);
   font-size: 12px;
 }
-
-.exportError {
-  max-width: 260px;
-  overflow: hidden;
-  color: var(--red);
-  font-size: 12px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .export button + button {
   border-left: 1px solid var(--line);
 }
@@ -265,37 +255,54 @@
   transform: scale(1.06);
 }
 
-.speeds {
-  display: flex;
-  gap: 2px;
-  padding: 2px;
+/* Скорость времени: закрытый список показывает только «×60», в раскрытом - что значит каждая скорость. */
+.speedSelect {
+  width: 64px;
+  height: 30px;
+  padding: 0 6px;
   border: 1px solid var(--line);
   border-radius: 9px;
-}
-
-.speed,
-.speedOn {
-  padding: 3px 6px;
-  border-radius: 7px;
-  color: var(--muted);
-  font: 11px var(--mono);
-}
-
-.speedOn {
-  background: var(--surface-3);
+  background: var(--surface);
   color: var(--text);
+  font: 12px var(--mono);
+  color-scheme: dark;
+  cursor: pointer;
+}
+
+.speedSelect:hover {
+  border-color: var(--line-strong);
+}
+
+.scenario {
+  white-space: nowrap;
+}
+
+@media (max-width: 1700px) {
+  .subtitle,
+  .year {
+    display: none;
+  }
 }
 
 @media (max-width: 1500px) {
-  .subtitle,
   .wlabel {
     display: none;
   }
+}
 
-  .brand {
-    min-width: 0;
+@media (max-width: 1366px) {
+  .brand > div {
+    display: none;
   }
 }
+
+@media (max-width: 1440px) {
+  .exportLabel {
+    display: none;
+  }
+}
+
+
 
 @media (max-width: 1024px) {
   .bar {
@@ -340,4 +347,129 @@
     flex-wrap: wrap;
     row-gap: 6px;
   }
+}
+
+/* Плашка «Режим „Сейчас“ выключен» под верхней строкой */
+.notice {
+  position: fixed;
+  top: 62px;
+  left: 50%;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: calc(100vw - 24px);
+  padding: 8px 8px 8px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  background: var(--surface-2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  color: var(--text);
+  font-size: 13px;
+  transform: translateX(-50%);
+  animation: notice-in 0.25s var(--ease);
+}
+
+@keyframes notice-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -6px);
+  }
+}
+
+.noticeBack {
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: var(--text);
+  color: var(--bg);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.noticeClose {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  color: var(--muted);
+}
+
+.noticeClose:hover {
+  background: var(--surface-3);
+  color: var(--text);
+}
+
+@media (max-width: 560px) {
+  .notice {
+    top: auto;
+    bottom: 12px;
+    font-size: 12px;
+  }
+}
+
+.bellOn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: rgba(239, 65, 54, 0.14);
+  color: #ffb3ad;
+}
+
+.bellCount {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  display: grid;
+  place-items: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: var(--red);
+  color: #fff;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 700;
+}
+
+/* Раскладка экрана: три значка карта, сплит, панели */
+.layout {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+.layoutBtn,
+.layoutOn {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 26px;
+  border-radius: 6px;
+  color: var(--muted);
+}
+
+.layoutBtn svg,
+.layoutOn svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+
+.layoutBtn:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+.layoutOn {
+  background: var(--surface-3);
+  color: var(--text);
 }

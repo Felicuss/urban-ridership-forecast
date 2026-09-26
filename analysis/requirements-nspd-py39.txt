@@ -1,0 +1,3 @@
+# Additional packages for the existing pandas/numpy ML environment.
+shapely==2.0.7
+pyarrow==21.0.0

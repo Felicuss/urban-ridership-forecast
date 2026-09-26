@@ -1,10 +1,11 @@
+import { useState } from 'react';
 import type { NetworkLoad } from '../../api/types';
-import type { GridPoint } from '../../lib/weatherGrid';
+import { SNOW_CM_TO_MM, type GridPoint } from '../../lib/weatherGrid';
 import { useStops } from '../../api/queries';
 import { FLAG_LABELS, useStore, type Flags } from '../../state/store';
 import { hourOf, sunElevation } from '../../lib/time';
-import { fmtInt } from '../../lib/format';
-import { routeColor, yandexPoint, yandexRouteTo } from '../../lib/routes';
+import { fmt1, fmtInt } from '../../lib/format';
+import { ROUTE_COLORS, routeColor, yandexPoint, yandexRouteTo } from '../../lib/routes';
 import { Sparkline } from '../charts/Sparkline';
 import { Icon } from '../ui/Icons';
 import { WeatherFx } from './WeatherFx';
@@ -12,13 +13,14 @@ import { flyTo, mapHandle } from './mapHandle';
 import styles from './MapOverlay.module.css';
 
 const DOCK: { key: keyof Flags; short: string }[] = [
-  { key: 'heat', short: 'Тепло' },
+  { key: 'heat', short: 'Теплокарта' },
   { key: 'lines', short: 'Линии' },
   { key: 'stops', short: 'Остановки' },
   { key: 'trams', short: 'Трамваи' },
   { key: 'metro', short: 'Метро' },
-  { key: 'buildings', short: '3D' },
+  { key: 'buildings', short: '3D-дома' },
   { key: 'weather', short: 'Погода' },
+  { key: 'satellite', short: 'Спутник' },
 ];
 
 export function MapOverlay({ load, weather }: { load: NetworkLoad | undefined; weather: GridPoint[] | undefined }) {
@@ -40,7 +42,7 @@ export function MapOverlay({ load, weather }: { load: NetworkLoad | undefined; w
           className={viewMode === 'perspective' ? styles.viewOn : ''} onClick={() => setViewMode('perspective')}
           title="Наклон камеры; объёмные дома включаются отдельно">Перспектива</button>
         <button type="button" onClick={() => mapHandle.current?.easeTo({ bearing: 0, duration: 600 })}
-          title="Повернуть карту на север" aria-label="На север">С</button>
+          title="Повернуть карту на север">На север</button>
       </div>
       <nav className={styles.dock} aria-label="Слои карты">
         {DOCK.map((d) => (
@@ -49,6 +51,7 @@ export function MapOverlay({ load, weather }: { load: NetworkLoad | undefined; w
             <i />{d.short}
           </button>
         ))}
+        <RouteFilter />
       </nav>
       <div className={styles.legend}>
         <div className={styles.legendRow}>
@@ -57,12 +60,29 @@ export function MapOverlay({ load, weather }: { load: NetworkLoad | undefined; w
           <span className={styles.rampLabels}><small>мало</small><small>много</small></span>
         </div>
         <div className={styles.legendNote}>
-          Толщина линии - посадки маршрута в этот час. {night ? 'Ночь: ' : ''}вагоны идут с интервалом по расписанию.
+          Толщина линии - посадки маршрута в этот час. {night ? 'Ночь: вагоны' : 'Вагоны'} идут с интервалом по расписанию.
         </div>
+        {flags.weather && <PrecipNote grid={weather} hour={hour} />}
       </div>
       <StopCard load={load} hour={hour} />
       <RideCard />
     </>
+  );
+}
+
+/** Что значит заливка осадков: вид осадков в этот час и где кончаются данные. */
+function PrecipNote({ grid, hour }: { grid: GridPoint[] | undefined; hour: number }) {
+  if (!grid?.length) return null;
+  const rain = grid.reduce((a, p) => a + (p.rain[hour] ?? 0), 0) / grid.length;
+  const snow = (grid.reduce((a, p) => a + (p.snow[hour] ?? 0), 0) / grid.length) * SNOW_CM_TO_MM;
+  if (rain + snow < 0.03) return null;
+  const isSnow = snow >= rain;
+  return (
+    <div className={styles.legendNote}>
+      <i className={styles.precipSwatch} style={{ background: isSnow ? 'rgba(236,241,255,0.55)' : 'rgba(110,160,235,0.6)' }} />
+      {isSnow ? 'Снег' : 'Дождь'} в этот час, в среднем {fmt1(rain + snow)} мм: заливка и частицы там, где он идёт,
+      по сетке Open-Meteo над Москвой. Сплошная линия - граница осадков, пунктир - край данных о погоде.
+    </div>
   );
 }
 
@@ -131,5 +151,39 @@ function RideCard() {
       <p>Сколько сядет за один рейс в этот час: посадки маршрута ÷ рейсы по расписанию × доля остановки.
         Скорость показа ×{ride.speed}.</p>
     </section>
+  );
+}
+
+const ROUTES = Object.keys(ROUTE_COLORS).map(Number);
+
+/** Какие маршруты видны на карте: линии, вагоны и остановки скрытых маршрутов пропадают. */
+function RouteFilter() {
+  const hidden = useStore((s) => s.hiddenRoutes);
+  const toggleRoute = useStore((s) => s.toggleRoute);
+  const setHiddenRoutes = useStore((s) => s.setHiddenRoutes);
+  const [open, setOpen] = useState(false);
+  const shown = ROUTES.length - hidden.length;
+  return (
+    <div className={styles.filterWrap}>
+      <button type="button" className={hidden.length ? styles.dockOn : styles.dockBtn} aria-expanded={open}
+        title="Показать или скрыть маршруты на карте и в списке" onClick={() => setOpen((v) => !v)}>
+        <i />Маршруты {shown}/{ROUTES.length}
+      </button>
+      {open && (
+        <div className={styles.filter} role="group" aria-label="Маршруты на карте">
+          <div className={styles.filterChips}>
+            {ROUTES.map((r) => (
+              <button key={r} type="button" aria-pressed={!hidden.includes(r)}
+                className={hidden.includes(r) ? styles.chipOff : styles.chipOn}
+                style={{ '--c': routeColor(r) } as React.CSSProperties} onClick={() => toggleRoute(r)}>{r}</button>
+            ))}
+          </div>
+          <div className={styles.filterActions}>
+            <button type="button" onClick={() => setHiddenRoutes([])}>Показать все</button>
+            <button type="button" onClick={() => setHiddenRoutes(ROUTES)}>Скрыть все</button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

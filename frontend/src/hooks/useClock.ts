@@ -19,11 +19,11 @@ export function useClock(): void {
       if (s.followNow) {
         if (t - lastNow > 1000) {
           lastNow = t;
-          s.setMinute(nowOnTimeline());
+          s.tick(nowOnTimeline());
         }
         return;
       }
-      if (s.playing) s.setMinute(s.minute + (dt / 60_000) * s.speed);
+      if (s.playing) s.tick(s.minute + (dt / 60_000) * s.speed);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);

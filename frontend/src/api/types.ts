@@ -3,7 +3,7 @@
 
 export type Level = 'route' | 'stop' | 'segment' | 'network';
 export type Granularity = 'hour' | 'day' | 'month';
-export type Horizon = 'day' | 'month' | 'year';
+export type Horizon = 'day' | 'week' | 'month' | 'year';
 
 export type Source = 'fact' | 'forecast' | 'outlook';
 
@@ -23,6 +23,10 @@ export interface Point {
   p50: number;
   p10: number;
   p90: number;
+  /** Посадки в самый загруженный час внутри точки за сутки или месяц; у почасовых точек нет. */
+  peak?: number | null;
+  /** Этот час: 2025-11-14T08:00. */
+  peakAt?: string | null;
   baseline?: number;
   delta?: number;
   deltaPct?: number | null;
@@ -132,6 +136,20 @@ export interface BacktestQuality {
   stops: { stops: number; osm_matched_to_reference: number; osm_stops: number };
 }
 
+export interface GapPeriod {
+  route: number;
+  from: string;
+  to: string;
+  days: number;
+  day_kinds: string;
+  fact: number;
+  expected: number;
+  restored: number;
+  reason: string;
+  type: string;
+  source: string;
+}
+
 export interface Factors {
   calendar: { date: string; dow: number; day_type: string; day_off: boolean; holiday: string | null }[];
   weather: {
@@ -157,6 +175,22 @@ export interface Factors {
     }>;
   };
   history: { source: string; dates: string[]; routes: Record<string, number[]> };
+  /** Пропуски факта 2025: период, причина со ссылкой и восстановленные по прошлым неделям посадки по часам. */
+  gaps?: {
+    rule: string;
+    restore: string;
+    periods: GapPeriod[];
+    restored: Record<string, Record<string, number[]>>;
+  };
+  /** Проверки оборудования вне часов работы маршрутов: отброшены из факта. */
+  equipment_checks?: {
+    rule: string;
+    window: string;
+    cells: number;
+    validations: number;
+    share_pct: number;
+    off_hours: Record<string, number[]>;
+  };
   events: {
     start: string;
     end: string | null;

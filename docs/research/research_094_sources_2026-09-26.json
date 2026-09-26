@@ -1,0 +1,88 @@
+{
+  "researched_on": "2026-09-26",
+  "sources": [
+    {
+      "id": "kdd2017_results",
+      "url": "https://www.kdd.org/kdd2017/announcements/view/announcing-kdd-cup-2017-highway-tollgates-traffic-flow-prediction",
+      "access": "organizer_results"
+    },
+    {
+      "id": "kdd2017_volume_winner",
+      "url": "https://www.kdd.org/kdd2017/files/Task2_1stPlace.pdf",
+      "access": "downloaded_pdf_text_24_pages",
+      "sha256": "cfc4b7b9e8dcb23169f569017ba0bcd59ca7eb253e1026bee4bfebf317196c5a"
+    },
+    {
+      "id": "kdd2017_travel_time_winner",
+      "url": "https://www.kdd.org/kdd2017/files/Task1_1stPlace.pdf",
+      "access": "web_pdf_text_18_pages"
+    },
+    {
+      "id": "traffic4cast_results",
+      "url": "https://github.com/iarai/NeurIPS2022-traffic4cast",
+      "access": "organizer_repository"
+    },
+    {
+      "id": "traffic4cast_first",
+      "url": "https://arxiv.org/abs/2211.00641",
+      "access": "author_pdf_8_pages"
+    },
+    {
+      "id": "traffic4cast_second",
+      "url": "https://arxiv.org/abs/2211.00157",
+      "access": "author_abstract_and_blog"
+    },
+    {
+      "id": "traffic4cast_second_blog",
+      "url": "https://mlumiste.com/technical/gradient-boosting-neurips/",
+      "access": "author_blog"
+    },
+    {
+      "id": "ashrae_winners",
+      "url": "https://github.com/buds-lab/ashrae-great-energy-predictor-3-solution-analysis",
+      "access": "organizer_archive_summary"
+    },
+    {
+      "id": "webtraffic_winner",
+      "url": "https://raw.githubusercontent.com/Arturus/kaggle-web-traffic/master/how_it_works.md",
+      "access": "author_explanation"
+    },
+    {
+      "id": "rohlik_sales_winner",
+      "url": "https://www.kaggle.com/competitions/rohlik-sales-forecasting-challenge-v2/writeups/golden-1st-place-solution",
+      "access": "indexed_author_writeup"
+    },
+    {
+      "id": "rohlik_orders_second",
+      "url": "https://www.kaggle.com/competitions/rohlik-orders-forecasting-challenge/writeups/techniquetwice-2nd-place-solution-single-lgbm-mode",
+      "access": "indexed_author_writeup"
+    },
+    {
+      "id": "forecasting_review",
+      "url": "https://doi.org/10.1016/j.ijforecast.2020.07.007",
+      "access": "author_manuscript_from_Aalborg_repository"
+    },
+    {
+      "id": "parking_archive",
+      "url": "https://github.com/matrosovcmtn/moscow-parking-occupancy",
+      "access": "downloaded_data_and_README",
+      "revision": "5e7ca2096959f2557c0f05714bb534a2f5bdde6c"
+    },
+    {
+      "id": "moscow_gtfs",
+      "url": "https://mobilitydatabase.org/feeds/gtfs/mdb-3226",
+      "access": "catalog_history_only_2026_snapshot"
+    },
+    {
+      "id": "hackathon_ndtp_track",
+      "url": "https://mt-hackathon.ru/",
+      "access": "official_track_description_no_dataset_link"
+    },
+    {
+      "id": "annual_reports",
+      "url": "https://transport.mos.ru/mostrans/for_journs/data/report-year",
+      "access": "catalog_search_result_direct_request_timeout"
+    }
+  ],
+  "third_party_code_executed": false
+}

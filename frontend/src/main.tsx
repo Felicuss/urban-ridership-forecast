@@ -1,3 +1,5 @@
+// перехват 401 ставится до клиента API: этот импорт первый
+import './api/session';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -5,6 +7,7 @@ import '@fontsource-variable/onest';
 import '@fontsource-variable/jetbrains-mono';
 import './styles/global.css';
 import { App } from './App';
+import { AuthGate } from './components/auth/AuthGate';
 
 const client = new QueryClient({
   defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
@@ -16,7 +19,9 @@ requestAnimationFrame(() => document.getElementById('boot')?.remove());
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={client}>
-      <App />
+      <AuthGate>
+        <App />
+      </AuthGate>
     </QueryClientProvider>
   </StrictMode>,
 );

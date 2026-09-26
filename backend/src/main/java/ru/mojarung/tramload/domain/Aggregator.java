@@ -11,6 +11,7 @@ import java.util.Map;
  * Сворачивает почасовые значения шкалы в ряд: веса маршрутов задают объект (маршрут, сеть, остановка, участок),
  * даты и окно часов - интервал, шаг - час, сутки или месяц. Сумма точек ряда равна сумме ячеек интервала.
  * Коридор зависит от источника: у факта его нет, у прогноза - множители бэктеста, у оценки - ±12 %.
+ * У точек за сутки и месяц есть пик: самый загруженный час внутри точки, по нему видна пиковая нагрузка.
  */
 public final class Aggregator {
 
@@ -32,41 +33,46 @@ public final class Aggregator {
 		YearMonth month = null;
 		Source monthSource = null;
 		double monthSum = 0;
+		Peak monthPeak = null;
 		for (LocalDate date = from; !date.isAfter(to); date = date.plusDays(1)) {
 			int d = timeline.dayIndex(date);
 			DayInfo info = timeline.day(d);
 			double daySum = 0;
+			Peak dayPeak = null;
 			for (int h = hours.first(); h <= hours.last(); h++) {
 				double v = cellSum(prediction, weights, d, h);
 				daySum += v;
+				String label = date.atTime(h, 0).format(HOUR_LABEL);
+				dayPeak = Peak.max(dayPeak, new Peak(label, v));
 				if (granularity == Granularity.HOUR) {
-					out.add(Point.of(date.atTime(h, 0).format(HOUR_LABEL), band(info.source(), v, intervals.hour(h, v)),
-							info.source()));
+					out.add(Point.of(label, band(info.source(), v, intervals.hour(h, v)), info.source()));
 				}
 			}
 			if (granularity == Granularity.DAY) {
 				out.add(Point.of(date.toString(), band(info.source(), daySum, intervals.day(info.kind(), daySum)),
-						info.source()));
+						info.source()).withPeak(dayPeak));
 			}
 			if (granularity == Granularity.MONTH) {
 				YearMonth current = YearMonth.from(date);
 				if (month != null && !current.equals(month)) {
-					out.add(monthPoint(month, monthSum, monthSource));
+					out.add(monthPoint(month, monthSum, monthSource, monthPeak));
 					monthSum = 0;
+					monthPeak = null;
 				}
 				month = current;
 				monthSource = info.source();
 				monthSum += daySum;
+				monthPeak = Peak.max(monthPeak, dayPeak);
 			}
 		}
 		if (granularity == Granularity.MONTH && month != null) {
-			out.add(monthPoint(month, monthSum, monthSource));
+			out.add(monthPoint(month, monthSum, monthSource, monthPeak));
 		}
 		return out;
 	}
 
-	private Point monthPoint(YearMonth month, double sum, Source source) {
-		return Point.of(month.toString(), band(source, sum, intervals.month(sum)), source);
+	private Point monthPoint(YearMonth month, double sum, Source source, Peak peak) {
+		return Point.of(month.toString(), band(source, sum, intervals.month(sum)), source).withPeak(peak);
 	}
 
 	private static Intervals.Band band(Source source, double value, Intervals.Band forecast) {
@@ -98,13 +104,35 @@ public final class Aggregator {
 		}
 		Source source = points.isEmpty() ? Source.FORECAST : points.getFirst().source();
 		boolean mixed = points.stream().anyMatch(p -> p.source() != source);
-		return new Point("total", p50, p10, p90, mixed ? Source.FORECAST : source);
+		Peak peak = null;
+		for (Point p : points) {
+			peak = Peak.max(peak, p.peak());
+		}
+		return new Point("total", p50, p10, p90, mixed ? Source.FORECAST : source, peak);
 	}
 
-	public record Point(String period, double p50, double p10, double p90, Source source) {
+	/** Точка ряда; peak - самый загруженный час внутри точки, у почасовых точек его нет. */
+	public record Point(String period, double p50, double p10, double p90, Source source, Peak peak) {
 
 		public static Point of(String period, Intervals.Band band, Source source) {
-			return new Point(period, band.p50(), band.p10(), band.p90(), source);
+			return new Point(period, band.p50(), band.p10(), band.p90(), source, null);
+		}
+
+		public Point withPeak(Peak value) {
+			return new Point(period, p50, p10, p90, source, value);
+		}
+
+	}
+
+	/** Пиковый час: метка часа вида 2025-11-14T08:00 и посадки в этот час. */
+	public record Peak(String at, double value) {
+
+		/** Больший из двух пиков; при равенстве остаётся более ранний. */
+		static Peak max(Peak a, Peak b) {
+			if (a == null) {
+				return b;
+			}
+			return b != null && b.value() > a.value() ? b : a;
 		}
 
 	}

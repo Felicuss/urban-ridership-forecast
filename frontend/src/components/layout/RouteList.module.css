@@ -204,49 +204,38 @@
   gap: 6px;
 }
 
-.segment {
-  display: grid;
-  gap: 6px;
-  font-size: 12px;
-}
-
-.segment summary {
+.stopsBtn,
+.stopsBtnOn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  color: var(--text-2);
-  cursor: pointer;
-}
-
-.segment[open] {
-  gap: 6px;
-}
-
-.segment select {
-  width: 100%;
-  min-width: 0;
-  padding: 5px 6px;
+  gap: 8px;
+  height: 34px;
+  padding: 0 8px 0 10px;
   border: 1px solid var(--line-strong);
-  border-radius: 8px;
-  background: var(--bg-2);
+  border-radius: 10px;
+  background: var(--surface-2);
   color: var(--text);
-  font: inherit;
+  font-size: 12.5px;
+  text-align: left;
+  transition: border-color 0.2s, background 0.2s;
 }
 
-.segRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
+.stopsBtn span,
+.stopsBtnOn span {
+  flex: 1;
 }
 
-.segReset {
-  justify-self: start;
-  padding: 4px 10px;
-  border: 1px solid var(--line-strong);
-  border-radius: 8px;
-  color: var(--text);
+.stopsBtn small,
+.stopsBtnOn small {
+  color: var(--muted);
+  font-size: 11px;
 }
 
-.segReset:hover {
-  background: var(--surface-3);
+.stopsBtn:hover {
+  border-color: var(--c);
+}
+
+.stopsBtnOn {
+  border-color: var(--c);
+  background: color-mix(in srgb, var(--c) 12%, transparent);
 }

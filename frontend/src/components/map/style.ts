@@ -8,16 +8,16 @@ export const FONT = ['Noto Sans Regular'];
 
 /** Цвета подложки ночью и днём: слои, которые перекрашивает свет по времени суток. */
 export const PALETTE = {
-  background: ['#0d0e11', '#1e2127'],
-  water: ['#11161e', '#1f2a37'],
-  landuse_residential: ['#101114', '#202329'],
-  landuse_park: ['#0f1411', '#1d2520'],
-  landcover_wood: ['#0f1411', '#1d2520'],
-  building: ['#15171b', '#2a2e36'],
-  highway_minor: ['#1a1c21', '#30343c'],
-  highway_major_inner: ['#20232a', '#3a3f49'],
-  highway_major_casing: ['#272a32', '#454b56'],
-  railway_transit: ['#1e2127', '#353a43'],
+  background: ['#0d0e11', '#3a414d'],
+  water: ['#11161e', '#36597c'],
+  landuse_residential: ['#101114', '#3f4653'],
+  landuse_park: ['#0f1411', '#3c5646'],
+  landcover_wood: ['#0f1411', '#39523f'],
+  building: ['#15171b', '#4d5463'],
+  highway_minor: ['#1a1c21', '#565e6d'],
+  highway_major_inner: ['#20232a', '#6b7483'],
+  highway_major_casing: ['#272a32', '#4a515e'],
+  railway_transit: ['#1e2127', '#58606f'],
 } as const;
 
 export type PaletteLayer = keyof typeof PALETTE;

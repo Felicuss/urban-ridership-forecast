@@ -1,0 +1,70 @@
+{
+  "file": "submission_shape50_v7.csv",
+  "sha256": "16048f68932802813d4760e0907b6ed3c09892f8c4aaf191327279755308d13e",
+  "status": "scored",
+  "leaderboard_score": 0.9057,
+  "anchor": "submission_shape_facts_v6.csv",
+  "anchor_sha256": "ae13aca28a9c388f69981fd07d9a118c687fbecbcbfafd9df6faf2180d61ea5c",
+  "anchor_score": 0.90553,
+  "change": "Hourly share weight .35 -> .50, transferred onto v6 and renormalized to its exact daily integer sums",
+  "changed_rows": 7514,
+  "absolute_difference": 19994,
+  "sum_difference": 0,
+  "validation": [
+    {
+      "fold": "R04",
+      "origin": "2025-04-30",
+      "horizon": 61,
+      "reference_score": 0.8587824405775405,
+      "candidate_score": 0.8590116038218785,
+      "gain": 0.00022916324433791207
+    },
+    {
+      "fold": "R05",
+      "origin": "2025-05-31",
+      "horizon": 61,
+      "reference_score": 0.8575856646251596,
+      "candidate_score": 0.8580924217283226,
+      "gain": 0.000506757103162968
+    },
+    {
+      "fold": "R06",
+      "origin": "2025-06-30",
+      "horizon": 61,
+      "reference_score": 0.8610073067780899,
+      "candidate_score": 0.8612862488102612,
+      "gain": 0.00027894203217124046
+    },
+    {
+      "fold": "R07",
+      "origin": "2025-07-31",
+      "horizon": 61,
+      "reference_score": 0.83500578417238,
+      "candidate_score": 0.8344307124594039,
+      "gain": -0.0005750717129760883
+    },
+    {
+      "fold": "R08",
+      "origin": "2025-08-31",
+      "horizon": 61,
+      "reference_score": 0.8569503757350317,
+      "candidate_score": 0.8571690430203152,
+      "gain": 0.0002186672852834331
+    },
+    {
+      "fold": "B",
+      "origin": "2025-09-30",
+      "horizon": 31,
+      "reference_score": 0.9060469078215133,
+      "candidate_score": 0.9064087365042216,
+      "gain": 0.00036182868270824553
+    }
+  ],
+  "caveats": [
+    "These historical periods were reused for development and selection.",
+    "No neural architecture was trained for this candidate.",
+    "All calendar, event and city-level daily totals remain those of scored v6."
+  ],
+  "leaderboard_delta_vs_anchor": 0.00017,
+  "evidence": "User reported 0.90570 in response to the primary shape50_v7 submission; diagnostic submissions were separately identified."
+}

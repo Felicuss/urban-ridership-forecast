@@ -90,7 +90,8 @@ public final class ArtifactLoader {
 				CsvRows.flag(r, "is_holiday"), CsvRows.flag(r, "is_working_saturday"), CsvRows.flag(r, "is_pre_new_year"),
 				CsvRows.flag(r, "is_new_year_eve"), CsvRows.number(r, "base"), CsvRows.number(r, "base_restored"),
 				CsvRows.flag(r, "restorable"), CsvRows.number(r, "route5_shape"), CsvRows.number(r, "precip_day"),
-				CsvRows.number(r, "precip_hour"), CsvRows.number(r, "temp_day"), CsvRows.number(r, "prediction"));
+				CsvRows.number(r, "precip_hour"), CsvRows.number(r, "temp_day"), CsvRows.number(r, "calib"),
+				CsvRows.number(r, "prediction"));
 	}
 
 	private static ModelConstants constants(JsonNode coefficients) {

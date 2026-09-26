@@ -1,0 +1,103 @@
+{
+  "file": "submission_seasonal_daily_v11.csv",
+  "status": "scored",
+  "leaderboard_score": 0.90741,
+  "sha256": "69cf0a7cf4aced43d98238fac52efb4be2c134ab08b36033f6e2f5946076e9cf",
+  "anchor": "submission_seasonal_v10.csv",
+  "anchor_sha256": "79f790c81e396b6ddb9cbf9b2261b2890ab2da31d510cdb4eb66857d71fe0ea1",
+  "anchor_score": 0.90731,
+  "shape_weight": 0.5,
+  "previous_shape_weight": 0.35,
+  "level_weight": 0.3,
+  "daily_models": [
+    "daily_fourier1",
+    "daily_fourier2"
+  ],
+  "method": "Increase seasonal hourly-profile weight to 50%; redistribute monthly route/day-kind mass across dates using a 30% smooth daily log-level ensemble.",
+  "preserved_groups": "route x month x production-calendar day kind; protected route regimes and Dec31 daily totals",
+  "validation": [
+    {
+      "fold": "R04",
+      "shape_weight": 0.5,
+      "level_weight": 0.3,
+      "baseline": 0.8594936666720672,
+      "score": 0.8598066852692726,
+      "gain": 0.0003130185972053965
+    },
+    {
+      "fold": "R05",
+      "shape_weight": 0.5,
+      "level_weight": 0.3,
+      "baseline": 0.8582952316748663,
+      "score": 0.8596520068653227,
+      "gain": 0.0013567751904564615
+    },
+    {
+      "fold": "R06",
+      "shape_weight": 0.5,
+      "level_weight": 0.3,
+      "baseline": 0.8615872986926851,
+      "score": 0.8617664183883473,
+      "gain": 0.00017911969566231426
+    },
+    {
+      "fold": "R07",
+      "shape_weight": 0.5,
+      "level_weight": 0.3,
+      "baseline": 0.8384204005099917,
+      "score": 0.8400693894305004,
+      "gain": 0.0016489889205086497
+    },
+    {
+      "fold": "R08",
+      "shape_weight": 0.5,
+      "level_weight": 0.3,
+      "baseline": 0.8619498269695277,
+      "score": 0.8636493600902098,
+      "gain": 0.001699533120682001
+    },
+    {
+      "fold": "B",
+      "shape_weight": 0.5,
+      "level_weight": 0.3,
+      "baseline": 0.9090248037722466,
+      "score": 0.9097525150959512,
+      "gain": 0.0007277113237047466
+    }
+  ],
+  "deduplicated_diagnostic": {
+    "unique_days": 184,
+    "gain": 0.0005932017704955769,
+    "weekly_bootstrap_95_interval": [
+      7.578277605461489e-05,
+      0.001140031416386123
+    ],
+    "caveat": "Reused development periods and tuned model family; not a prospective LB interval."
+  },
+  "changed_rows": 9246,
+  "absolute_difference": 93514,
+  "sum_difference": 0,
+  "changed_route_days": 502,
+  "daily_change_pct_quantiles": [
+    -2.219809385933169,
+    -0.9232116034177107,
+    0.0,
+    0.7436483955519304,
+    4.946236559139794
+  ],
+  "scored_files_verified": 18,
+  "provenance_sha256": {
+    "analysis/s82_daily_seasonal_level.py": "edd9996782cc19dd022b9223b91672b07fd923814b496d139dc7db4396aa7f0d",
+    "analysis/s83_package_seasonal_daily_v11.py": "482d2f5eed887855f4d96360502cce6b393c91b77a62396d94c995136bfbe0fc",
+    "data/daily_seasonal_v11/daily_fourier1_future.npy": "bec34e6e01414d7f12ad2777f06aeb1d9ccb3ce2683aed74c13710a2dda109dc",
+    "data/daily_seasonal_v11/daily_fourier2_future.npy": "93d4682f47561677e7a756302315a7d1b94c85634d4a1668d7a5087de71c0567"
+  },
+  "caveats": [
+    "Local development gains are not an observed leaderboard gain.",
+    "The monthly constraints preserve v10 predictions, not known exact target totals.",
+    "Public future weather is used; no new hidden route labels were obtained.",
+    "Dec31 daily protection and transfer onto deployed event rules apply only during future assembly."
+  ],
+  "leaderboard_delta_vs_anchor": 0.0001,
+  "evidence": "User reported 0.90741 in direct response to the single submission_seasonal_daily_v11.csv candidate."
+}

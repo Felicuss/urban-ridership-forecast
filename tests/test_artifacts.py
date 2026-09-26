@@ -32,10 +32,11 @@ def test_components_reproduce_best_submission_in_every_cell(components):
 
 @pytest.mark.parametrize("name", list(scenario_coefficients(s10.Coefficients())))
 def test_formula_matches_original_rules_when_coefficients_move(components, name):
-    """recompute повторяет s10.apply_rules не только в точке по умолчанию: иначе ползунки врут."""
+    """recompute повторяет s10.apply_rules не только в точке по умолчанию: иначе ползунки врут.
+    Множитель до v11 в каждой ячейке один и тот же при любых коэффициентах."""
     c = scenario_coefficients(default_coefficients())[name]
 
-    expected = s10.make_forecast(c).prediction.to_numpy()
+    expected = s10.make_forecast(c).prediction.to_numpy() * components.calib.to_numpy()
 
     np.testing.assert_allclose(recompute(components, c), expected, rtol=1e-12, atol=1e-9)
 
@@ -81,10 +82,30 @@ def test_timeline_fact_is_the_organizers_data_and_outlook_adds_up_to_the_year():
     year = pd.read_csv(OUT / "forecast_year.csv")
     labels = load_labels()
 
-    fact = labels[labels.date <= "2025-10-31"].boardings.to_numpy()
-    assert np.array_equal(actuals.sort_values(["route", "date", "hour"]).boardings.to_numpy(),
-                          labels[labels.date <= "2025-10-31"].sort_values(["route", "date", "hour"]).boardings.to_numpy())
-    assert actuals.boardings.sum() == fact.sum()
+    # факт - метки организаторов, только проверки оборудования в нерабочие часы маршрута обнулены
+    checks = json.loads((OUT / "factors.json").read_text(encoding="utf-8"))["equipment_checks"]
+    labels = labels[labels.date <= "2025-10-31"].sort_values(["route", "date", "hour"])
+    actuals = actuals.sort_values(["route", "date", "hour"])
+    off = np.array([h in checks["off_hours"][str(r)] for r, h in zip(labels.route, labels.hour)])
+    expected = np.where(off, 0, labels.boardings.to_numpy())
+    assert np.array_equal(actuals.boardings.to_numpy(), expected)
+    assert labels.boardings.sum() - actuals.boardings.sum() == checks["validations"]
+    assert 0 < checks["share_pct"] < 0.01, "проверки оборудования - доли процента, не пассажиры"
     check(cal, actuals, outlook, year)
     assert cal[cal.date == "2026-01-09"].day_off.item(), "перенос выходного 2026 из производственного календаря"
     assert cal[cal.date == "2025-11-01"].day_type.item() == "workday", "рабочая суббота 1 ноября"
+
+
+def test_gaps_name_the_reason_and_restore_from_earlier_weeks():
+    """Пропуски факта: выходные №50 осенью 2025 - закрытие по посту Дептранса, восстановленные посадки
+    по прошлым выходным на порядок больше факта; у каждого дня пропуска 24 восстановленных часа."""
+    gaps = json.loads((OUT / "factors.json").read_text(encoding="utf-8"))["gaps"]
+    by_route = {(p["route"], p["from"]): p for p in gaps["periods"]}
+    autumn = by_route[(50, "2025-09-06")]
+    assert autumn["type"] == "closure" and autumn["source"].startswith("https://t.me/DtOperativno/")
+    assert autumn["restored"] > 10 * autumn["fact"]
+    for p in gaps["periods"]:
+        days = gaps["restored"][str(p["route"])]
+        inside = [d for d in days if p["from"] <= d <= p["to"]]
+        assert len(inside) == p["days"]
+        assert all(len(days[d]) == 24 for d in inside)

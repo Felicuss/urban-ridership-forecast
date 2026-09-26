@@ -18,10 +18,13 @@ import ru.mojarung.tramload.domain.ValidationException.Violation;
 
 /**
  * Проверяет запрос против области определения модели и заполняет умолчания по горизонту:
- * день - сутки по часам, месяц - месяц по дням, год - ноябрь 2025 - октябрь 2026 по месяцам.
+ * день - сутки по часам, неделя - 7 суток от from по дням, месяц - месяц по дням,
+ * год - ноябрь 2025 - октябрь 2026 по месяцам.
  * Все нарушения собираются в одну ошибку, чтобы клиент исправил запрос за один раз.
  */
 public final class QueryResolver {
+
+	private static final int WEEK_DAYS = 7;
 
 	private final ForecastModel model;
 
@@ -56,6 +59,9 @@ public final class QueryResolver {
 		LocalDate to = q.to() != null ? q.to() : from;
 		if (q.horizon() == Horizon.DAY) {
 			to = from;
+		}
+		if (q.horizon() == Horizon.WEEK) {
+			to = min(from.plusDays(WEEK_DAYS - 1), timeline().end());
 		}
 		if (q.horizon() == Horizon.MONTH) {
 			YearMonth month = YearMonth.from(from);
@@ -118,7 +124,7 @@ public final class QueryResolver {
 		if (q.granularity() != null) {
 			return q.granularity();
 		}
-		return q.horizon() == Horizon.MONTH ? Granularity.DAY : Granularity.HOUR;
+		return q.horizon() == Horizon.MONTH || q.horizon() == Horizon.WEEK ? Granularity.DAY : Granularity.HOUR;
 	}
 
 	/** Конец интервала проверяем отдельно, только если клиент его задал: иначе он повторяет начало. */

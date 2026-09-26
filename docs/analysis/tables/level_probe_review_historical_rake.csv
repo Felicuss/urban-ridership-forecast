@@ -1,0 +1,13 @@
+fold,variant,gain
+R04,exact_total,0.0008328708522809288
+R04,exact_total_and_r17_workdays,0.0031489735284357134
+R05,exact_total,0.01906100729282427
+R05,exact_total_and_r17_workdays,0.020124636147297783
+R06,exact_total,0.0007880465444562801
+R06,exact_total_and_r17_workdays,0.0010819185252300366
+R07,exact_total,0.0032602863309850556
+R07,exact_total_and_r17_workdays,0.0032293518816563123
+R08,exact_total,0.002603969127286881
+R08,exact_total_and_r17_workdays,0.005039294988262933
+B,exact_total,9.710388429186435e-05
+B,exact_total_and_r17_workdays,5.988918835277568e-05

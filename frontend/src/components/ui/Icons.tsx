@@ -18,6 +18,9 @@ export const Icon = {
   external: () => <svg {...base}><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" /></svg>,
   reset: () => <svg {...base}><path d="M4 12a8 8 0 1 0 3-6.2M4 4v5h5" /></svg>,
   calendar: () => <svg {...base}><rect x="4" y="5" width="16" height="15" rx="2" /><path d="M4 10h16M9 3v4M15 3v4" /></svg>,
+  mic: () => <svg {...base}><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></svg>,
+  board: () => <svg {...base}><rect x="3" y="4" width="18" height="13" rx="2" /><path d="M8 21h8M12 17v4" /></svg>,
+  bell: () => <svg {...base}><path d="M6 16V11a6 6 0 1 1 12 0v5l2 2H4z" /><path d="M10 20a2 2 0 0 0 4 0" /></svg>,
 };
 
 export function SkyIcon({ sky, night }: { sky: Sky; night: boolean }) {

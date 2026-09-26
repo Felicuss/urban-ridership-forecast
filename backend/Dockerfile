@@ -23,7 +23,7 @@ COPY --from=build /extracted/application/ ./
 COPY artifacts/manifest.json artifacts/coefficients.json artifacts/intervals.json artifacts/backtest_metrics.json \
      artifacts/forecast_components.csv artifacts/forecast_year.csv artifacts/stops.csv artifacts/route_stops.csv \
      artifacts/network.geojson artifacts/factors.json artifacts/timeline_calendar.csv artifacts/actuals.csv \
-     artifacts/outlook.csv /app/artifacts/
+     artifacts/outlook.csv artifacts/news.json /app/artifacts/
 ENV TRAMLOAD_ARTIFACTS_DIR=/app/artifacts \
     JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=70 -XX:+ExitOnOutOfMemoryError"
 USER app

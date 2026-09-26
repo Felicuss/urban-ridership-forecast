@@ -1,0 +1,3 @@
+-r requirements-round4-py39.txt
+torch==2.8.0
+pyarrow==21.0.0

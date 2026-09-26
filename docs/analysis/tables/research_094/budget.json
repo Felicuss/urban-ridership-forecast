@@ -1,0 +1,10 @@
+{
+  "best_score": 0.9057,
+  "target_score": 0.94,
+  "approximate_target_total": 12882776.954143452,
+  "remaining_absolute_error": 1214845.866775728,
+  "target_absolute_error": 772966.6172486078,
+  "required_absolute_error_reduction": 441879.2495271203,
+  "required_relative_error_reduction": 0.36373276776246,
+  "caveat": "Total assumes route 5 is exactly zero in November; platform score rounding adds uncertainty. Bounds are necessary, not sufficient, and say nothing about an untested future model."
+}

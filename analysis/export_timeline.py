@@ -7,6 +7,11 @@
 
 Календарь 2025 - как в модели (calendar_ru, рабочая суббота 01.11), 2026 - официальный производственный
 календарь isdayoff.ru с переносами (09.01, 09.03, 11.05 и др.), названия праздников из пакета holidays.
+
+Валидации в часы, когда маршрут не работает, организаторы на встрече 26.09.2026 назвали проверкой
+оборудования: их надо отбрасывать. Часы работы - от первого отправления за 30 минут до последнего через час
+по расписанию transport.mos.ru (external/transport_mos_schedule.csv), будни и выходные вместе, чтобы не
+потерять настоящие поздние рейсы. В факт такие часы идут нулём, их число пишется в factors.json.
 """
 
 import datetime as dt
@@ -23,6 +28,11 @@ FACT_END, FORECAST_END = "2025-10-31", "2025-12-31"
 SHAPE_FROM, SHAPE_TO = "2025-12-01", "2025-12-28"
 ROUTE5_SHAPE_FROM = "2025-12-17"
 HOURS = 24
+SCHEDULE = ROOT / "external" / "transport_mos_schedule.csv"
+BEFORE_FIRST_MIN = 30
+AFTER_LAST_MIN = 60
+# ночные отправления до полудня относятся к прошлым суткам: 01:36 - это 25:36
+NEXT_DAY_BEFORE_MIN = 12 * 60
 
 
 def source_of(date: pd.Timestamp) -> str:
@@ -61,11 +71,48 @@ def timeline_calendar() -> pd.DataFrame:
     return cal[["date", "dow", "day_type", "kind", "day_off", "holiday", "source"]]
 
 
-def actuals_frame() -> pd.DataFrame:
+def _minutes(clock: str) -> int:
+    h, m = clock.split(":")
+    return int(h) * 60 + int(m)
+
+
+def service_hours() -> dict[int, set[int]]:
+    """Часы суток, в которые маршрут возит пассажиров: окно работы с запасом, с переходом через полночь."""
+    s = pd.read_csv(SCHEDULE)
+    out: dict[int, set[int]] = {}
+    for route, g in s.groupby("route"):
+        first = min(_minutes(t) for t in g.service_from) - BEFORE_FIRST_MIN
+        last = max(_minutes(t) + (24 * 60 if _minutes(t) < NEXT_DAY_BEFORE_MIN else 0) for t in g.service_to)
+        last += AFTER_LAST_MIN
+        hours = set()
+        for h in range(HOURS):
+            start, end = h * 60, h * 60 + 60
+            # тот же день или хвост прошлого дня после полуночи
+            if (start < last and end > first) or (start + 24 * 60 < last and end + 24 * 60 > first):
+                hours.add(h)
+        out[int(route)] = hours
+    return out
+
+
+def actuals_frame() -> tuple[pd.DataFrame, dict]:
+    """Факт по часам без проверок оборудования и отчёт, сколько валидаций отброшено."""
     labels = load_labels()
     labels = labels[labels.date <= FACT_END]
-    return pd.DataFrame({"route": labels.route, "date": labels.date.dt.strftime("%Y-%m-%d"), "hour": labels.hour,
-                         "boardings": labels.boardings})
+    frame = pd.DataFrame({"route": labels.route, "date": labels.date.dt.strftime("%Y-%m-%d"), "hour": labels.hour,
+                          "boardings": labels.boardings})
+    hours = service_hours()
+    off = np.array([h not in hours.get(r, set(range(HOURS))) for r, h in zip(frame.route, frame.hour)])
+    dropped = frame[off & (frame.boardings > 0)]
+    report = {
+        "rule": "валидации вне часов работы маршрута - проверка оборудования, в факт идут нулём",
+        "window": f"от первого отправления минус {BEFORE_FIRST_MIN} мин до последнего плюс {AFTER_LAST_MIN} мин "
+                  "по расписанию transport.mos.ru",
+        "cells": int(len(dropped)),
+        "validations": int(dropped.boardings.sum()),
+        "share_pct": round(100 * float(dropped.boardings.sum()) / float(frame.boardings.sum()), 4),
+        "off_hours": {str(r): sorted(set(range(HOURS)) - h) for r, h in sorted(hours.items())},
+    }
+    return frame.assign(boardings=np.where(off, 0, frame.boardings)), report
 
 
 def day_shapes(comp: pd.DataFrame, prediction: np.ndarray) -> tuple[pd.Series, pd.Series]:

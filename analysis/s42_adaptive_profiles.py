@@ -37,7 +37,7 @@ class Experiment:
         labels = pd.concat([pd.read_csv(ROOT / f'dataset/labels/labels_day_{s}.csv', sep=';', parse_dates=['date'])
                             for s in ('train', 'test')], ignore_index=True)
         index = pd.MultiIndex.from_product([DATES[:304], ROUTES, range(24)], names=['date', 'route', 'hour'])
-        self.y = labels.set_index(['date', 'route', 'hour']).boardings.reindex(index, fill_value=0).to_numpy().reshape(304, 10, 24)
+        self.y = labels.set_index(['date', 'route', 'hour']).boardings.reindex(index, fill_value=0).to_numpy(copy=True).reshape(304, 10, 24)
         cal = pd.read_csv(ROOT / 'external/production_calendar_2025_isdayoff.csv', parse_dates=['date']).set_index('date').reindex(DATES)
         self.off = cal.isdayoff_code.isin([1, 8]).to_numpy()
         self.dow = DATES.dayofweek.to_numpy()

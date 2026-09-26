@@ -1,0 +1,7 @@
+{
+  "baseline": 0.9268563985824585,
+  "candidate": 0.9325758070421022,
+  "gain": 0.005719439829045931,
+  "training": "March-October; Jan-Feb targets excluded",
+  "evaluation": "Jan9-Feb28, known daily totals, only good route-days; backcast not forecast"
+}

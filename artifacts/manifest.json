@@ -1,8 +1,8 @@
 {
  "schema_version": 1,
- "model_version": "ex_ante_route5",
- "git_commit": "11a91e3cd64df07faa9548ab1b6619933f490afc",
- "generated_at": "2026-09-25T16:34:31+00:00",
+ "model_version": "seasonal_daily_v11",
+ "git_commit": "596e54cad8056f864f06f2d33884bc42a463bec6",
+ "generated_at": "2026-09-26T09:46:26+00:00",
  "forecast_origin": "2025-10-31",
  "horizon": {
   "from": "2025-11-01",
@@ -21,19 +21,20 @@
   50
  ],
  "default_scenario": {
-  "name": "ex_ante_route5",
-  "script": "analysis/s32_ex_ante_route5.py",
-  "submission": "forecasts/submission_ex_ante_route5.csv",
-  "submission_sha256_lf": "cd3e465e97fa845a932ed6be38f7f752fdf8c709efecf1cee7e271d4a7e468c7",
-  "leaderboard_wape_score": 0.8995
+  "name": "seasonal_daily_v11",
+  "script": "analysis/s83_package_seasonal_daily_v11.py",
+  "formula": "analysis/s32_ex_ante_route5.py × calib до v11",
+  "submission": "forecasts/submission_seasonal_daily_v11.csv",
+  "submission_sha256_lf": "69cf0a7cf4aced43d98238fac52efb4be2c134ab08b36033f6e2f5946076e9cf",
+  "leaderboard_wape_score": 0.90741
  },
  "files": {
   "forecast_components.csv": {
-   "sha256": "b679b8a54fb0c368f818bfde132b14c3c4273e90a7e81b0b93357389cfb401b5",
+   "sha256": "ea1cfd03cc48fd189d89cd5c3bf179016392835fa87afe1b522387fa08e34e0d",
    "rows": 14640
   },
   "coefficients.json": {
-   "sha256": "229a6557fc78a1019d5352d97d4ffe5969ab4b28dbdf91bf5738311904dffbb4",
+   "sha256": "6cfde028df991ff30acfe953379d2350e51e2e5fa65bdaad1415cba98a87af36",
    "rows": null
   },
   "stops.csv": {
@@ -53,15 +54,15 @@
    "rows": null
   },
   "forecast_year.csv": {
-   "sha256": "81500753dfd8ffc89b87ef65d43eda199cefded83db5e0ceb73cca2dd45fb4d3",
+   "sha256": "5c792875c6c4544ee34d6bb385718d93aeba01c5d450211a5da8c196cb3b5d9a",
    "rows": 120
   },
   "backtest_metrics.json": {
-   "sha256": "a75156c2bb346f807a2feec3b7efa22a0eab2a496aeb84e8375706d35733e0d5",
+   "sha256": "3f37b2b8a06323a249ececc6d52320f9d13dec5d97b89628109970ac5b9bbc2f",
    "rows": null
   },
   "factors.json": {
-   "sha256": "5603c1232dec29f2e687985696289af633ac1e081de5f8ed756d4dde87f6b4e0",
+   "sha256": "c98b33b00d1e5f986ae298a5b79f97a8ab647fbea1bcd74f5e9570091c3d9580",
    "rows": null
   },
   "timeline_calendar.csv": {
@@ -69,12 +70,16 @@
    "rows": 669
   },
   "actuals.csv": {
-   "sha256": "315dcd2c164777145e4902baebb3173b9ab58cc3d41140d0a3bdd7fef9dbf3a2",
+   "sha256": "5729ae585af0f2815b75b5d92f4b2a55296510c15bc6d4ca71a45f242f3799b7",
    "rows": 72960
   },
   "outlook.csv": {
-   "sha256": "cba2099874d5248a35a494a74edb8c46386b5d9512978a07ddf8bdd0c60d9888",
+   "sha256": "d19e2a864d68fb461ab8668c8472ed09bc9856650c6f82a595acea683149f628",
    "rows": 72960
+  },
+  "news.json": {
+   "sha256": "ebf8029a17c80b0fba41558e2866add75670bf4d2afce7dd28a7d932a77d7d1e",
+   "rows": null
   }
  }
 }

@@ -2,6 +2,7 @@
 #   docker compose up -d --build                  интерфейс и API на http://localhost:8080
 #   docker compose up -d --scale api=3            три реплики за тем же адресом
 #   docker compose --profile load run --rm k6     нагрузочный замер, итог в deploy/k6/results/
+#   агент: ключ модели в .env (LLM_API_KEY, см. .env.example); без ключа сервис работает, агент отвечает «не настроен»
 name: tram-load
 
 services:
@@ -12,6 +13,18 @@ services:
     image: tram-load-api:0.1.0
     environment:
       TRAMLOAD_CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://localhost:3000}
+      # агент: модель Ollama Cloud (ключ из .env, в образ не попадает), инструменты MCP, память в Redis
+      LLM_BASE_URL: ${LLM_BASE_URL:-https://ollama.com/v1}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-gpt-oss:120b}
+      MCP_URL: http://mcp:8765/mcp
+      REDIS_URL: redis://redis:6379
+      # вход диспетчера: логин:пароль:имя через запятую; AUTH_SECRET - общий ключ сессий всех реплик
+      AUTH_USERS: ${AUTH_USERS:-dispatcher:chaspik:Диспетчер}
+      AUTH_SECRET: ${AUTH_SECRET:-}
+    depends_on:
+      redis:
+        condition: service_healthy
     # ограничения из ТЗ: 2-4 vCPU, 2-4 ГБ, без swap
     cpus: 2
     mem_limit: 2g
@@ -31,6 +44,38 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  mcp:
+    # MCP-сервер: инструменты агента поверх API и команды интерфейсу, http://localhost:8765/mcp
+    build:
+      context: mcp-server
+    image: tram-load-mcp:0.1.0
+    environment:
+      TRAM_API_URL: http://api:8080/api/v1
+      TRAM_PUBLIC_URL: http://localhost:${API_PORT:-8080}/api/v1
+      # под этой учётной записью MCP-сервер входит в API; она должна быть в AUTH_USERS
+      TRAM_API_USER: ${MCP_API_USER:-dispatcher}
+      TRAM_API_PASSWORD: ${MCP_API_PASSWORD:-chaspik}
+    ports:
+      - "${MCP_PORT:-8765}:8765"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+  redis:
+    # память агента: история диалогов на сутки, кэш ответов инструментов, лимит запросов к модели;
+    # все ключи с TTL, поэтому при нехватке памяти вытесняются только они
+    image: redis:8.10-alpine
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "128mb", "--maxmemory-policy", "volatile-lru"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 2s
+      retries: 10
+    restart: unless-stopped
+
   k6:
     image: grafana/k6:2.3.0
     profiles: ["load"]
@@ -39,9 +84,14 @@ services:
     environment:
       BASE_URL: http://gateway
       RATES: ${K6_RATES:-100,300,500}
+      K6_USER: ${MCP_API_USER:-dispatcher}
+      K6_PASSWORD: ${MCP_API_PASSWORD:-chaspik}
     volumes:
       - ./deploy/k6:/scripts:ro
       - ./deploy/k6/results:/results
     command: ["run", "--quiet", "/scripts/load.js"]
     depends_on:
       - gateway
+
+volumes:
+  redis-data:

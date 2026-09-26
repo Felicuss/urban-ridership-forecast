@@ -40,7 +40,7 @@ public class WebConfig implements WebFluxConfigurer {
 
 	@Bean
 	OpenAPI openApi() {
-		return new OpenAPI().info(new Info().title("Прогноз загрузки трамвайных маршрутов Москвы")
+		return new OpenAPI().info(new Info().title("Час пик: прогноз загрузки трамвайных маршрутов Москвы")
 			.version("v1")
 			.description("Почасовой прогноз посадок на ноябрь-декабрь 2025, сценарии с ползунками, остановки и "
 					+ "участки, тепловая карта, выгрузка CSV и XLSX. Ошибки - Problem Details (RFC 9457)."));

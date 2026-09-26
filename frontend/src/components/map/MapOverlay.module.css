@@ -277,3 +277,70 @@
   background: var(--surface-3);
   color: var(--text);
 }
+
+.filterWrap {
+  position: relative;
+}
+
+.filter {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 6;
+  display: grid;
+  gap: 8px;
+  width: 232px;
+  padding: 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  background: rgba(12, 12, 14, 0.95);
+  box-shadow: var(--shadow);
+}
+
+.filterChips {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.chipOn,
+.chipOff {
+  height: 28px;
+  border: 1px solid var(--c);
+  border-radius: 8px;
+  font: 600 12px var(--mono);
+}
+
+.chipOn {
+  background: color-mix(in srgb, var(--c) 28%, transparent);
+  color: var(--text);
+}
+
+.chipOff {
+  border-color: var(--line);
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.filterActions {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.filterActions button {
+  color: var(--text-2);
+}
+
+.filterActions button:hover {
+  color: var(--text);
+}
+
+.precipSwatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 6px;
+  vertical-align: -1px;
+  border-radius: 3px;
+}

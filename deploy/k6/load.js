@@ -44,10 +44,23 @@ export const options = {
   discardResponseBodies: true,
 };
 
+// Сервис закрыт входом: один вход в setup, дальше токен сессии в Authorization: Bearer. Проверка токена -
+// подпись HS256, микросекунды, поэтому замер показывает цену самого прогноза, а не bcrypt на каждом запросе.
+function login() {
+  const res = http.post(`${BASE}/api/v1/auth/login`,
+    JSON.stringify({ username: __ENV.K6_USER || 'dispatcher', password: __ENV.K6_PASSWORD || 'chaspik' }),
+    { headers: { 'Content-Type': 'application/json' } });
+  check(res, { 'logged in': (r) => r.status === 200 });
+  const cookie = res.cookies.chaspik_session;
+  return cookie && cookie.length ? cookie[0].value : '';
+}
+
 export function setup() {
-  const res = http.get(`${BASE}/api/v1/stops`, { responseType: 'text' });
+  const token = login();
+  const auth = { Authorization: `Bearer ${token}` };
+  const res = http.get(`${BASE}/api/v1/stops`, { responseType: 'text', headers: auth });
   check(res, { 'stops loaded': (r) => r.status === 200 });
-  return { stops: JSON.parse(res.body).map((s) => s.id) };
+  return { stops: JSON.parse(res.body).map((s) => s.id), auth };
 }
 
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
@@ -62,10 +75,10 @@ export default function (data) {
   let res;
   if (r < 0.6) {
     res = http.get(`${BASE}/api/v1/forecast?level=route&id=${pick(ROUTES)}&horizon=day&from=${randomDate()}`,
-      { tags: { type: 'route', name: 'route' } });
+      { headers: data.auth, tags: { type: 'route', name: 'route' } });
   } else if (r < 0.85) {
     res = http.get(`${BASE}/api/v1/forecast?level=stop&id=${pick(data.stops)}&horizon=day&from=${randomDate()}`,
-      { tags: { type: 'stop', name: 'stop' } });
+      { headers: data.auth, tags: { type: 'stop', name: 'stop' } });
   } else if (r < 0.95) {
     // новое значение ползунка почти в каждом запросе: пересчёт всей сетки, кэш почти не помогает
     const body = JSON.stringify({
@@ -73,10 +86,10 @@ export default function (data) {
       coefficients: { level_dec: Number((0.95 + Math.random() * 0.15).toFixed(3)) },
     });
     res = http.post(`${BASE}/api/v1/forecast/scenario`, body,
-      { headers: { 'Content-Type': 'application/json' }, tags: { type: 'scenario', name: 'scenario' } });
+      { headers: { ...data.auth, 'Content-Type': 'application/json' }, tags: { type: 'scenario', name: 'scenario' } });
   } else {
     res = http.get(`${BASE}/api/v1/export?format=csv&level=route&ids=${pick(ROUTES)}&horizon=month&from=${randomDate()}`,
-      { tags: { type: 'export', name: 'export' } });
+      { headers: data.auth, tags: { type: 'export', name: 'export' } });
   }
   check(res, { 'status 200': (x) => x.status === 200 });
 }

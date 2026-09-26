@@ -1,0 +1,245 @@
+/* Вкладка «Смена»: строки узких мест и оповещений, короткие формы, кнопки действий. */
+.nav {
+  position: sticky;
+  top: -10px;
+  z-index: 2;
+  display: flex;
+  gap: 4px;
+  margin: -10px -10px 0;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+  overflow-x: auto;
+}
+
+.nav button {
+  flex: none;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--text-2);
+  font-size: 11.5px;
+}
+
+.nav button:hover {
+  border-color: var(--line-strong);
+  color: var(--text);
+}
+
+.nav i {
+  margin-left: 5px;
+  padding: 0 5px;
+  border-radius: 8px;
+  background: var(--red);
+  color: #fff;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.meta {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.line {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.sub {
+  margin: 0 0 4px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.kpis2,
+.kpis3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.kpis3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.rows {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rowBtn {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  align-items: center;
+  gap: 1px 8px;
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 9px;
+  color: var(--text);
+  font-size: 12px;
+  text-align: left;
+}
+
+.rowBtn:hover {
+  background: var(--surface-2);
+}
+
+.rowBtn small {
+  grid-column: 2;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.badge {
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  height: 24px;
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--c) 18%, transparent);
+  color: var(--c);
+  font: 700 12px var(--mono);
+}
+
+.alertHot,
+.alertOk {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  border-left: 3px solid var(--ok);
+  border-radius: 9px;
+  background: var(--surface-2);
+}
+
+.alertHot {
+  border-left-color: var(--red);
+  background: color-mix(in srgb, var(--red) 8%, var(--surface-2));
+}
+
+.remove {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin-right: 4px;
+  border-radius: 8px;
+  color: var(--muted);
+}
+
+.remove:hover {
+  background: var(--surface-3);
+  color: var(--text);
+}
+
+.events {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding-left: 16px;
+  color: var(--text-2);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 8px;
+}
+
+.field {
+  display: grid;
+  gap: 3px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.field select,
+.field input {
+  width: 100%;
+  min-width: 64px;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--bg-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 12.5px;
+  color-scheme: dark;
+}
+
+.pair {
+  display: flex;
+  gap: 4px;
+}
+
+.pair input {
+  width: 58px;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  color: var(--text-2);
+  font-size: 12px;
+}
+
+.check:has(input:disabled) {
+  opacity: 0.5;
+}
+
+.hint {
+  margin-left: 6px;
+  color: var(--muted);
+  font-size: 10.5px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.primary,
+.secondary,
+.more {
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 9px;
+  font-size: 12.5px;
+}
+
+.primary {
+  border-color: transparent;
+  background: var(--text);
+  color: var(--bg);
+  font-weight: 600;
+}
+
+.secondary {
+  color: var(--text);
+}
+
+.secondary:hover,
+.more:hover {
+  background: var(--surface-3);
+}
+
+.more {
+  justify-self: start;
+  color: var(--text-2);
+}

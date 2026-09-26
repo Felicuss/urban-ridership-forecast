@@ -5,6 +5,7 @@ import type { NetworkGeoJson, NetworkLoad } from '../../api/types';
 import type { Flags } from '../../state/store';
 import { ROUTE_COLORS, routeColor } from '../../lib/routes';
 import { FONT } from './style';
+import { TRAM_SCREEN_PX } from './trams';
 
 // Слои сети. Посадки по 24 часам лежат в свойствах объектов (h0..h23 у остановок, l0..l23 у линий),
 // поэтому смена часа - это только новое выражение стиля, без перезаливки данных в видеокарту.
@@ -23,14 +24,17 @@ export interface Scale {
   route: number;
 }
 
-/** С этого приближения вагоны объёмные, если включены 3D-дома; раньше они мельче линии маршрута. */
-export const TRAMS_3D_ZOOM = 15.5;
+/** В перспективе вагоны объёмные с этого приближения: раньше домов, которые поднимаются с 13,2. */
+export const TRAMS_3D_ZOOM = 11.5;
+/** С этого приближения линия маршрута сужается, чтобы не спорить с вагонами и домами. */
+const LINE_THIN_ZOOM = 15.5;
 
 export function emptyCollection(): Collection {
   return { type: 'FeatureCollection', features: [] };
 }
 
-function before(map: MapLibre): string | undefined {
+/** Первый слой подписей подложки: наши слои встают под него. */
+export function before(map: MapLibre): string | undefined {
   return map.getLayer(BEFORE_LABELS) ? BEFORE_LABELS : undefined;
 }
 
@@ -107,7 +111,7 @@ export function addNetworkLayers(map: MapLibre, paths: Feature[], stops: Feature
   map.addLayer({ id: 'trams', type: 'symbol', source: 'trams', layout: {
     'icon-image': ['concat', 'tram-', ['to-string', ['get', 'route']]], 'icon-rotate': ['get', 'bearing'],
     'icon-rotation-alignment': 'map', 'icon-allow-overlap': true, 'icon-ignore-placement': true,
-    'icon-size': ['interpolate', ['linear'], ['zoom'], 10, 0.45, 13, 0.75, 16, 1.2] } });
+    'icon-size': TRAM_SCREEN_PX / TRAM_ICON_PX } });
   map.addLayer({ id: 'trams-3d', type: 'fill-extrusion', source: 'trams-3d', minzoom: TRAMS_3D_ZOOM - 0.5, paint: {
     'fill-extrusion-color': ['get', 'c'], 'fill-extrusion-height': ['get', 'h'], 'fill-extrusion-base': ['get', 'b'],
     'fill-extrusion-opacity': 1, 'fill-extrusion-vertical-gradient': true } });
@@ -117,7 +121,7 @@ export function addNetworkLayers(map: MapLibre, paths: Feature[], stops: Feature
   map.addLayer({ id: 'ride', type: 'symbol', source: 'ride', layout: {
     'icon-image': ['concat', 'tram-', ['to-string', ['get', 'route']]], 'icon-rotate': ['get', 'bearing'],
     'icon-rotation-alignment': 'map', 'icon-allow-overlap': true, 'icon-ignore-placement': true,
-    'icon-size': ['interpolate', ['linear'], ['zoom'], 10, 0.8, 16, 1.6] } });
+    'icon-size': 1 } });
 }
 
 export function setLoadData(map: MapLibre, lines: Feature[], points: Feature[]): void {
@@ -137,13 +141,14 @@ export function setHour(map: MapLibre, hour: number, scale: Scale): void {
   const width: ExpressionSpecification = ['+', 1.2, ['*', 7, ['sqrt', ['/', line, routeMax]]]];
   // на крупном плане линия сужается, чтобы не перекрывать объёмные вагоны
   map.setPaintProperty('route-lines', 'line-width', ['interpolate', ['linear'], ['zoom'], 9, ['*', 0.6, width],
-    14, ['*', 1.5, width], TRAMS_3D_ZOOM, ['*', 0.8, width], 17.5, ['*', 0.5, width]]);
+    14, ['*', 1.5, width], LINE_THIN_ZOOM, ['*', 0.8, width], 17.5, ['*', 0.5, width]]);
   map.setPaintProperty('route-casing', 'line-width', ['interpolate', ['linear'], ['zoom'], 9,
-    ['+', 2, ['*', 0.6, width]], 14, ['+', 3, ['*', 1.5, width]], TRAMS_3D_ZOOM, ['+', 2, ['*', 0.8, width]],
+    ['+', 2, ['*', 0.6, width]], 14, ['+', 3, ['*', 1.5, width]], LINE_THIN_ZOOM, ['+', 2, ['*', 0.8, width]],
     17.5, ['+', 1.5, ['*', 0.5, width]]]);
 }
 
-export function setSelection(map: MapLibre, route: number | null, stop: string | null): void {
+/** Выделение маршрута и остановки плюс фильтр: скрытые маршруты убираются с карты целиком. */
+export function setSelection(map: MapLibre, route: number | null, stop: string | null, hidden: number[] = []): void {
   const dim = (on: number, off: number): ExpressionSpecification | number =>
     route == null ? on : ['case', ['==', ['get', 'route'], route], on, off];
   map.setPaintProperty('route-lines', 'line-opacity', dim(0.95, 0.18));
@@ -152,10 +157,33 @@ export function setSelection(map: MapLibre, route: number | null, stop: string |
   map.setPaintProperty('stops-heat', 'heatmap-opacity', ['interpolate', ['linear'], ['zoom'], 13,
     route == null ? 0.9 : 0.35, 16, route == null ? 0.35 : 0.15]);
   map.setFilter('stop-selected', ['==', ['get', 'id'], stop ?? ''] as FilterSpecification);
-  const onRoute: FilterSpecification | null = route == null ? null
-    : ['in', ` ${route} `, ['get', 'routes']] as unknown as FilterSpecification;
+  const visible = ROUTE_IDS.filter((r) => !hidden.includes(r));
+  const shown: FilterSpecification | null = hidden.length === 0 ? null
+    : ['in', ['get', 'route'], ['literal', visible]] as unknown as FilterSpecification;
+  for (const id of ['route-lines', 'route-casing', 'trams', 'ride', 'ride-glow']) {
+    if (map.getLayer(id)) map.setFilter(id, shown);
+  }
+  // остановка видна, если её обслуживает хотя бы один видимый маршрут
+  const anyVisible = ['any', ...visible.map((r) => ['in', ` ${r} `, ['get', 'routes']])];
+  const onRoute: FilterSpecification | null = route != null
+    ? ['in', ` ${route} `, ['get', 'routes']] as unknown as FilterSpecification
+    : hidden.length ? anyVisible as unknown as FilterSpecification : null;
   map.setFilter('stops-dot', onRoute);
   map.setFilter('stops-label', onRoute);
+  map.setFilter('stops-heat', hidden.length ? anyVisible as unknown as FilterSpecification : null);
+}
+
+const ROUTE_IDS = Object.keys(ROUTE_COLORS).map(Number);
+
+/** Спутниковые снимки Esri World Imagery: грузятся при первом включении и встают под сеть маршрутов. */
+export function ensureSatellite(map: MapLibre): void {
+  if (map.getSource('satellite')) return;
+  map.addSource('satellite', { type: 'raster', tileSize: 256, maxzoom: 19,
+    tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+    attribution: 'Снимки © Esri, Maxar, Earthstar Geographics' });
+  const under = ['night-haze', 'segment-halo', 'route-casing'].find((id) => map.getLayer(id));
+  map.addLayer({ id: 'satellite', type: 'raster', source: 'satellite',
+    paint: { 'raster-brightness-max': 0.82, 'raster-saturation': -0.15, 'raster-contrast': 0.05 } }, under);
 }
 
 const VISIBILITY: Record<string, (keyof Flags)[]> = {
@@ -168,13 +196,16 @@ const VISIBILITY: Record<string, (keyof Flags)[]> = {
   'stop-selected': ['stops'],
   'stops-label': ['stops', 'labels'],
   trams: ['trams'],
-  'trams-3d': ['trams', 'buildings'],
+  'trams-3d': ['trams'],
+  satellite: ['satellite'],
   'buildings-3d': ['buildings'],
   'metro-lines': ['metro'],
   'metro-stations': ['metro'],
   'metro-labels': ['metro', 'labels'],
-  'rain-radar': ['weather'],
-  'snow-radar': ['weather'],
+  'precip-radar': ['weather'],
+  'precip-edge': ['weather'],
+  'weather-border': ['weather'],
+  'weather-border-label': ['weather'],
   'weather-temp': ['weather'],
 };
 
@@ -184,8 +215,11 @@ export function setVisibility(map: MapLibre, flags: Flags): void {
       map.setLayoutProperty(id, 'visibility', keys.every((k) => flags[k]) ? 'visible' : 'none');
     }
   }
-  // с объёмными домами вагоны на крупном плане тоже объёмные, плоские иконки остаются для общего плана
-  const iconMax = flags.buildings ? TRAMS_3D_ZOOM : 24;
+}
+
+/** В перспективе вагоны с TRAMS_3D_ZOOM объёмные, плоские значки остаются для общего плана и вида сверху. */
+export function setTramMode(map: MapLibre, threeD: boolean): void {
+  const iconMax = threeD ? TRAMS_3D_ZOOM : 24;
   map.setLayerZoomRange('trams', 0, iconMax);
   map.setLayerZoomRange('ride', 0, iconMax);
   map.setLayerZoomRange('ride-glow', 0, iconMax);
@@ -212,11 +246,14 @@ export async function ensureMetro(map: MapLibre): Promise<void> {
     paint: { 'text-color': '#d9b2b5', 'text-halo-color': 'rgba(9,9,11,0.95)', 'text-halo-width': 1.3 } });
 }
 
+/** Длина картинки значка в пикселях при размере 1. */
+const TRAM_ICON_PX = 44;
+
 /** Иконка трамвая сверху: кузов в цвете маршрута, светлая крыша, тёмная маска спереди (вверху). */
 export function addTramIcons(map: MapLibre): void {
   const ratio = 2;
   const w = 14 * ratio;
-  const h = 44 * ratio;
+  const h = TRAM_ICON_PX * ratio;
   for (const [route, color] of Object.entries(ROUTE_COLORS)) {
     const canvas = document.createElement('canvas');
     canvas.width = w;

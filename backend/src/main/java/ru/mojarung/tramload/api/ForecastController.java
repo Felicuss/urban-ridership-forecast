@@ -51,7 +51,7 @@ public class ForecastController {
 			@Parameter(example = "2025-11-03") @RequestParam(required = false) String to,
 			@Parameter(description = "окно часов", example = "7-9") @RequestParam(required = false) String hours,
 			@Parameter(description = "hour, day, month") @RequestParam(required = false) String granularity,
-			@Parameter(description = "day, month, year") @RequestParam(required = false) String horizon) {
+			@Parameter(description = "day, week, month, year") @RequestParam(required = false) String horizon) {
 		ForecastQueryDto dto = new ForecastQueryDto(level, id, direction, fromStop, toStop, from, to, hours, granularity,
 				horizon);
 		return Mono.fromCallable(() -> Views.forecast(forecasts.forecast(Requests.query(dto))));

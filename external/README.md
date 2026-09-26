@@ -1,5 +1,17 @@
 # Внешние данные
 
+Новый исследовательский источник — [архив парковок Москвы за 2025 год](https://github.com/matrosovcmtn/moscow-parking-occupancy),
+Danil Matrosov / ParkOut, на основе публичных данных парковок Дептранса Москвы,
+CC BY 4.0. Сырые файлы в `data/research_094/parking/`, загрузка —
+`analysis/fetch_parking_archive.py`, закреплённые ссылки и хеши —
+[parking_2025_manifest.json](parking_2025_manifest.json).
+UTC переведено в московское время, построены часовые признаки и проверены
+датчики. Источник **не включён в лучший сабмит**: два семейства экспериментов
+пока не показали устойчивого улучшения. [Результаты и ограничения](../docs/research/research_094_2026-09-26.md).
+
+[Сбор зданий Москвы из НСПД](nspd/README.md): отдельный сборщик по предоставленному
+гайду, выгрузка Parquet в EPSG:4326, состояние и данные в `data/nspd_moscow/`.
+
 Всё, что не пришло от организаторов. Автоматические выгрузки повторяются скриптами `analysis/s01_fetch_weather.py`, `analysis/s08_fetch_external.py`, `analysis/s33_fetch_traffic.py` и `analysis/s37_weather_forecast_day_ahead.py`, ручные таблицы собраны по первоисточникам со ссылками в каждой строке. Как каждый источник влияет на посадки, описано в [docs/analysis/README.md](../docs/analysis/README.md), п. 3.
 
 | Файл | Что внутри | Источник | Как получить | Лицензия |

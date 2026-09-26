@@ -19,3 +19,8 @@ __pycache__/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# секреты: ключи LLM и прочее, только локально
+.env
+.env.*
+!.env.example
