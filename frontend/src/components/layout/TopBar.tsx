@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useCalendar, useFactors } from '../../api/queries';
 import { SPEEDS, isDefaultScenario, useStore, type Speed } from '../../state/store';
+import { useLayout, type LayoutMode } from '../../state/layout';
 import { TIMELINE_DAYS, clock, dayIndex, dayLabel, hourOf, isoDate, sunElevation } from '../../lib/time';
 import { fmtTemp, fmt1 } from '../../lib/format';
 import { SKY_LABEL, weatherAt } from '../../lib/weather';
@@ -134,6 +135,7 @@ export function TopBar() {
           </button>
         )}
         <AlertBell />
+        <LayoutSwitch />
         <button type="button" className={styles.icon} aria-label="Табло" onClick={openBoard}
           title="Табло на большой экран диспетчерской: крупные числа, маршруты сменяются сами">
           <Icon.board />
@@ -153,6 +155,29 @@ export function TopBar() {
       {exportOpen && <ExportSheet onClose={() => setExportOpen(false)} />}
       <NowNotice />
     </header>
+  );
+}
+
+const LAYOUTS: { mode: LayoutMode; label: string; hint: string; icon: ReactNode }[] = [
+  { mode: 'map', label: 'Карта', hint: 'Карта во весь экран (V - следующая раскладка)',
+    icon: <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="4" width="14" height="12" rx="2" /></svg> },
+  { mode: 'split', label: 'Сплит', hint: 'Сплит: карта и выбранный виджет рядом',
+    icon: <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="4" width="7" height="12" rx="1.5" /><rect x="11.5" y="4" width="5.5" height="12" rx="1.5" /></svg> },
+  { mode: 'panels', label: 'Панели', hint: 'Панели: 2-4 виджета на экране без карты, место меняется перетаскиванием',
+    icon: <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="4" width="6.5" height="5.5" rx="1.2" /><rect x="10.5" y="4" width="6.5" height="5.5" rx="1.2" /><rect x="3" y="10.5" width="6.5" height="5.5" rx="1.2" /><rect x="10.5" y="10.5" width="6.5" height="5.5" rx="1.2" /></svg> },
+];
+
+/** Раскладка главной области: карта, сплит или панели виджетов. */
+function LayoutSwitch() {
+  const mode = useLayout((s) => s.mode);
+  const setMode = useLayout((s) => s.setMode);
+  return (
+    <div className={styles.layout} role="radiogroup" aria-label="Раскладка экрана">
+      {LAYOUTS.map((l) => (
+        <button key={l.mode} type="button" role="radio" aria-checked={mode === l.mode} aria-label={l.label} title={l.hint}
+          className={mode === l.mode ? styles.layoutOn : styles.layoutBtn} onClick={() => setMode(l.mode)}>{l.icon}</button>
+      ))}
+    </div>
   );
 }
 

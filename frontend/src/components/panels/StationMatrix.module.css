@@ -18,6 +18,15 @@
   from { opacity: 0; transform: translateY(8px); }
 }
 
+/* виджет в сплите и панелях: занимает место целиком, без тени и отступа от краёв */
+.embedded {
+  display: grid;
+  grid-template-rows: auto auto auto 1fr auto;
+  gap: 10px;
+  height: 100%;
+  min-height: 0;
+}
+
 .head {
   display: grid;
   grid-template-columns: auto 1fr auto;

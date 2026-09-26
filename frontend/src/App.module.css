@@ -38,6 +38,37 @@
   background: #05080e;
 }
 
+/* карта с оверлеями живёт в своей панели: в сплите она делит место с виджетом, в панелях прячется */
+.mapPane {
+  position: relative;
+  height: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.mapPane[hidden] {
+  display: none;
+}
+
+.map[data-layout='split'] {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: var(--gap);
+  border: none;
+  background: none;
+}
+
+.map[data-layout='split'] .mapPane {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #05080e;
+}
+
+.map[data-layout='panels'] {
+  border-color: transparent;
+  background: none;
+}
+
 .right {
   grid-area: right;
   min-height: 0;

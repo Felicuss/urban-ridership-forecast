@@ -24,7 +24,8 @@ function heat(v: number, max: number): string {
   return RAMP[Math.round(Math.min(Math.sqrt(v / max), 1) * (RAMP.length - 1))] ?? RAMP[0]!;
 }
 
-export function StationMatrix({ route }: { route: number }) {
+/** embedded - виджет в сплите или панелях: без рамки поверх карты, без кнопки закрытия и без Esc. */
+export function StationMatrix({ route, embedded = false }: { route: number; embedded?: boolean }) {
   const setOpen = useStore((s) => s.setMatrixOpen);
   const day = useStore((s) => dayIndex(s.minute));
   const hour = useStore((s) => hourOf(s.minute));
@@ -58,6 +59,7 @@ export function StationMatrix({ route }: { route: number }) {
   const peakStop = rows.length ? rows.reduce((a, x) => (x.share > a.share ? x : a)).stopId : '';
 
   useEffect(() => {
+    if (embedded) return undefined;
     const key = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLElement && ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
       if (e.key === 'Escape') {
@@ -67,22 +69,24 @@ export function StationMatrix({ route }: { route: number }) {
     };
     document.addEventListener('keydown', key);
     return () => document.removeEventListener('keydown', key);
-  }, [setOpen]);
+  }, [setOpen, embedded]);
 
   const color = routeColor(route);
   const label = mode === 'day' ? 'посадок за сутки' : `посадок в ${hour}:00-${hour + 1}:00`;
 
   return (
-    <section className={styles.panel} style={{ '--c': color } as React.CSSProperties} aria-label={`Маршрут ${route} по станциям`}>
+    <section className={embedded ? styles.embedded : styles.panel} style={{ '--c': color } as React.CSSProperties} aria-label={`Маршрут ${route} по станциям`}>
       <header className={styles.head}>
         <span className={styles.badge}>{route}</span>
         <div className={styles.title}>
           <h2>По станциям и дням</h2>
           <p>{routeTitle(factors, route) || `Маршрут ${route}`} · {label}</p>
         </div>
-        <button type="button" className={styles.close} aria-label="Закрыть (Esc)" title="Закрыть (Esc)" onClick={() => setOpen(false)}>
-          <Icon.close />
-        </button>
+        {!embedded && (
+          <button type="button" className={styles.close} aria-label="Закрыть (Esc)" title="Закрыть (Esc)" onClick={() => setOpen(false)}>
+            <Icon.close />
+          </button>
+        )}
       </header>
       <div className={styles.controls}>
         <Segmented value={period} onChange={setPeriod} label="Период"

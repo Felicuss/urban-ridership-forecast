@@ -1,12 +1,13 @@
 import { useEffect } from 'react';
 import { ROUTE_IDS } from '../lib/routes';
 import { MINUTES_PER_DAY, TIMELINE_DAYS, dayIndex, hourOf } from '../lib/time';
+import { useLayout } from '../state/layout';
 import { useStore } from '../state/store';
 
 // Клавиши диспетчера: номер маршрута с клавиатуры, матрица станций, день и час без мыши.
 //   1 7 - маршрут 17 (цифры набираются подряд, как номер); 0 или Esc - вся сеть
 //   S - маршрут по станциям и дням; ← → - день, ↑ ↓ - час (в матрице без Shift, иначе с Shift)
-//   ? - список клавиш в настройках
+//   V - раскладка: карта, сплит, панели; ? - список клавиш в настройках
 
 /** Сколько ждать вторую цифру номера: «1» может быть началом 11, 12 или 17. */
 const DIGIT_WAIT_MS = 700;
@@ -51,6 +52,10 @@ export function useHotkeys(): void {
       if (['s', 'S', 'ы', 'Ы'].includes(e.key) && s.route != null) {
         s.setMatrixOpen(!s.matrixOpen);
         e.preventDefault();
+        return;
+      }
+      if (['v', 'V', 'м', 'М'].includes(e.key)) {
+        useLayout.getState().cycle();
         return;
       }
       if (e.key === '?') {

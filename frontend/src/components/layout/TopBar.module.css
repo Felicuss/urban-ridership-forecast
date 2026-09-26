@@ -435,3 +435,41 @@
   font-style: normal;
   font-weight: 700;
 }
+
+/* Раскладка экрана: три значка карта, сплит, панели */
+.layout {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+.layoutBtn,
+.layoutOn {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 26px;
+  border-radius: 6px;
+  color: var(--muted);
+}
+
+.layoutBtn svg,
+.layoutOn svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+
+.layoutBtn:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+.layoutOn {
+  background: var(--surface-3);
+  color: var(--text);
+}

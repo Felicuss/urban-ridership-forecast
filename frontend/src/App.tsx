@@ -15,6 +15,8 @@ import { StopsPanel } from './components/layout/StopsPanel';
 import { Timeline } from './components/layout/Timeline';
 import { MapOverlay } from './components/map/MapOverlay';
 import { StationMatrix } from './components/panels/StationMatrix';
+import { PanelsBoard, SplitPane } from './components/layout/Workspace';
+import { useLayout } from './state/layout';
 import { TramDots } from './components/ui/Controls';
 import styles from './App.module.css';
 
@@ -39,6 +41,7 @@ export function App() {
   const stopsOpen = useStore((s) => s.stopsOpen);
   const boardOpen = useStore((s) => s.boardOpen);
   const matrixOpen = useStore((s) => s.matrixOpen);
+  const layout = useLayout((s) => s.mode);
   const meta = useMeta();
   const network = useNetwork();
   const factors = useFactors();
@@ -90,23 +93,27 @@ export function App() {
         <RouteList load={load.data} factors={factors.data} />
         {stopsOpen && route != null && <StopsPanel key={route} route={route} load={load.data} />}
       </aside>
-      <main className={styles.map}>
-        {network.data && (
-          <Suspense fallback={null}>
-            <MapView
-              network={network.data}
-              load={load.data}
-              factors={factors.data}
-              calendar={calendar.data}
-              weather={weatherOn ? weather.data : undefined}
-              rideStopsData={routeStops.data}
-              revealed={phase !== 'loading'}
-              onReady={() => setMapReady(true)}
-            />
-          </Suspense>
-        )}
-        {phase === 'done' || !intro ? <MapOverlay load={load.data} weather={weatherOn ? weather.data : undefined} /> : null}
-        {matrixOpen && route != null && <StationMatrix key={route} route={route} />}
+      <main className={styles.map} data-layout={layout}>
+        <div className={styles.mapPane} hidden={layout === 'panels'}>
+          {network.data && (
+            <Suspense fallback={null}>
+              <MapView
+                network={network.data}
+                load={load.data}
+                factors={factors.data}
+                calendar={calendar.data}
+                weather={weatherOn ? weather.data : undefined}
+                rideStopsData={routeStops.data}
+                revealed={phase !== 'loading'}
+                onReady={() => setMapReady(true)}
+              />
+            </Suspense>
+          )}
+          {phase === 'done' || !intro ? <MapOverlay load={load.data} weather={weatherOn ? weather.data : undefined} /> : null}
+          {matrixOpen && route != null && <StationMatrix key={route} route={route} />}
+        </div>
+        {layout === 'split' && <SplitPane />}
+        {layout === 'panels' && <PanelsBoard />}
       </main>
       <aside className={styles.right}>
         <Suspense fallback={<div className={styles.pending}><TramDots label="Загружаем панель" /></div>}>

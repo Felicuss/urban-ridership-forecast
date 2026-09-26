@@ -52,6 +52,7 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
           <dl className={styles.keys}>
             <dt>1 7</dt><dd>маршрут 17: номер набирается цифрами подряд, 0 - вся сеть</dd>
             <dt>S</dt><dd>маршрут по станциям и дням</dd>
+            <dt>V</dt><dd>раскладка: карта, сплит, панели</dd>
             <dt>Shift + ← →</dt><dd>день назад и вперёд (в матрице станций без Shift)</dd>
             <dt>Shift + ↑ ↓</dt><dd>час назад и вперёд</dd>
             <dt>/</dt><dd>спросить помощника</dd>
