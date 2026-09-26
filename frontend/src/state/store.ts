@@ -193,6 +193,9 @@ interface State {
   setCompareDay: (day: number | null) => void;
   viewMode: ViewMode;
   setViewMode: (v: ViewMode) => void;
+  /** Карта повёрнута: только тогда видна кнопка «На север». */
+  rotated: boolean;
+  setRotated: (rotated: boolean) => void;
   /** Ручной выбор минуты: выключает режим «Сейчас». */
   setMinute: (m: number) => void;
   /** Ход часов симуляции: режим «Сейчас» не трогает. */
@@ -277,6 +280,8 @@ export const useStore = create<State>((set, get) => {
     setCompareDay: (compareDay) => set({ compareDay }),
     viewMode: 'perspective',
     setViewMode: (viewMode) => set({ viewMode }),
+    rotated: false,
+    setRotated: (rotated) => set({ rotated }),
     setMinute: (m) => set(manual({ minute: wrapMinute(m) })),
     tick: (m) => set({ minute: wrapMinute(m) }),
     dismissNowNotice: () => set({ nowNotice: null }),

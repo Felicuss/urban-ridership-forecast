@@ -30,6 +30,7 @@ export function MapOverlay({ load, weather }: { load: NetworkLoad | undefined; w
   const night = useStore((s) => sunElevation(s.minute) < -4);
   const viewMode = useStore((s) => s.viewMode);
   const setViewMode = useStore((s) => s.setViewMode);
+  const rotated = useStore((s) => s.rotated);
   const source = load?.source === 'fact' ? 'факт' : load?.source === 'outlook' ? 'оценка' : 'прогноз';
 
   return (
@@ -41,8 +42,10 @@ export function MapOverlay({ load, weather }: { load: NetworkLoad | undefined; w
         <button type="button" aria-pressed={viewMode === 'perspective'}
           className={viewMode === 'perspective' ? styles.viewOn : ''} onClick={() => setViewMode('perspective')}
           title="Наклон камеры; объёмные дома включаются отдельно">Перспектива</button>
-        <button type="button" onClick={() => mapHandle.current?.easeTo({ bearing: 0, duration: 600 })}
-          title="Повернуть карту на север">На север</button>
+        {rotated && (
+          <button type="button" onClick={() => mapHandle.current?.easeTo({ bearing: 0, duration: 600 })}
+            title="Повернуть карту на север">На север</button>
+        )}
       </div>
       <nav className={styles.dock} aria-label="Слои карты">
         {DOCK.map((d) => (

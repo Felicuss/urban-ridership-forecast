@@ -79,6 +79,13 @@ export default function MapView({ network, load, factors, calendar, weather, rid
       });
       mapRef.current = map;
       mapHandle.current = map;
+      // кнопка «На север» видна, только пока карта повёрнута; вид из ссылки может прийти уже повёрнутым
+      const syncRotated = () => {
+        const rotated = Math.abs(map!.getBearing()) > 1;
+        if (useStore.getState().rotated !== rotated) useStore.getState().setRotated(rotated);
+      };
+      map.on('rotate', syncRotated);
+      syncRotated();
       map.on('load', () => {
         if (!map) return;
         addTramIcons(map);
