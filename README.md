@@ -120,6 +120,24 @@ uv run python s10_forecast.py
 
 Полный порядок запуска всех шагов приведён в [docs/analysis/README.md](docs/analysis/README.md#7-как-воспроизвести).
 
+### Финальный прогноз v11
+
+Готовый [CSV](forecasts/submission_seasonal_daily_v11.csv) переобучения не требует: SHA-256 и параметры лежат в [JSON рядом](forecasts/submission_seasonal_daily_v11.json), сервис сверяет с ним каждую ячейку. v11 собирается цепочкой раундов. Каждый раунд читает прогноз предыдущего и сам строит свои кэши в `data/`, сырые 10 ГБ не нужны: раунды берут метки из `dataset/labels/`.
+
+| Шаг | Скрипты `analysis/` | Результат в `forecasts/` | Скор |
+|---|---|---|---:|
+| Адаптивные профили, LightGBM, сбои Дептранса | s42-s46 | `submission_kaggle_v1_weather.csv` | 0.90236 |
+| Единый ансамбль | s47 | `submission_kaggle_unified_v2.csv` | 0.90358 |
+| Дневной уровень, маршрут 5 | s52-s58 | `submission_daily_route5_v4.csv` | 0.90418 |
+| Почасовые доли, городской трамвай | s62-s64 | `submission_shape_facts_v6.csv` | 0.90553 |
+| Форма суток, данные для следующих раундов | s66 | `submission_shape50_v7.csv` | 0.90570 |
+| Сезонная модель почасовых долей | s80, s81 | `submission_seasonal_v10.csv` | 0.90731 |
+| Распределение объёма между днями | s82, s83 | `submission_seasonal_daily_v11.csv` | 0.90741 |
+
+Раунды работают в Python 3.9, окружения зафиксированы в `analysis/requirements-kaggle-round-py39.txt` и `analysis/requirements-round4-py39.txt`. Команды, тесты и проверки каждого шага описаны в отчётах раундов, ссылки собраны в [docs/ml_handoff.md](docs/ml_handoff.md). Пересчёт v11 под суммы проб уровня на табло собирает `analysis/s84_block_probes.py apply` в окружении uv, тест `tests/test_block_probes.py` пересобирает загруженный файл из журнала проб ([отчёт](docs/research/block_probes_2026-09-26.md)).
+
+### Сервис
+
 Сервис с интерфейсом, MCP-сервером и Redis запускается из корня одной командой, сырые данные и Python ему не нужны:
 
 ```bash
@@ -130,3 +148,5 @@ docker compose up -d --build    # интерфейс http://localhost:8080, до
 Вход в интерфейс: логин `dispatcher`, пароль `chaspik`. Свои учётные записи задаёт `AUTH_USERS` в `.env`, подробности в [backend/README.md](backend/README.md#вход).
 
 Порт интерфейса меняется переменной `API_PORT`, например `API_PORT=8090 docker compose up -d`.
+
+Проверка на чистом клоне 26.09.2026 (Windows 11, Docker 28, Intel Core Ultra 5 125H, 32 ГБ): сборка всех образов без кеша слоёв заняла 155 с, запуск 26 с. Контейнер api после старта занимает 474 МБ из лимита 2 ГБ, прогноз сервиса совпадает с v11 по сумме сети за ноябрь-декабрь до посадки.
