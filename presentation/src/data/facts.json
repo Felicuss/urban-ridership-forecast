@@ -1,0 +1,125 @@
+{
+ "totalBoardings": 12813650,
+ "route17": {
+  "date": "2025-11-14",
+  "hour": 8,
+  "boardings": 5343,
+  "headway": 7,
+  "perTrip": 312,
+  "perTripByHour": [
+   12,
+   0,
+   0,
+   0,
+   2,
+   21,
+   90,
+   215,
+   312,
+   260,
+   154,
+   154,
+   154,
+   131,
+   162,
+   140,
+   222,
+   267,
+   262,
+   194,
+   139,
+   88,
+   43,
+   28
+  ],
+  "spans": [
+   {
+    "route": 17,
+    "date": "2025-11-14",
+    "start": 7,
+    "end": 10,
+    "peak": 312,
+    "hour": 8,
+    "hw": 7,
+    "need": 4
+   },
+   {
+    "route": 17,
+    "date": "2025-11-14",
+    "start": 16,
+    "end": 20,
+    "peak": 267,
+    "hour": 17,
+    "hw": 7,
+    "need": 4
+   }
+  ]
+ },
+ "week": {
+  "from": "2025-11-15",
+  "to": "2025-11-21",
+  "spans": 61,
+  "routes": 5,
+  "top": [
+   {
+    "route": 17,
+    "date": "2025-11-20",
+    "start": 7,
+    "end": 10,
+    "peak": 315,
+    "hour": 8,
+    "hw": 7,
+    "need": 4
+   },
+   {
+    "route": 17,
+    "date": "2025-11-17",
+    "start": 7,
+    "end": 10,
+    "peak": 314,
+    "hour": 8,
+    "hw": 7,
+    "need": 4
+   },
+   {
+    "route": 17,
+    "date": "2025-11-19",
+    "start": 7,
+    "end": 10,
+    "peak": 314,
+    "hour": 8,
+    "hw": 7,
+    "need": 4
+   }
+  ]
+ },
+ "overloadedHours": 1103,
+ "overloadedPct": 10.1,
+ "vehicleHours": 106072,
+ "extraVehicleHours": 3979,
+ "extraPct": 3.8,
+ "freedVehicleHours": 540,
+ "overloadedByRoute": {
+  "17": 329,
+  "12": 258,
+  "11": 251,
+  "50": 151,
+  "7": 114
+ },
+ "topStop17": "ВДНХ (северная)",
+ "incident": {
+  "routes": [
+   17
+  ],
+  "start": "2025-12-16T21:55:26+03:00",
+  "end": "2025-12-17T05:01:23+03:00",
+  "minutes": 426,
+  "cause": "технические причины",
+  "place": "На проспекте Мира (в районе остановки «Улица Докукина»)",
+  "tryOn": "2025-12-19",
+  "events": 4,
+  "lost": 769,
+  "alpha": 0.5,
+  "archive": 31
+ }
+}
