@@ -27,8 +27,11 @@ def test_probe_files_match_ledger():
 
 
 def test_rake_reproduces_the_scored_candidate():
+    """Кандидат собирается только из тех проб, что записаны в JSON рядом с ним: новые скоры его не меняют."""
+    ids = json.loads(CANDIDATE.with_suffix(".json").read_text(encoding="utf-8"))["probes"]
     g = grid()
-    measured = decoded(load_ledger())
+    measured = [e for e in decoded(load_ledger()) if e["id"] in ids]
+    assert len(measured) == len(ids)
     cons = margins(g, measured)
 
     pred = to_int(rake(g, cons, start_values(g, measured)))

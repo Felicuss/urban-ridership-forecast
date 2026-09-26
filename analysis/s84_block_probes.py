@@ -101,7 +101,13 @@ PILOT: list[Block] = [
     Block("h_wd_07_09", {"routes": NOT17, "kind": "wd", "hours": [7, 8, 9]}, DEFAULT_CEILING, part=False),
     Block("h_wd_16_19", {"routes": NOT17, "kind": "wd", "hours": [16, 17, 18, 19]}, DEFAULT_CEILING, part=False),
 ]
-PLANS = {"1": WAVE1, "pilot": PILOT}
+# Волна 3: будни предновогодней недели. По постам Дептранса пик поездок и ранний вечерний разъезд,
+# 26.12 сильный снегопад; в правилах модели этой недели нет.
+WAVE3: list[Block] = [
+    Block("dec22_26_wd", {"routes": NOT17, "dates": [f"2025-12-{d}" for d in range(22, 27)]}, DEFAULT_CEILING,
+          part=False),
+]
+PLANS = {"1": WAVE1, "pilot": PILOT, "3": WAVE3}
 
 
 def grid() -> pd.DataFrame:
@@ -330,7 +336,9 @@ def main() -> None:
     s.add_argument("id")
     s.add_argument("value", type=float)
     sub.add_parser("decode")
-    sub.add_parser("apply")
+    a = sub.add_parser("apply")
+    a.add_argument("--out", required=True, help="имя файла в forecasts/; загруженные кандидаты не перезаписываем")
+    a.add_argument("--ids", nargs="*", help="только эти пробы; по умолчанию все со скором")
     sub.add_parser("selftest")
     args = ap.parse_args()
     if args.cmd == "build":
@@ -350,10 +358,17 @@ def main() -> None:
     elif args.cmd == "apply":
         g = grid()
         measured = decoded(load_ledger())
+        if args.ids:
+            measured = [e for e in measured if e["id"] in args.ids]
+            if missing := set(args.ids) - {e["id"] for e in measured}:
+                sys.exit(f"нет скора у {', '.join(sorted(missing))}")
         cons = margins(g, measured)
         pred = to_int(rake(g, cons, start_values(g, measured)))
-        path = ROOT / "forecasts" / "submission_v11_probe_rake.csv"
+        path = ROOT / "forecasts" / args.out
         write(g, pred, path)
+        meta = {"file": path.name, "sha256": sha256(path), "base": BASE.name,
+                "probes": {e["id"]: e["score"] for e in measured}}
+        path.with_suffix(".json").write_text(json.dumps(meta, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
         print(f"{path.name}: сумм {len(cons)}, итог {pred.sum():,} (v11 {g.prediction.sum():,}, T {T:,.0f})")
         for m, y, name in cons:
             print(f"  {name:12s} цель {y:>12,.0f}  v11 {g.prediction.to_numpy()[m].sum():>12,}  итог {pred[m].sum():>12,}")
