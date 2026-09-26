@@ -175,7 +175,7 @@ const LAYOUTS: { mode: LayoutMode; label: string; hint: string; icon: ReactNode 
     icon: <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="4" width="14" height="12" rx="2" /></svg> },
   { mode: 'split', label: 'Сплит', hint: 'Сплит: карта и выбранный виджет рядом',
     icon: <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="4" width="7" height="12" rx="1.5" /><rect x="11.5" y="4" width="5.5" height="12" rx="1.5" /></svg> },
-  { mode: 'panels', label: 'Панели', hint: 'Панели: 2-4 виджета на экране без карты, место меняется перетаскиванием',
+  { mode: 'panels', label: 'Панели', hint: 'Панели: 2–4 виджета на экране без карты, место меняется перетаскиванием',
     icon: <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="4" width="6.5" height="5.5" rx="1.2" /><rect x="10.5" y="4" width="6.5" height="5.5" rx="1.2" /><rect x="3" y="10.5" width="6.5" height="5.5" rx="1.2" /><rect x="10.5" y="10.5" width="6.5" height="5.5" rx="1.2" /></svg> },
 ];
 

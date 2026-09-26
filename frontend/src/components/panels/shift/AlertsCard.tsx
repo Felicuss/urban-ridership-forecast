@@ -49,7 +49,7 @@ function AlertRow({ state, day, onRemove }: { state: AlertState; day: number; on
         <span className={styles.badge} style={{ '--c': routeColor(rule.route) } as React.CSSProperties}>{rule.route}</span>
         <span>{rule.segment ? rule.segment.label : 'весь маршрут'}, порог {rule.limit}</span>
         <small>{hot
-          ? spans.map((x) => `${x.from}-${x.to} ч до ${fmtInt(x.peak)}`).join(', ') + ' на рейс'
+          ? spans.map((x) => `${x.from}–${x.to} ч до ${fmtInt(x.peak)}`).join(', ') + ' на рейс'
           : `в норме: максимум ${fmtInt(max)} на рейс в ${maxHour}:00`}</small>
       </button>
       <button type="button" className={styles.remove} aria-label="Удалить подписку" onClick={onRemove}><Icon.close /></button>

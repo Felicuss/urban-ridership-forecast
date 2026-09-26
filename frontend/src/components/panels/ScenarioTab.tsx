@@ -213,7 +213,7 @@ function hoursLabel(hours: string | undefined): string {
   const [a, b] = hours.split('-').map(Number);
   const first = a ?? 0;
   const last = b ?? first;
-  return `${first}:00-${last + 1}:00`;
+  return `${first}:00–${last + 1}:00`;
 }
 
 function fmtMultiplier(m: number): string {

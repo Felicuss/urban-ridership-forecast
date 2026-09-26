@@ -82,7 +82,7 @@ export function FleetCard() {
           tone={vehiclesShown > vehiclesNow ? 'down' : undefined} />
         <Kpi label="Посадок на рейс" value={fmtInt(perTripShown)} sub={`по расписанию ${fmtInt(perTripNow)}`}
           tone={perTripShown < perTripNow ? 'up' : undefined} />
-        <Kpi label="Вагоно-часов" value={hoursNew} sub={`по расписанию ${hoursNow || '-'}, ${from}-${to} ч`} />
+        <Kpi label="Вагоно-часов" value={hoursNew} sub={`по расписанию ${hoursNow || '-'}, ${from}–${to} ч`} />
         <Kpi label="Оборот" value={`${Math.round(plan.cycle)} мин`} sub={`${fmtTrips(plan.tripsPerHour)} в час`} />
       </div>
       <div className={styles.form}>

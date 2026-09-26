@@ -72,7 +72,7 @@ export function StationMatrix({ route, embedded = false }: { route: number; embe
   }, [setOpen, embedded]);
 
   const color = routeColor(route);
-  const label = mode === 'day' ? 'посадок за сутки' : `посадок в ${hour}:00-${hour + 1}:00`;
+  const label = mode === 'day' ? 'посадок за сутки' : `посадок в ${hour}:00–${hour + 1}:00`;
 
   return (
     <section className={embedded ? styles.embedded : styles.panel} style={{ '--c': color } as React.CSSProperties} aria-label={`Маршрут ${route} по станциям`}>

@@ -28,7 +28,7 @@ function foldOrder(label: string | undefined): number {
   return m ? Number(m[2]) * 100 + Number(m[1]) : Number.MAX_SAFE_INTEGER;
 }
 
-/** Часы [1, 2, 3, 5] одной строкой: «1:00-4:00, 5:00-6:00». */
+/** Часы [1, 2, 3, 5] одной строкой: «1:00–4:00, 5:00–6:00». */
 function hourSpans(hours: number[]): string {
   const spans: [number, number][] = [];
   for (const h of [...hours].sort((a, b) => a - b)) {
@@ -36,7 +36,7 @@ function hourSpans(hours: number[]): string {
     if (last && last[1] === h) last[1] = h + 1;
     else spans.push([h, h + 1]);
   }
-  return spans.map(([a, b]) => `${a}:00-${b}:00`).join(', ');
+  return spans.map(([a, b]) => `${a}:00–${b}:00`).join(', ');
 }
 
 export default function ModelTab() {
@@ -60,7 +60,7 @@ export default function ModelTab() {
         info="Организаторы сравнили прогноз с фактом за ноябрь-декабрь 2025 по каждому маршруту и часу: точность = 1 - сумма ошибок / сумма посадок (WAPE-score). Выше 0,88 критерий точности даёт максимум баллов.">
         <div className={styles.big}>{fmtFixed(score, 5)}</div>
         <div className={styles.gauge}><i style={{ width: pos(score) }} /><b style={{ left: pos(0.88) }} /></div>
-        <p className={styles.note}>Шкала 0,80-0,92, жёлтая отметка - порог 0,88. По умолчанию сервис отдаёт прогноз v11:
+        <p className={styles.note}>Шкала 0,80–0,92, жёлтая отметка — порог 0,88. По умолчанию сервис отдаёт прогноз v11:
           адаптивные профили, ансамбль LightGBM, сезонная модель долей часов и распределение объёма между днями. В нём
           есть открытые данные, вышедшие после {fullDate(meta.forecastOrigin)}: организаторы это разрешили. Ползунки сдвигают
           v11 так же, как формулу профиля.</p>
@@ -80,7 +80,7 @@ export default function ModelTab() {
         </table>
       </Card>
 
-      <Card title="Проверка на прошлых месяцах" info={`${q.scheme}. Модель строила прогноз от даты в прошлом, зная только то, что было до неё, и сравнивалась с фактом следующих 1-2 месяцев. Точность от 0 до 1, чем ближе к 1, тем лучше. Это проверка формулы профиля, на которой работают ползунки; v11 проверили организаторы: ${fmtFixed(score, 5)}.`}>
+      <Card title="Проверка на прошлых месяцах" info={`${q.scheme}. Модель строила прогноз от даты в прошлом, зная только то, что было до неё, и сравнивалась с фактом следующих 1–2 месяцев. Точность от 0 до 1, чем ближе к 1, тем лучше. Это проверка формулы профиля, на которой работают ползунки; v11 проверили организаторы: ${fmtFixed(score, 5)}.`}>
         <table className={styles.table}>
           <thead>
             <tr><th>период</th>{GRANULARITY.map((g) => <th key={g.key}>{g.label}</th>)}</tr>

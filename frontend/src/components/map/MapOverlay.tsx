@@ -58,7 +58,7 @@ export function MapOverlay({ load, weather }: { load: NetworkLoad | undefined; w
       </nav>
       <div className={styles.legend}>
         <div className={styles.legendRow}>
-          <span>Посадки в {hour}:00-{hour + 1}:00, {source}</span>
+          <span>Посадки в {hour}:00–{hour + 1}:00, {source}</span>
           <span className={styles.ramp} />
           <span className={styles.rampLabels}><small>мало</small><small>много</small></span>
         </div>

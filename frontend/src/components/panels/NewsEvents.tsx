@@ -17,7 +17,7 @@ const EVENT_FORMS: [string, string, string] = ['событие', 'события
 
 function when(n: NewsIncident): string {
   const day = shortDate(n.start.slice(0, 10));
-  return `${day}, ${n.start.slice(11, 16)}-${n.end ? n.end.slice(11, 16) : 'сейчас'}`;
+  return `${day}, ${n.start.slice(11, 16)}–${n.end ? n.end.slice(11, 16) : 'сейчас'}`;
 }
 
 export function NewsEvents() {

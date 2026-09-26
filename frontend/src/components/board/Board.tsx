@@ -147,7 +147,7 @@ function Spotlight({ spot, factors, load, hour }: { spot: RouteNow; factors: Fac
         <span className={styles.spotNo}>{spot.route}</span>
         <div>
           <h2>{routeTitle(factors, spot.route) || `Маршрут ${spot.route}`}</h2>
-          <p>{hour}:00-{hour + 1}:00 · прогноз посадок</p>
+          <p>{hour}:00–{hour + 1}:00 · прогноз посадок</p>
         </div>
       </div>
       <div className={styles.numbers}>
@@ -178,7 +178,7 @@ function Ticker({ day }: { day: number }) {
   const news = useNews().data?.filter((n) => n.start.slice(0, 10) === isoDate(day)) ?? [];
   const items = [
     ...states.filter((s) => s.spans.length).map((s) => `Завтра №${s.rule.route}${s.rule.segment ? ` (${s.rule.segment.label})` : ''}: `
-      + s.spans.map((x) => `${x.from}-${x.to} ч до ${fmtInt(x.peak)} на рейс`).join(', ')),
+      + s.spans.map((x) => `${x.from}–${x.to} ч до ${fmtInt(x.peak)} на рейс`).join(', ')),
     ...news.map((n) => `Сегодня ${newsLine(n)}`),
   ];
   if (items.length === 0) return null;

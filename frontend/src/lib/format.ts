@@ -32,15 +32,15 @@ export function fmtPct(value: number | null | undefined, signed = true): string 
 export function fmtTemp(value: number | null | undefined): string {
   if (value == null || !Number.isFinite(value)) return '-';
   const r = Math.round(value);
-  return `${r > 0 ? '+' : ''}${r}°`;
+  return `${r > 0 ? '+' : r < 0 ? '−' : ''}${Math.abs(r)}°`;
 }
 
-/** Коридор одной строкой: «195-297 тыс.», «16 149-24 768». */
+/** Коридор одной строкой: «195–297 тыс.», «16 149–24 768». */
 export function fmtRange(lo: number | null | undefined, hi: number | null | undefined): string {
   if (lo == null || hi == null) return '-';
-  if (Math.abs(hi) >= 1e6) return `${ONE.format(lo / 1e6)}-${ONE.format(hi / 1e6)} млн`;
-  if (Math.abs(hi) >= 1e4) return `${INT.format(lo / 1e3)}-${INT.format(hi / 1e3)} тыс.`;
-  return `${INT.format(lo)}-${INT.format(hi)}`;
+  if (Math.abs(hi) >= 1e6) return `${ONE.format(lo / 1e6)}–${ONE.format(hi / 1e6)} млн`;
+  if (Math.abs(hi) >= 1e4) return `${INT.format(lo / 1e3)}–${INT.format(hi / 1e3)} тыс.`;
+  return `${INT.format(lo)}–${INT.format(hi)}`;
 }
 
 /** Первая буква заглавная: «суббота» в начале фразы -> «Суббота». */

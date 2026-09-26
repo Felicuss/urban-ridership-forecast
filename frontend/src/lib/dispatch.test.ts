@@ -98,8 +98,8 @@ describe('сводка смены', () => {
     rain[9] = 0.5;
     rain[13] = 1.2;
     const w = { temp: Array.from({ length: 24 }, (_, h) => h / 4 - 2), rain, snow: Array(24).fill(0) };
-    expect(weatherLine(w)).toBe('-2°…+4°, дождь 9-14 ч, 1,7 мм');
-    expect(weatherLine({ ...w, rain: Array(24).fill(0) })).toBe('-2°…+4°, без осадков');
+    expect(weatherLine(w)).toBe('−2°…+4°, дождь 9–14 ч, 1,7 мм');
+    expect(weatherLine({ ...w, rain: Array(24).fill(0) })).toBe('−2°…+4°, без осадков');
   });
 
   it('берёт события дня с учётом выходных и разовых изменений', () => {

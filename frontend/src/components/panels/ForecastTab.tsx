@@ -13,7 +13,7 @@ import styles from './Panels.module.css';
 
 const SOURCE_LABEL: Record<string, string> = { fact: 'факт', forecast: 'прогноз', outlook: 'оценка' };
 
-/** У факта нижняя и верхняя граница совпадают: вместо «коридор 242-242» пишем, что это факт. */
+/** У факта нижняя и верхняя граница совпадают: вместо «коридор 242–242» пишем, что это факт. */
 function band(p10: number, p90: number): string {
   return Math.round(p10) === Math.round(p90) ? 'факт, коридора нет' : `коридор ${fmtRange(p10, p90)}`;
 }
@@ -149,7 +149,7 @@ export function ForecastTab() {
             info="Самый загруженный час за период: посадки в этот час по всему объекту. По нему видно пиковую нагрузку, а не только сумму за сутки." />
         ) : (
           <Kpi label={UNIT[horizon].peak} value={fmtCompact(peak.p50)}
-            sub={horizon === 'day' ? `${peak.period.slice(11, 13)}:00-${Number(peak.period.slice(11, 13)) + 1}:00`
+            sub={horizon === 'day' ? `${peak.period.slice(11, 13)}:00–${Number(peak.period.slice(11, 13)) + 1}:00`
               : monthLabel(peak.period)} tone="accent" />
         )}
         <Kpi label={UNIT[horizon].now} value={fmtInt(current.p50)}
@@ -204,10 +204,10 @@ function fmt3(v: number): string {
   return v.toFixed(3).replace('.', ',');
 }
 
-/** «пт 14.11, 8:00-9:00» по метке часа 2025-11-14T08:00. */
+/** «пт 14.11, 8:00–9:00» по метке часа 2025-11-14T08:00. */
 function peakLabel(at: string): string {
   const h = Number(at.slice(11, 13));
-  return `${weekdayName(dayOf(at.slice(0, 10)), true)} ${shortDate(at.slice(0, 10))}, ${h}:00-${h + 1}:00`;
+  return `${weekdayName(dayOf(at.slice(0, 10)), true)} ${shortDate(at.slice(0, 10))}, ${h}:00–${h + 1}:00`;
 }
 
 /** Сколько самых напряжённых дней месяца показывать списком. */

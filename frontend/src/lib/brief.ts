@@ -70,7 +70,7 @@ export function weatherLine(w: DayWeatherSeries | null): string | null {
   if (total < WET_MM) return `${range}, без осадков`;
   const hours = wet.flatMap((v, h) => (v >= WET_MM ? [h] : []));
   const snowy = sum(snowMm) > sum(w.rain.map((v) => v ?? 0));
-  return `${range}, ${snowy ? 'снег' : 'дождь'} ${hours[0]}-${(hours[hours.length - 1] ?? 0) + 1} ч, ${fmt1(total)} мм`;
+  return `${range}, ${snowy ? 'снег' : 'дождь'} ${hours[0]}–${(hours[hours.length - 1] ?? 0) + 1} ч, ${fmt1(total)} мм`;
 }
 
 /** События сети из factors.json, которые действуют в этот день. */

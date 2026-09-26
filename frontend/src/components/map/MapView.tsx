@@ -326,13 +326,13 @@ function bindPointer(map: MapLibre, tip: HTMLDivElement | null) {
     const p = e.features?.[0]?.properties ?? {};
     const hour = hourOf(useStore.getState().minute);
     show(e, `<b>${esc(p.name)}</b><span>маршруты ${esc(String(p.routes).trim().replaceAll(' ', ', '))}</span>`
-      + `<span>${fmtInt(Number(p[`h${hour}`] ?? 0))} посадок в ${hour}:00-${hour + 1}:00</span>`);
+      + `<span>${fmtInt(Number(p[`h${hour}`] ?? 0))} посадок в ${hour}:00–${hour + 1}:00</span>`);
   });
   map.on('mousemove', 'route-lines', (e) => {
     if (map.queryRenderedFeatures(e.point, { layers: ['stops-dot'] }).length) return;
     const p = e.features?.[0]?.properties ?? {};
     const hour = hourOf(useStore.getState().minute);
-    show(e, `<b>Маршрут ${esc(p.route)}</b><span>${fmtInt(Number(p[`l${hour}`] ?? 0))} посадок в ${hour}:00-${hour + 1}:00</span>`);
+    show(e, `<b>Маршрут ${esc(p.route)}</b><span>${fmtInt(Number(p[`l${hour}`] ?? 0))} посадок в ${hour}:00–${hour + 1}:00</span>`);
   });
   map.on('mouseleave', 'stops-dot', hide);
   map.on('mouseleave', 'route-lines', hide);
