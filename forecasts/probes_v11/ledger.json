@@ -198,7 +198,7 @@
   "base_sum": 928902,
   "file": "q07_r12_11.csv",
   "sha256": "e903c702b6c54aa2d7c9807978adadcdd11621ef1889955b8bf69544ae40f210",
-  "score": null
+  "score": 0.0683
  },
  {
   "id": "q08",
@@ -223,7 +223,7 @@
   "base_sum": 1006149,
   "file": "q08_r12_12.csv",
   "sha256": "8c0c0920eaaa53ef382be648e8cb9d8f765b68c44002c03577a8524baab7963b",
-  "score": null
+  "score": 0.06646
  },
  {
   "id": "q09",
@@ -248,7 +248,7 @@
   "base_sum": 888169,
   "file": "q09_r11_11.csv",
   "sha256": "fed35e8ff3f841f7a3c2a4f23b8660c0432ec1de8f2e9f737a17933b8ca0dba7",
-  "score": null
+  "score": 0.07282
  },
  {
   "id": "q10",
@@ -273,7 +273,7 @@
   "base_sum": 954067,
   "file": "q10_r11_12.csv",
   "sha256": "e1e70a37b619ef79dc01720840cd1c2bce46c8729d6c73b3276150e487f3f501",
-  "score": null
+  "score": 0.07002
  },
  {
   "id": "q11",
@@ -329,7 +329,7 @@
   "base_sum": 195260,
   "file": "q12_nov03_04.csv",
   "sha256": "c1d611d2c20277aa329113817c186c166d80bcd747840dafc81aef52b00809c9",
-  "score": null
+  "score": 0.07155
  },
  {
   "id": "q13",
@@ -362,7 +362,7 @@
   "base_sum": 172753,
   "file": "q13_nov01.csv",
   "sha256": "f4c6512a22cdb47805c168a54ff44d3b61aa48f69eb45729c2dddad09e892e21",
-  "score": null
+  "score": 0.06862
  },
  {
   "id": "q14",
@@ -760,7 +760,7 @@
   "base_sum": 262484,
   "file": "q27_r7_dec20_31.csv",
   "sha256": "a42d6b01864b027a08a96b20a3992e403558f098c8d91ec268dc70e3959cdc65",
-  "score": null
+  "score": 0.06113
  },
  {
   "id": "q28",
