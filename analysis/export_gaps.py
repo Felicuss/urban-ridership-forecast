@@ -20,6 +20,7 @@ import numpy as np
 import pandas as pd
 
 from common import ROOT
+from typography import for_people
 
 EVENTS = ROOT / "external" / "events_2025.csv"
 THRESHOLD = 0.5
@@ -79,7 +80,7 @@ def _reason(route: int, days: pd.DataFrame, events: pd.DataFrame) -> dict:
     if best is None:
         return {"reason": "причина не найдена: в новостях Дептранса и на mos.ru события нет", "type": "unknown",
                 "source": ""}
-    return {"reason": str(best.description), "type": str(best.type), "source": str(best.source)}
+    return {"reason": for_people(str(best.description)), "type": str(best.type), "source": str(best.source)}
 
 
 def _restore(route: int, day: pd.Timestamp, kind: str, hourly: pd.DataFrame, flags: pd.DataFrame) -> list[int]:

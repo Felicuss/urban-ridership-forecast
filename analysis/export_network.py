@@ -20,6 +20,7 @@ import numpy as np
 import pandas as pd
 
 from common import DATASET, ROOT
+from typography import quotes
 
 REFERENCE = DATASET / "spravochniki" / "Хакатон_справочники_трамвай_10_маршрутов.xlsx"
 OSM = ROOT / "external" / "osm_tram_routes.geojson"
@@ -132,6 +133,7 @@ def build_stops() -> tuple[pd.DataFrame, pd.DataFrame, dict]:
                                        source=("source", "first"),
                                        routes=("route", lambda r: " ".join(map(str, sorted(set(r))))))
              .reset_index())
+    stops["name"] = stops.name.map(quotes)
     route_stops = rs[["route", "direction", "seq", "stop_id", "share"]]
     stats = {"stops": int(len(stops)), "route_stop_rows": int(len(route_stops)),
              "osm_matched_to_reference": int((osm.source == "osm+reference").sum()), "osm_stops": int(len(osm))}

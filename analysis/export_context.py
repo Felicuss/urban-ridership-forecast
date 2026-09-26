@@ -11,6 +11,7 @@ import pandas as pd
 
 from calendar_ru import calendar_frame
 from common import FORECAST_END, FORECAST_START, ROOT, ROUTES, load_labels
+from typography import for_people
 
 EXT = ROOT / "external"
 HOURS = 24
@@ -59,7 +60,7 @@ def schedule_block() -> dict:
     out = {"source": "transport.mos.ru, расписание наземного транспорта", "fetched_at": s.fetched_at.iloc[0],
            "routes": {}}
     for route, g in s[s.direction == 0].groupby("route"):
-        entry = {"title": g.title.iloc[0], "page": g.page.iloc[0]}
+        entry = {"title": for_people(g.title.iloc[0]), "page": g.page.iloc[0]}
         for day_type, d in g.groupby("day_type"):
             headway = [None] * HOURS
             for r in d.itertuples():
@@ -80,12 +81,26 @@ def history_block() -> dict:
             "routes": {str(r): [int(v) for v in daily[r].to_numpy()] for r in ROUTES}}
 
 
+# Каталог событий ведётся для модели, и в нескольких строках там рабочие заметки. Диспетчеру
+# показываем их итог; ключ - (start, routes).
+EVENT_TEXT = {
+    ("2025-11-12", "7;50"): {"effect": "оценка: 7 минус 5-15 %, в прогнозе по умолчанию не учтена"},
+    ("2025-12-22", "all"): {"effect": "плюс несколько процентов"},
+    ("2025-12-27", "50;12"): {"description": "депо им. Баумана закрыто на реконструкцию, 50 выпускается с площадки ТРЗ"},
+}
+
+
 def events_block() -> list[dict]:
     e = pd.read_csv(EXT / "events_2025.csv")
     e = e[e.end >= "2025-09-01"]
-    return [{"start": r.start, "end": None if r.end.startswith("2099") else r.end, "routes": r.routes,
-             "days": r.days, "type": r.type, "description": r.description, "source": r.source,
-             "effect": None if pd.isna(r.effect_in_data) else r.effect_in_data} for r in e.itertuples()]
+    out = []
+    for r in e.itertuples():
+        text = {"description": r.description, "effect": None if pd.isna(r.effect_in_data) else r.effect_in_data,
+                **EVENT_TEXT.get((r.start, r.routes), {})}
+        out.append({"start": r.start, "end": None if r.end.startswith("2099") else r.end, "routes": r.routes,
+                    "days": r.days, "type": r.type, "description": for_people(text["description"]),
+                    "source": r.source, "effect": text["effect"] and for_people(text["effect"])})
+    return out
 
 
 def build_factors() -> dict:

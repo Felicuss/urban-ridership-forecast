@@ -1,8 +1,8 @@
 {
  "schema_version": 1,
  "model_version": "seasonal_daily_v11",
- "git_commit": "6d40192c20771307e4926deeba1f270552776071",
- "generated_at": "2026-09-26T19:20:02+00:00",
+ "git_commit": "f0c871886d8d954c6d66efbda82a1449a0e6519d",
+ "generated_at": "2026-09-26T20:05:13+00:00",
  "forecast_origin": "2025-10-31",
  "horizon": {
   "from": "2025-11-01",
@@ -38,7 +38,7 @@
    "rows": null
   },
   "stops.csv": {
-   "sha256": "560bc952893129f044057a509f35074d7ada9d6a661baa33ec6c3d94b7729875",
+   "sha256": "7f15cac1fb4f4fe873aba87e8f7186409b1b7f9054a27d7b0df9646b1b816bf9",
    "rows": 452
   },
   "route_stops.csv": {
@@ -46,7 +46,7 @@
    "rows": 604
   },
   "network.geojson": {
-   "sha256": "96a5fa9b7f7c1c4907a6e7b90666c7f888af96c76b4e29d5be7949935d63aa4d",
+   "sha256": "9486532dd0bfb692d526dbe12f3183f7a2538784905a42494659167496325b74",
    "rows": null
   },
   "intervals.json": {
@@ -62,7 +62,7 @@
    "rows": null
   },
   "factors.json": {
-   "sha256": "c98b33b00d1e5f986ae298a5b79f97a8ab647fbea1bcd74f5e9570091c3d9580",
+   "sha256": "9ef782f3cfdfd1efb25af500ad73abaa05f3377a3b05d660a918b4e0b2cde4f1",
    "rows": null
   },
   "timeline_calendar.csv": {
