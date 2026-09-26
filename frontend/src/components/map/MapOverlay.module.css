@@ -335,3 +335,12 @@
 .filterActions button:hover {
   color: var(--text);
 }
+
+.precipSwatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 6px;
+  vertical-align: -1px;
+  border-radius: 3px;
+}

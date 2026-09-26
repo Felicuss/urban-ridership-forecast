@@ -202,8 +202,7 @@ const VISIBILITY: Record<string, (keyof Flags)[]> = {
   'metro-lines': ['metro'],
   'metro-stations': ['metro'],
   'metro-labels': ['metro', 'labels'],
-  'rain-radar': ['weather'],
-  'snow-radar': ['weather'],
+  'precip-radar': ['weather'],
   'weather-temp': ['weather'],
 };
 

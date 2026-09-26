@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import type { NetworkLoad } from '../../api/types';
-import type { GridPoint } from '../../lib/weatherGrid';
+import { SNOW_CM_TO_MM, type GridPoint } from '../../lib/weatherGrid';
 import { useStops } from '../../api/queries';
 import { FLAG_LABELS, useStore, type Flags } from '../../state/store';
 import { hourOf, sunElevation } from '../../lib/time';
-import { fmtInt } from '../../lib/format';
+import { fmt1, fmtInt } from '../../lib/format';
 import { ROUTE_COLORS, routeColor, yandexPoint, yandexRouteTo } from '../../lib/routes';
 import { Sparkline } from '../charts/Sparkline';
 import { Icon } from '../ui/Icons';
@@ -62,10 +62,27 @@ export function MapOverlay({ load, weather }: { load: NetworkLoad | undefined; w
         <div className={styles.legendNote}>
           Толщина линии - посадки маршрута в этот час. {night ? 'Ночь: вагоны' : 'Вагоны'} идут с интервалом по расписанию.
         </div>
+        {flags.weather && <PrecipNote grid={weather} hour={hour} />}
       </div>
       <StopCard load={load} hour={hour} />
       <RideCard />
     </>
+  );
+}
+
+/** Что значит заливка осадков: вид осадков в этот час и где кончаются данные. */
+function PrecipNote({ grid, hour }: { grid: GridPoint[] | undefined; hour: number }) {
+  if (!grid?.length) return null;
+  const rain = grid.reduce((a, p) => a + (p.rain[hour] ?? 0), 0) / grid.length;
+  const snow = (grid.reduce((a, p) => a + (p.snow[hour] ?? 0), 0) / grid.length) * SNOW_CM_TO_MM;
+  if (rain + snow < 0.03) return null;
+  const isSnow = snow >= rain;
+  return (
+    <div className={styles.legendNote}>
+      <i className={styles.precipSwatch} style={{ background: isSnow ? 'rgba(236,241,255,0.55)' : 'rgba(110,160,235,0.6)' }} />
+      {isSnow ? 'Снег' : 'Дождь'} в этот час, в среднем {fmt1(rain + snow)} мм: заливка и частицы там, где он идёт,
+      по сетке Open-Meteo над Москвой. К краю сетки заливка гаснет, дальше данных нет.
+    </div>
   );
 }
 

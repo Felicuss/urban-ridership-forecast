@@ -1,11 +1,29 @@
-import type { GeoJSONSource, Map as MapLibre } from 'maplibre-gl';
-import type { GridPoint } from '../../lib/weatherGrid';
+import type { GeoJSONSource, ImageSource, Map as MapLibre } from 'maplibre-gl';
+import { GRID_BOUNDS, edgeFade, precipAt, SNOW_CM_TO_MM, type GridPoint } from '../../lib/weatherGrid';
+import { before } from './layers';
 import { FONT } from './style';
 
-// Погода на карте там, где она есть: радар дождя и снега по узлам сетки 5 × 5 (Open-Meteo) и температура
-// по районам. Значения по 24 часам лежат в свойствах точек, смена часа - только новое выражение стиля.
+// Погода на карте там, где она есть. Осадки - одна гладкая заливка поверх города: сетка 5 × 5 Open-Meteo
+// разворачивается в картинку 48 × 48, значения между узлами по обратным расстояниям, к краю сетки заливка
+// плавно гаснет. Картинка привязана к координатам, поэтому едет и масштабируется вместе с картой.
+// Температура подписана по районам.
 
 const LABEL_ROWS = new Set([0, 2, 4]);
+const SIZE = 48;
+/** 1,5 мм воды в час - полная насыщенность заливки. */
+const FULL_MM = 1.5;
+/** Снег светлый и на тёмной карте заметнее дождя, поэтому его заливка прозрачнее. */
+const RAIN_ALPHA = 0.3;
+const SNOW_ALPHA = 0.14;
+const RAIN: [number, number, number] = [110, 160, 235];
+const SNOW: [number, number, number] = [236, 241, 255];
+const CORNERS: [[number, number], [number, number], [number, number], [number, number]] = [
+  [GRID_BOUNDS.west, GRID_BOUNDS.north], [GRID_BOUNDS.east, GRID_BOUNDS.north],
+  [GRID_BOUNDS.east, GRID_BOUNDS.south], [GRID_BOUNDS.west, GRID_BOUNDS.south],
+];
+
+let current: GridPoint[] = [];
+const frames = new Map<number, Promise<ImageBitmap>>();
 
 function label(t: number | null | undefined): string {
   if (t == null) return '';
@@ -15,17 +33,11 @@ function label(t: number | null | undefined): string {
 
 export function addWeatherLayer(map: MapLibre): void {
   map.addSource('weather-grid', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
-  const radius = ['interpolate', ['exponential', 2], ['zoom'], 9, 34, 11, 130, 13, 520] as const;
-  map.addLayer({ id: 'rain-radar', type: 'heatmap', source: 'weather-grid', maxzoom: 15, paint: {
-    'heatmap-weight': 0, 'heatmap-radius': radius as never, 'heatmap-intensity': 0.9,
-    'heatmap-color': ['interpolate', ['linear'], ['heatmap-density'], 0, 'rgba(90,140,220,0)', 0.25,
-      'rgba(110,160,230,0.16)', 0.6, 'rgba(120,170,240,0.28)', 1, 'rgba(150,190,255,0.4)'],
-    'heatmap-opacity': 0.9 } });
-  map.addLayer({ id: 'snow-radar', type: 'heatmap', source: 'weather-grid', maxzoom: 15, paint: {
-    'heatmap-weight': 0, 'heatmap-radius': radius as never, 'heatmap-intensity': 0.9,
-    'heatmap-color': ['interpolate', ['linear'], ['heatmap-density'], 0, 'rgba(230,236,250,0)', 0.25,
-      'rgba(230,236,250,0.12)', 0.6, 'rgba(235,240,252,0.22)', 1, 'rgba(245,248,255,0.34)'],
-    'heatmap-opacity': 0.9 } });
+  map.addSource('precip', { type: 'image', coordinates: CORNERS });
+  // под домами, линиями маршрутов и подписями: заливка не глушит город, а лежит на нём
+  map.addLayer({ id: 'precip-radar', type: 'raster', source: 'precip', paint: {
+    'raster-opacity': 1, 'raster-resampling': 'linear', 'raster-fade-duration': 0 } },
+  map.getLayer('buildings-3d') ? 'buildings-3d' : before(map));
   map.addLayer({ id: 'weather-temp', type: 'symbol', source: 'weather-grid', maxzoom: 13.5,
     filter: ['==', ['get', 'label'], true], layout: {
       'text-field': ['get', 't0'], 'text-font': FONT, 'text-size': 12, 'text-allow-overlap': true,
@@ -35,13 +47,11 @@ export function addWeatherLayer(map: MapLibre): void {
 }
 
 export function setWeatherData(map: MapLibre, grid: GridPoint[] | undefined): void {
-  const features = (grid ?? []).map((p, i) => {
+  current = grid ?? [];
+  frames.clear();
+  const features = current.map((p, i) => {
     const props: Record<string, unknown> = { label: LABEL_ROWS.has(Math.floor(i / 5)) && LABEL_ROWS.has(i % 5) };
-    for (let h = 0; h < 24; h++) {
-      props[`t${h}`] = label(p.temp[h]);
-      props[`r${h}`] = p.rain[h] ?? 0;
-      props[`s${h}`] = p.snow[h] ?? 0;
-    }
+    for (let h = 0; h < 24; h++) props[`t${h}`] = label(p.temp[h]);
     return { type: 'Feature' as const, geometry: { type: 'Point' as const, coordinates: [p.lon, p.lat] }, properties: props };
   });
   (map.getSource('weather-grid') as GeoJSONSource | undefined)?.setData({ type: 'FeatureCollection', features });
@@ -50,7 +60,44 @@ export function setWeatherData(map: MapLibre, grid: GridPoint[] | undefined): vo
 export function setWeatherHour(map: MapLibre, hour: number): void {
   if (!map.getLayer('weather-temp')) return;
   map.setLayoutProperty('weather-temp', 'text-field', ['get', `t${hour}`]);
-  // 2 мм/ч дождя и 1 см/ч снега - полная насыщенность радара
-  map.setPaintProperty('rain-radar', 'heatmap-weight', ['min', ['/', ['coalesce', ['get', `r${hour}`], 0], 2], 1]);
-  map.setPaintProperty('snow-radar', 'heatmap-weight', ['min', ['/', ['coalesce', ['get', `s${hour}`], 0], 1], 1]);
+  const grid = current;
+  let frame = frames.get(hour);
+  if (!frame) {
+    frame = createImageBitmap(precipCanvas(grid, hour));
+    frames.set(hour, frame);
+  }
+  void frame.then((image) => {
+    // пока картинка готовилась, могли прийти другая дата или час: тогда она уже не нужна
+    if (grid !== current) return;
+    (map.getSource('precip') as ImageSource | undefined)?.updateImage({ image, coordinates: CORNERS });
+  });
+}
+
+/** Картинка осадков часа: цвет от дождя к снегу, прозрачность по силе осадков и по краю сетки. */
+function precipCanvas(grid: GridPoint[], hour: number): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = SIZE;
+  canvas.height = SIZE;
+  const ctx = canvas.getContext('2d');
+  if (!ctx || grid.length === 0) return canvas;
+  const img = ctx.createImageData(SIZE, SIZE);
+  const { west, east, south, north } = GRID_BOUNDS;
+  for (let y = 0; y < SIZE; y++) {
+    const lat = north - ((y + 0.5) / SIZE) * (north - south);
+    for (let x = 0; x < SIZE; x++) {
+      const lon = west + ((x + 0.5) / SIZE) * (east - west);
+      const { rain, snow } = precipAt(grid, lon, lat, hour);
+      const snowMm = snow * SNOW_CM_TO_MM;
+      const total = rain + snowMm;
+      const k = total > 0 ? snowMm / total : 0;
+      const i = (y * SIZE + x) * 4;
+      img.data[i] = RAIN[0] + (SNOW[0] - RAIN[0]) * k;
+      img.data[i + 1] = RAIN[1] + (SNOW[1] - RAIN[1]) * k;
+      img.data[i + 2] = RAIN[2] + (SNOW[2] - RAIN[2]) * k;
+      const alpha = RAIN_ALPHA + (SNOW_ALPHA - RAIN_ALPHA) * k;
+      img.data[i + 3] = 255 * alpha * Math.min(total / FULL_MM, 1) * edgeFade(lon, lat);
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+  return canvas;
 }
