@@ -93,3 +93,23 @@
 .account button:hover {
   background: var(--surface-3);
 }
+
+.keys {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 12px;
+  margin: 0;
+  font-size: 12.5px;
+}
+
+.keys dt {
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.keys dd {
+  margin: 0;
+  color: var(--text-2);
+}

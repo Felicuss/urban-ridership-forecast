@@ -95,6 +95,8 @@ function RouteCard({ route, factors, load, hour }: {
   const b = ends(1);
   const stopsOpen = useStore((s) => s.stopsOpen);
   const setStopsOpen = useStore((s) => s.setStopsOpen);
+  const matrixOpen = useStore((s) => s.matrixOpen);
+  const setMatrixOpen = useStore((s) => s.setMatrixOpen);
   const stopCount = Math.max(dir(0).length, dir(1).length);
 
   return (
@@ -134,6 +136,12 @@ function RouteCard({ route, factors, load, hour }: {
         onClick={() => setStopsOpen(!stopsOpen)} title="Список остановок с посадками и выбор участка маршрута">
         <span>Остановки и участок</span>
         <small className="num">{stopCount || ''}</small>
+        <Icon.next />
+      </button>
+      <button type="button" className={matrixOpen ? styles.stopsBtnOn : styles.stopsBtn} aria-expanded={matrixOpen}
+        onClick={() => setMatrixOpen(!matrixOpen)} title="Посадки на каждой остановке по дням недели или месяца (клавиша S)">
+        <span>Станции по дням</span>
+        <small>S</small>
         <Icon.next />
       </button>
       <div className={styles.links}>

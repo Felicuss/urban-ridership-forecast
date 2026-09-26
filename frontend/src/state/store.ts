@@ -170,6 +170,9 @@ interface State {
   /** Панель остановок выбранного маршрута справа от списка маршрутов. */
   stopsOpen: boolean;
   setStopsOpen: (open: boolean) => void;
+  /** Маршрут по станциям и дням поверх карты. */
+  matrixOpen: boolean;
+  setMatrixOpen: (open: boolean) => void;
   horizon: Horizon;
   tab: RightTab;
   scenario: Scenario;
@@ -239,6 +242,8 @@ export const useStore = create<State>((set, get) => {
     segment: null,
     stopsOpen: false,
     setStopsOpen: (stopsOpen) => set({ stopsOpen }),
+    matrixOpen: false,
+    setMatrixOpen: (matrixOpen) => set({ matrixOpen }),
     horizon: 'day',
     tab: 'forecast',
     scenario: { coefficients: {}, events: [] },
@@ -283,7 +288,7 @@ export const useStore = create<State>((set, get) => {
     setSpeed: (speed) => set(manual({ speed })),
     setFollowNow: (on) => set(on ? { followNow: true, playing: false, speed: 1, minute: nowOnTimeline(), nowNotice: null }
       : { followNow: false }),
-    selectRoute: (route) => set(route == null ? { route, stop: null, segment: null, stopsOpen: false }
+    selectRoute: (route) => set(route == null ? { route, stop: null, segment: null, stopsOpen: false, matrixOpen: false }
       : { route, stop: null, segment: null }),
     selectStop: (stop) => set({ stop, segment: null }),
     setSegment: (segment) => set({ segment, stop: null }),

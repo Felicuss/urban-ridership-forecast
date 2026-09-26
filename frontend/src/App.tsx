@@ -6,6 +6,7 @@ import {
 import { useWeatherGrid } from './hooks/useWeather';
 import { useStore } from './state/store';
 import { useClock } from './hooks/useClock';
+import { useHotkeys } from './hooks/useHotkeys';
 import { TIMELINE_DAYS, dayIndex, isoDate } from './lib/time';
 import { LEAVE_MS, TramLoader } from './components/boot/TramLoader';
 import { TopBar } from './components/layout/TopBar';
@@ -13,6 +14,7 @@ import { RouteList } from './components/layout/RouteList';
 import { StopsPanel } from './components/layout/StopsPanel';
 import { Timeline } from './components/layout/Timeline';
 import { MapOverlay } from './components/map/MapOverlay';
+import { StationMatrix } from './components/panels/StationMatrix';
 import { TramDots } from './components/ui/Controls';
 import styles from './App.module.css';
 
@@ -28,6 +30,7 @@ const LOADER_MIN_MS = 1400;
 
 export function App() {
   useClock();
+  useHotkeys();
   const intro = useStore((s) => s.flags.intro);
   const motion = useStore((s) => s.flags.motion);
   const day = useStore((s) => dayIndex(s.minute));
@@ -35,6 +38,7 @@ export function App() {
   const route = useStore((s) => s.route);
   const stopsOpen = useStore((s) => s.stopsOpen);
   const boardOpen = useStore((s) => s.boardOpen);
+  const matrixOpen = useStore((s) => s.matrixOpen);
   const meta = useMeta();
   const network = useNetwork();
   const factors = useFactors();
@@ -102,6 +106,7 @@ export function App() {
           </Suspense>
         )}
         {phase === 'done' || !intro ? <MapOverlay load={load.data} weather={weatherOn ? weather.data : undefined} /> : null}
+        {matrixOpen && route != null && <StationMatrix key={route} route={route} />}
       </main>
       <aside className={styles.right}>
         <Suspense fallback={<div className={styles.pending}><TramDots label="Загружаем панель" /></div>}>
