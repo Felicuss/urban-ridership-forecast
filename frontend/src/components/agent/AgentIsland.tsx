@@ -16,11 +16,21 @@ interface Line {
   text: string;
 }
 
+/** Что умеет помощник: коротко, словами диспетчера. */
+const SKILLS = [
+  'считает посадки по маршруту, остановке или всей сети на час, день, неделю, месяц',
+  'находит часы, где на рейс входит больше людей, чем помещается в вагон, и советует интервал',
+  'сравнивает маршруты и даты между собой',
+  'примеряет перекрытие, мероприятие или снегопад и говорит, сколько пассажиров потеряем',
+  'сам открывает нужную дату, маршрут и панель на карте',
+];
+
 const EXAMPLES = [
   'Покажи 17 маршрут 14 ноября в 8 утра',
   'Где на этой неделе рейсы переполнены?',
   'Сравни посадки 7 и 17 маршрута за ноябрь',
   'Что будет, если перекрыть 17 маршрут в субботу днём?',
+  'Какой пиковый час у 26 маршрута в понедельник?',
 ];
 
 export function AgentIsland() {
@@ -30,6 +40,7 @@ export function AgentIsland() {
   const [steps, setSteps] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [draft, setDraft] = useState('');
+  const [help, setHelp] = useState(false);
   const abort = useRef<AbortController | null>(null);
   const input = useRef<HTMLInputElement>(null);
   const log = useRef<HTMLDivElement>(null);
@@ -41,6 +52,7 @@ export function AgentIsland() {
     const context = { date: isoDate(dayIndex(s.minute)), hour: hourOf(s.minute), route: s.route, stop: s.stop,
       view: s.viewMode, tab: s.tab, horizon: s.horizon };
     setDraft('');
+    setHelp(false);
     setOpen(true);
     setBusy(true);
     setSteps([]);
@@ -126,16 +138,21 @@ export function AgentIsland() {
         <div className={styles.panel} role="dialog" aria-label="Помощник диспетчера">
           <header>
             <b>Помощник диспетчера</b>
-            <small>{status === undefined ? 'проверяю…' : notReady ? 'не настроен: нет ключа модели'
-              : status ? `${status.model}, память ${status.memory === 'redis' ? 'Redis' : 'в процессе'}` : 'сервис недоступен'}</small>
+            <small title={status ? `модель ${status.model}, память ${status.memory}` : undefined}>
+              {status === undefined ? 'проверяю…' : notReady ? 'не настроен: нет ключа модели' : status ? 'на связи' : 'сервис недоступен'}
+            </small>
+            <button type="button" title="Что умеет помощник и примеры вопросов" aria-pressed={help}
+              onClick={() => setHelp((v) => !v)}><Icon.help /></button>
             <button type="button" title="Начать диалог заново" onClick={() => { setLines([]); void resetAgent(); }}>
               <Icon.reset /></button>
             <button type="button" aria-label="Свернуть" onClick={() => setOpen(false)}><Icon.close /></button>
           </header>
           <div ref={log} className={styles.log} aria-live="polite">
-            {lines.length === 0 && (
+            {(lines.length === 0 || help) && (
               <div className={styles.examples}>
-                <p>Спросите словами: агент посчитает, покажет на карте и откроет нужную панель.</p>
+                <p>Спросите словами или голосом (кнопка с микрофоном). Помощник отвечает по прогнозу сервиса:</p>
+                <ul className={styles.skills}>{SKILLS.map((x) => <li key={x}>{x}</li>)}</ul>
+                <p>Нажмите на пример, чтобы спросить:</p>
                 {EXAMPLES.map((x) => <button key={x} type="button" onClick={() => void send(x)}>{x}</button>)}
               </div>
             )}
