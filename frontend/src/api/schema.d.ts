@@ -42,6 +42,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/forecast/explain": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Из чего сложился прогноз
+         * @description Посадки маршрута или сети за сутки после каждого шага формулы: профиль последних недель, уровень месяца, календарь, события сети, погода, поправка до v11, события сценария.
+         */
+        get: operations["explain"];
+        put?: never;
+        /**
+         * Из чего сложился прогноз сценария
+         * @description То же, что GET /explain, но с ползунками и событиями сценария.
+         */
+        post: operations["explainScenario"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/export": {
         parameters: {
             query?: never;
@@ -519,6 +543,41 @@ export interface components {
             name?: string;
             estimate?: boolean;
         };
+        /** @description Из чего сложился прогноз маршрута или сети за сутки */
+        ExplainRequest: {
+            /**
+             * Format: int32
+             * @description маршрут; пусто - вся сеть
+             * @example 17
+             */
+            route?: number;
+            /** @example 2025-11-18 */
+            date?: string;
+            /**
+             * @description ключ ползунка из /api/v1/coefficients -> значение
+             * @example {
+             *       "level_nov": 1.02
+             *     }
+             */
+            coefficients?: {
+                [key: string]: unknown;
+            };
+            events?: components["schemas"]["EventDto"][];
+        };
+        /** @description Шаги: profile - профиль последних недель, level - уровень месяца, calendar - календарь, network - события сети, weather - погода, model - поправка до v11, scenario - события сценария */
+        ExplainResponse: {
+            /** Format: int32 */
+            route?: number;
+            date?: string;
+            steps?: components["schemas"]["Step"][];
+        };
+        Step: {
+            key?: string;
+            /** Format: double */
+            value?: number;
+            /** Format: double */
+            delta?: number;
+        };
         ExportRequest: {
             /**
              * @description csv или xlsx
@@ -833,6 +892,58 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ScenarioResponse"];
+                };
+            };
+        };
+    };
+    explain: {
+        parameters: {
+            query: {
+                /**
+                 * @description маршрут; без него - вся сеть
+                 * @example 17
+                 */
+                route?: number;
+                /** @example 2025-11-18 */
+                date: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ExplainResponse"];
+                };
+            };
+        };
+    };
+    explainScenario: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExplainRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ExplainResponse"];
                 };
             };
         };

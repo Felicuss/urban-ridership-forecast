@@ -44,6 +44,7 @@ API и интерфейс закрыты входом. По умолчанию �
 | `POST /api/v1/auth/login`, `POST /api/v1/auth/logout`, `GET /api/v1/auth/me` | Вход, выход и текущий пользователь |
 | `GET /api/v1/forecast` | Ряд прогноза. `level=route\|stop\|segment\|network`, `id`, `from`, `to`, `granularity=hour\|day\|month`, `hours=7-9`, `horizon=day\|week\|month\|year`. Неделя и месяц идут по дням, у каждой точки за сутки есть `peak` и `peakAt` - самый загруженный час. Для участка ещё `direction`, `fromStop`, `toStop` |
 | `POST /api/v1/forecast/scenario` | Пересчёт по ползункам и событиям: ряд сценария, базовый ряд и разница по каждой точке |
+| `GET /api/v1/forecast/explain?route=&date=` | Из чего сложился прогноз за сутки: посадки маршрута или сети после каждого шага формулы (профиль истории, уровень месяца, календарь, события сети, погода, поправка до v11, события сценария) и вклад шага. `POST` - то же по сценарию |
 | `GET /api/v1/coefficients` | Ползунки: значение по умолчанию, диапазон, шаг, источник |
 | `GET /api/v1/network` | Трассы по направлениям и остановки в GeoJSON, с ETag |
 | `GET /api/v1/network/load?date=&hours=` | Кадры тепловой карты: посадки каждого маршрута и остановки по часам даты. `POST` - то же по сценарию |

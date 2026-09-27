@@ -45,6 +45,59 @@ public final class ForecastEngine {
 		return out;
 	}
 
+	/**
+	 * Шаги формулы для водопада «из чего сложился прогноз»: посадки за сутки после каждого шага, по одному
+	 * маршруту или по всей сети (route = null). Порядок шагов - {@link Explanation#STEPS}, последний шаг
+	 * равен прогнозу сценария.
+	 */
+	public Explanation explain(Scenario scenario, Integer route, LocalDate date) {
+		ForecastGrid grid = components.grid();
+		int d = grid.dayIndex(date);
+		Coefficients c = scenario.coefficients();
+		double[] totals = new double[Explanation.STEPS.size()];
+		for (int r = 0; r < grid.routes().size(); r++) {
+			int id = grid.routes().get(r);
+			if (route != null && route != id) {
+				continue;
+			}
+			for (int h = 0; h < ForecastGrid.HOURS; h++) {
+				int cell = grid.cell(r, d, h);
+				double base = id == ROUTE_NEW ? 0.0 : components.base(cell);
+				double levelled = base * level(date.getMonthValue(), c);
+				double calendar = id == ROUTE_NEW ? 0.0 : calendar(cell, levelled, h, c);
+				double rules = id == ROUTE_NEW ? route5(cell, date, h, c) : regular(cell, id, date, h, c);
+				double weathered = weather(cell, rules, c);
+				double model = weathered * components.calib(cell);
+				double[] step = { base, levelled, calendar, rules, weathered, model,
+						Math.max(events(model, id, date, h, scenario.events()), 0.0) };
+				for (int i = 0; i < totals.length; i++) {
+					totals[i] += step[i];
+				}
+			}
+		}
+		return new Explanation(totals);
+	}
+
+	/** Календарь без событий сети: праздник, рабочая суббота, предновогодние дни, 31 декабря. */
+	private double calendar(int cell, double levelled, int hour, Coefficients c) {
+		ForecastComponents k = components;
+		double pred = levelled * (k.holiday(cell) && k.dayOfWeek(cell) <= FRIDAY ? c.holidayToSunday() : 1.0);
+		pred = pred * (k.workingSaturday(cell) ? c.workingSaturday() : 1.0);
+		pred = pred * (k.preNewYear(cell) ? c.lastWorkdaysDec() : 1.0);
+		pred = pred * (k.newYearEve(cell) ? c.dec31Day() : 1.0);
+		return freeTravel(cell, hour, c) ? 0.0 : pred;
+	}
+
+	/** Посадки за сутки после каждого шага формулы. */
+	public record Explanation(double[] totals) {
+
+		/** profile - профиль последних недель, level - уровень месяца, calendar - календарь, network - события
+		 * сети (выходные 7 и 50, Т1, маршрут 5), weather - погода, model - поправка до v11, scenario - события сценария. */
+		public static final List<String> STEPS = List.of("profile", "level", "calendar", "network", "weather", "model",
+				"scenario");
+
+	}
+
 	/** Уровень месяца: сезонный из ползунка, при весе трафика - среднее в логарифме с уровнем по трафику. */
 	double level(int month, Coefficients c) {
 		double seasonal = month == NOVEMBER ? c.levelNov() : c.levelDec();

@@ -11,12 +11,16 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import reactor.core.publisher.Mono;
+import ru.mojarung.tramload.api.dto.ExplainRequest;
+import ru.mojarung.tramload.api.dto.ExplainResponse;
 import ru.mojarung.tramload.api.dto.ForecastQueryDto;
 import ru.mojarung.tramload.api.dto.ForecastResponse;
 import ru.mojarung.tramload.api.dto.ScenarioRequest;
 import ru.mojarung.tramload.api.dto.ScenarioResponse;
 import ru.mojarung.tramload.application.ForecastService;
 import ru.mojarung.tramload.application.ScenarioService;
+import ru.mojarung.tramload.domain.ForecastEngine;
+import ru.mojarung.tramload.domain.Scenario;
 import ru.mojarung.tramload.domain.ValidationException;
 
 /**
@@ -55,6 +59,44 @@ public class ForecastController {
 		ForecastQueryDto dto = new ForecastQueryDto(level, id, direction, fromStop, toStop, from, to, hours, granularity,
 				horizon);
 		return Mono.fromCallable(() -> Views.forecast(forecasts.forecast(Requests.query(dto))));
+	}
+
+	@GetMapping("/explain")
+	@Operation(summary = "Из чего сложился прогноз",
+			description = "Посадки маршрута или сети за сутки после каждого шага формулы: профиль последних недель, "
+					+ "уровень месяца, календарь, события сети, погода, поправка до v11, события сценария.")
+	public Mono<ExplainResponse> explain(
+			@Parameter(description = "маршрут; без него - вся сеть", example = "17") @RequestParam(
+					required = false) Integer route,
+			@Parameter(example = "2025-11-18") @RequestParam String date) {
+		return Mono.fromCallable(() -> explanation(route, date, scenarios.defaultScenario()));
+	}
+
+	@PostMapping("/explain")
+	@Operation(summary = "Из чего сложился прогноз сценария",
+			description = "То же, что GET /explain, но с ползунками и событиями сценария.")
+	public Mono<ExplainResponse> explainScenario(@RequestBody ExplainRequest request) {
+		return Mono.fromCallable(() -> {
+			if (request == null) {
+				throw ValidationException.of("body", "пустой запрос");
+			}
+			Scenario scenario = scenarios.resolve(request.coefficients(), Requests.events(request.events()));
+			return explanation(request.route(), request.date(), scenario);
+		});
+	}
+
+	private ExplainResponse explanation(Integer route, String date, Scenario scenario) {
+		var day = Params.date(date, "date");
+		if (day == null) {
+			throw ValidationException.of("date", "нужна дата, например 2025-11-18");
+		}
+		ForecastEngine.Explanation e = scenarios.explain(scenario, route, day);
+		var steps = new java.util.ArrayList<ExplainResponse.Step>();
+		for (int i = 0; i < e.totals().length; i++) {
+			double delta = i == 0 ? e.totals()[0] : e.totals()[i] - e.totals()[i - 1];
+			steps.add(new ExplainResponse.Step(ForecastEngine.Explanation.STEPS.get(i), e.totals()[i], delta));
+		}
+		return new ExplainResponse(route, day.toString(), steps);
 	}
 
 	@PostMapping("/scenario")

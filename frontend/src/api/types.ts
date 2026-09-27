@@ -226,3 +226,10 @@ export interface NetworkGeoJson {
     properties: NetworkFeatureProps;
   }[];
 }
+
+/** Шаг водопада «из чего сложился прогноз»: посадки за сутки после шага и его вклад. */
+export interface ExplainStep {
+  key: 'profile' | 'level' | 'calendar' | 'network' | 'weather' | 'model' | 'scenario';
+  value: number;
+  delta: number;
+}

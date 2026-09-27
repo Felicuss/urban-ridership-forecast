@@ -94,7 +94,8 @@ class ExportTest {
 
 		int stops = TestArtifacts.model().network().stops().size();
 		assertThat(lines).hasSize(stops * 61);
-		assertThat(lines).filteredOn(l -> l.contains("\"\"")).isNotEmpty()
+		// названия вида Метро «ВДНХ»: ёлочки для CSV не особые, строка остаётся в своих восьми колонках
+		assertThat(lines).filteredOn(l -> l.contains("«")).isNotEmpty()
 			.allSatisfy(l -> assertThat(l.replaceAll("\"[^\"]*(\"\"[^\"]*)*\"", "X").split(";")).hasSize(8));
 	}
 

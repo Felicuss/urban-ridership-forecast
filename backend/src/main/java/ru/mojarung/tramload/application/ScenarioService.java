@@ -72,6 +72,18 @@ public final class ScenarioService {
 		return cache.get(scenario, engine::compute);
 	}
 
+	/** Шаги формулы за сутки по маршруту или сети (route = null) для водопада «из чего сложился прогноз». */
+	public ForecastEngine.Explanation explain(Scenario scenario, Integer route, java.time.LocalDate date) {
+		ForecastGrid grid = model.grid();
+		if (route != null && !grid.hasRoute(route)) {
+			throw ValidationException.of("route", "маршрута " + route + " нет в прогнозе");
+		}
+		if (!grid.contains(date)) {
+			throw ValidationException.of("date", "разбор есть для дат почасового прогноза " + grid.start() + " - " + grid.end());
+		}
+		return engine.explain(scenario, route, date);
+	}
+
 	public double[] defaultPrediction() {
 		return defaultPrediction;
 	}

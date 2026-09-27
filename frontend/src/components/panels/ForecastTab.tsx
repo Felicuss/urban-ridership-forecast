@@ -9,6 +9,7 @@ import { CAPACITY, MIN_HEADWAY, headway } from '../../lib/dispatch';
 import { BandChart, type BandSeries } from '../charts/BandChart';
 import { Card, InfoTip, Kpi, Segmented, TramDots } from '../ui/Controls';
 import { CompareBar, compareLabel } from './CompareBar';
+import { ExplainCard } from './ExplainCard';
 import styles from './Panels.module.css';
 
 const SOURCE_LABEL: Record<string, string> = { fact: 'факт', forecast: 'прогноз', outlook: 'оценка' };
@@ -189,6 +190,9 @@ export function ForecastTab() {
           {' '}Белый пунктир - посадки, восстановленные по прошлым неделям: {fmtInt(gap.restored)} за период при факте {fmtInt(gap.fact)}.
         </p>
       )}
+      {horizon === 'day' && (target.level === 'route' || target.level === 'network') && inHourlyForecast(isoDate(day)) && (
+        <ExplainCard route={target.level === 'route' ? target.route ?? null : null} date={isoDate(day)} title={target.name} />
+      )}
       <CompareBar day={day} horizon={horizon} series={series} other={compareQuery ? other : undefined} />
       {byDay && <PeakDays points={series.points} horizon={horizon} day={day}
         onPick={(d, h) => setMinute(d * MINUTES_PER_DAY + h * 60 + 30)} />}
@@ -197,6 +201,11 @@ export function ForecastTab() {
       {series.notes.map((n) => <p key={n} className={styles.note}>{n}</p>)}
     </div>
   );
+}
+
+/** Почасовой прогноз модели есть на 1 ноября - 31 декабря 2025: разбор по шагам формулы только для этих дат. */
+function inHourlyForecast(date: string): boolean {
+  return date >= '2025-11-01' && date <= '2025-12-31';
 }
 
 /** Точность с тремя знаками и десятичной запятой: 0.8912 -> «0,891». */

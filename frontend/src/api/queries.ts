@@ -2,7 +2,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { api, getJson, unwrap, type Schemas } from './client';
 import type {
-  CalendarDay, Coefficient, Factors, Granularity, Horizon, Level, Meta, NetworkGeoJson, NetworkLoad, Point, RouteInfo,
+  CalendarDay, Coefficient, ExplainStep, Factors, Granularity, Horizon, Level, Meta, NetworkGeoJson, NetworkLoad, Point, RouteInfo,
   RouteStop, Scenario, Series, Stop,
 } from './types';
 import { isDefaultScenario } from '../state/store';
@@ -208,4 +208,23 @@ export async function download(format: 'csv' | 'xlsx', q: SeriesQuery & { ids?: 
   a.download = name;
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+/** Из чего сложился прогноз маршрута или сети за сутки: шаги формулы от профиля до итога сценария. */
+export function useExplain(route: number | null, date: string, scenario: Scenario, enabled: boolean) {
+  const s = useDebounced(scenario);
+  const custom = !isDefaultScenario(s);
+  return useQuery({
+    queryKey: ['explain', route, date, custom ? s : null],
+    enabled,
+    placeholderData: keepPreviousData,
+    staleTime: Infinity,
+    queryFn: async () => {
+      const r = route ?? undefined;
+      const body = custom
+        ? unwrap(await api.POST('/api/v1/forecast/explain', { body: { route: r, date, coefficients: s.coefficients, events: s.events } }))
+        : unwrap(await api.GET('/api/v1/forecast/explain', { params: { query: { route: r, date } } }));
+      return (body.steps ?? []) as ExplainStep[];
+    },
+  });
 }
