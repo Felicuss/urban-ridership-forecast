@@ -186,6 +186,8 @@ interface State {
   settingsOpen: boolean;
   /** Тур по разделам: сам открывается при первом входе, потом по кнопке «?» в верхней строке. */
   tourOpen: boolean;
+  layoutTourOpen: boolean;
+  setLayoutTourOpen: (open: boolean) => void;
   setTourOpen: (open: boolean) => void;
   alerts: AlertRule[];
   addAlert: (rule: Omit<AlertRule, 'id'>) => void;
@@ -269,6 +271,8 @@ export const useStore = create<State>((set, get) => {
     },
     settingsOpen: false,
     tourOpen: false,
+    layoutTourOpen: false,
+    setLayoutTourOpen: (layoutTourOpen) => set({ layoutTourOpen }),
     setTourOpen: (tourOpen) => set({ tourOpen }),
     alerts: loadAlerts(),
     addAlert: (rule) => {

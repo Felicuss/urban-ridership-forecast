@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useLayout, type LayoutMode } from '../../state/layout';
 import { useStore } from '../../state/store';
-import { MINUTES_PER_DAY, dayIndex } from '../../lib/time';
+import { MINUTES_PER_DAY, dayIndex, nowOnTimeline } from '../../lib/time';
 import { Icon } from '../ui/Icons';
 import { MARGIN, SHEET_WIDTH, pad, placeCard, union, type Box, type Placement } from './place';
-import { STEPS } from './steps';
+import { LAYOUT_STEPS } from './layoutSteps';
+import { STEPS, type TourStep } from './steps';
 import styles from './Tour.module.css';
 
 // Тур по разделам: экран затемнён, подсвеченный блок остаётся живым, с ним можно работать прямо во время тура.
@@ -12,22 +13,23 @@ import styles from './Tour.module.css';
 // потом по кнопке «?» в верхней строке.
 
 const SEEN_KEY = 'tram-ui.tour.v1';
-let seenThisSession = false;
+const LAYOUT_SEEN_KEY = 'tram-ui.layout-tour.v1';
+const seenThisSession = new Set<string>();
 
 /** Тур уже показывали в этом браузере: закончили или пропустили. */
-export function tourSeen(): boolean {
-  if (seenThisSession) return true;
+export function tourSeen(key = SEEN_KEY): boolean {
+  if (seenThisSession.has(key)) return true;
   try {
-    return localStorage.getItem(SEEN_KEY) != null;
+    return localStorage.getItem(key) != null;
   } catch {
     return false;
   }
 }
 
-function markSeen(): void {
-  seenThisSession = true;
+function markSeen(key: string): void {
+  seenThisSession.add(key);
   try {
-    localStorage.setItem(SEEN_KEY, new Date().toISOString());
+    localStorage.setItem(key, new Date().toISOString());
   } catch {
     // приватный режим браузера: до перезагрузки тур сам не откроется
   }
@@ -51,20 +53,45 @@ function targetsOf(selectors: string[] | undefined): Element[] {
 
 export function Tour() {
   const open = useStore((s) => s.tourOpen);
-  return open ? <TourRun /> : null;
+  const setTourOpen = useStore((s) => s.setTourOpen);
+  return open ? <TourRun steps={STEPS} seenKey={SEEN_KEY} finale onClose={() => setTourOpen(false)} /> : null;
 }
 
-function TourRun() {
-  const setTourOpen = useStore((s) => s.setTourOpen);
+/**
+ * Тур по раскладкам: сам открывается, когда раскладку впервые переключили с карты на сплит или панели,
+ * и по кнопке «?» в заголовке виджета. После тура остаётся та раскладка, которую выбрал диспетчер.
+ */
+export function LayoutTour() {
+  const open = useStore((s) => s.layoutTourOpen);
+  const setOpen = useStore((s) => s.setLayoutTourOpen);
+  const mode = useLayout((s) => s.mode);
+  const prev = useRef(mode);
+  useEffect(() => {
+    const from = prev.current;
+    prev.current = mode;
+    if (from === 'map' && mode !== 'map' && !tourSeen(LAYOUT_SEEN_KEY) && !useStore.getState().tourOpen) setOpen(true);
+  }, [mode, setOpen]);
+  return open ? <TourRun steps={LAYOUT_STEPS} seenKey={LAYOUT_SEEN_KEY} onClose={() => setOpen(false)} /> : null;
+}
+
+function TourRun({ steps: STEPS, seenKey, finale = false, onClose }: {
+  steps: TourStep[];
+  seenKey: string;
+  /** Последний шаг предлагает пустить время с утра: у основного тура. */
+  finale?: boolean;
+  onClose: () => void;
+}) {
   const [index, setIndex] = useState(0);
   const [hole, setHole] = useState<Box | null>(null);
   const [place, setPlace] = useState<Placement | null>(null);
   const card = useRef<HTMLDivElement>(null);
   const primary = useRef<HTMLButtonElement>(null);
-  /** Раскладка, из которой тур переключил на карту; при закрытии она возвращается. */
-  const layoutBefore = useRef<LayoutMode | null>(null);
+  /** Раскладка до тура: тур переключает раскладки под шаги, а при закрытии она возвращается. */
+  const layoutBefore = useRef<LayoutMode>(useLayout.getState().mode);
   /** Вкладка правой панели до тура: закрытый на полпути тур возвращает её. */
   const tabBefore = useRef(useStore.getState().tab);
+  /** Время до тура: тур ставит утренний пик 18 ноября, а закрытый тур возвращает день, час и режим «Сейчас». */
+  const timeBefore = useRef((({ minute, playing, speed, followNow }) => ({ minute, playing, speed, followNow }))(useStore.getState()));
   const step = STEPS[index]!;
   const last = index === STEPS.length - 1;
 
@@ -73,11 +100,15 @@ function TourRun() {
   }, []);
 
   const close = useCallback((restore = true) => {
-    markSeen();
-    if (restore && layoutBefore.current) useLayout.getState().setMode(layoutBefore.current);
-    if (restore) useStore.getState().setTab(tabBefore.current);
-    setTourOpen(false);
-  }, [setTourOpen]);
+    markSeen(seenKey);
+    if (restore && useLayout.getState().mode !== layoutBefore.current) useLayout.getState().setMode(layoutBefore.current);
+    if (restore) {
+      useStore.getState().setTab(tabBefore.current);
+      const t = timeBefore.current;
+      useStore.setState({ ...t, minute: t.followNow ? nowOnTimeline() : t.minute, nowNotice: null });
+    }
+    onClose();
+  }, [seenKey, onClose]);
 
   const playDay = () => {
     const day = dayIndex(useStore.getState().minute);
@@ -90,10 +121,7 @@ function TourRun() {
   useEffect(() => {
     if (step.tab) useStore.getState().setTab(step.tab);
     const layout = useLayout.getState();
-    if (step.map && layout.mode === 'panels') {
-      layoutBefore.current = 'panels';
-      layout.setMode('map');
-    }
+    if (step.map && layout.mode === 'panels') layout.setMode('map');
     step.prepare?.();
   }, [step]);
 
@@ -189,7 +217,9 @@ function TourRun() {
           {index === 0
             ? <button type="button" className={styles.quiet} onClick={() => close()}>Пропустить</button>
             : <button type="button" className={styles.quiet} onClick={() => go(-1)}>Назад</button>}
-          {last ? (
+          {last && !finale ? (
+            <button ref={primary} type="button" className={styles.primary} onClick={() => close()}>Понятно</button>
+          ) : last ? (
             <>
               <button type="button" className={styles.second} onClick={() => close()}>Закончить</button>
               <button ref={primary} type="button" className={styles.primary} onClick={playDay}>

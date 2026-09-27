@@ -189,7 +189,7 @@ function LayoutSwitch() {
   const mode = useLayout((s) => s.mode);
   const setMode = useLayout((s) => s.setMode);
   return (
-    <div className={styles.layout} role="radiogroup" aria-label="Раскладка экрана">
+    <div className={styles.layout} role="radiogroup" aria-label="Раскладка экрана" data-tour="layout">
       {LAYOUTS.map((l) => (
         <button key={l.mode} type="button" role="radio" aria-checked={mode === l.mode} aria-label={l.label} title={l.hint}
           className={mode === l.mode ? styles.layoutOn : styles.layoutBtn} onClick={() => setMode(l.mode)}>{l.icon}</button>
