@@ -214,5 +214,13 @@
     "platform_display_number": 1,
     "submitted_at": "2026-09-27T14:04:00+03:00",
     "evidence": "Platform result 27.09.2026 14:04 +03:00, score 0.90274. v11 daily totals distributed over hours by the s85 shape."
+  },
+  {
+    "file": "submission_ensemble_e1.csv",
+    "sha256": "0c0f056b88a4ed9789c13550aa8ac209eb469acffd855b54c44770d54825ccca",
+    "leaderboard_score": 0.90742,
+    "platform_display_number": 1,
+    "submitted_at": "2026-09-27T16:14:00+03:00",
+    "evidence": "Platform result 27.09.2026 16:14 +03:00, score 0.90742. analysis/s86_model_ensemble.py: v11, v8, v9 equal weights."
   }
 ]

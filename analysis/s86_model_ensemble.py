@@ -18,10 +18,17 @@ from common import ROOT
 
 FORECASTS = ROOT / "forecasts"
 MODELS = {"v11": "submission_seasonal_daily_v11.csv", "v8": "submission_joint_day_v8.csv",
-          "v9": "submission_architecture_v9.csv", "s85": "submission_level_shape_v12.csv"}
+          "v9": "submission_architecture_v9.csv", "s85": "submission_level_shape_v12.csv",
+          "v5": "submission_arima_v5.csv"}
 BLENDS = {
     "submission_ensemble_e1.csv": {"v11": 1 / 3, "v8": 1 / 3, "v9": 1 / 3},
     "submission_ensemble_e2.csv": {"v11": 0.5, "v8": 0.25, "v9": 0.25},
+    # e1 на табло 0.90742, на 0.00129 выше своего пола: выигрыш от разнообразия есть, но равные доли
+    # отдают слишком много слабым моделям. Если выигрыш растёт как 1 - сумма квадратов весов, оптимум
+    # у v11 около 2/3, ожидание около 0.9077.
+    "submission_ensemble_e3.csv": {"v11": 0.65, "v8": 0.175, "v9": 0.175},
+    # больше разных архитектур с малыми весами: ARIMA по дневным рядам и прозрачная s85
+    "submission_ensemble_e4.csv": {"v11": 0.6, "v8": 0.12, "v9": 0.12, "v5": 0.08, "s85": 0.08},
 }
 
 
