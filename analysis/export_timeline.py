@@ -1,8 +1,8 @@
-"""Шкала времени интерфейса: 01.01.2025 - 31.10.2026, чтобы смотреть любую дату, а не только горизонт.
+"""Шкала времени интерфейса: 01.01.2025 - 31.12.2027, чтобы смотреть любую дату, а не только горизонт.
 
 - январь-октябрь 2025 - факт: успешные валидации по часам из данных организаторов;
 - ноябрь-декабрь 2025 - почасовой прогноз модели (forecast_components.csv, пересчитывается сценарием);
-- январь-октябрь 2026 - оценка: месячный прогноз года (forecast_year.csv, сезонный индекс) раскладывается
+- январь 2026 - декабрь 2027 - оценка: месячный прогноз года (forecast_year.csv, сезонный индекс) раскладывается
   по дням и по часам. Сумма месяца маршрута не меняется, внутри месяца вес дня - произведение поправок
   (analysis/outlook_factors.py, все оценены по факту 2025 года): тип дня (суббота, воскресенье и праздник
   к будню - из прогноза декабря 2025), день недели Пн-Пт, школьные каникулы, погода Open-Meteo по коэффициентам
@@ -28,7 +28,7 @@ from calendar_ru import calendar_frame
 from common import ROOT, ROUTES, load_labels
 from outlook_factors import OutlookFactors, smooth_daily
 
-TIMELINE_START, TIMELINE_END = "2025-01-01", "2026-10-31"
+TIMELINE_START, TIMELINE_END = "2025-01-01", "2027-12-31"
 FACT_END, FORECAST_END = "2025-10-31", "2025-12-31"
 SHAPE_FROM, SHAPE_TO = "2025-12-01", "2025-12-28"
 ROUTE5_SHAPE_FROM = "2025-12-17"
@@ -63,12 +63,21 @@ def calendar_2026() -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def calendar_2027() -> pd.DataFrame:
+    # Постановление Правительства РФ 17.09.2026 №1187; источник и правила в external/production_calendar_2027.md.
+    cal = pd.read_csv(ROOT / "external" / "production_calendar_2027.csv", parse_dates=["date"])
+    cal["dow"] = cal.date.dt.dayofweek
+    cal["day_type"] = ["workday" if not off else "holiday" if dow < 5 else
+                       "saturday" if dow == 5 else "sunday" for off, dow in zip(cal.day_off, cal.dow)]
+    return cal
+
+
 def timeline_calendar() -> pd.DataFrame:
     y2025 = calendar_frame("2025-01-01", "2025-12-31")
     y2025 = pd.DataFrame({"date": y2025.date, "dow": y2025.dow, "day_type": y2025.day_type,
                           "day_off": y2025.is_day_off,
                           "holiday": y2025.holiday_name.replace("", None)})
-    cal = pd.concat([y2025, calendar_2026()], ignore_index=True)
+    cal = pd.concat([y2025, calendar_2026(), calendar_2027()], ignore_index=True)
     cal = cal[(cal.date >= TIMELINE_START) & (cal.date <= TIMELINE_END)].reset_index(drop=True)
     cal["kind"] = cal.day_type.replace({"holiday": "sunday"})
     cal["source"] = cal.date.map(source_of)
@@ -169,8 +178,15 @@ def check(cal: pd.DataFrame, actuals: pd.DataFrame, outlook: pd.DataFrame, year:
         raise ValueError(f"в календаре {len(cal)} дней вместо {days}")
     if len(actuals) != len(ROUTES) * 304 * HOURS:
         raise ValueError("факт января-октября 2025 неполный")
+    expected_dates = cal.loc[cal.source == "outlook", "date"]
+    expected = pd.MultiIndex.from_product([ROUTES, expected_dates, range(HOURS)], names=["route", "date", "hour"])
+    cells = outlook.set_index(["route", "date", "hour"])
+    if not cells.index.is_unique or len(cells) != len(expected) or not expected.isin(cells.index).all():
+        raise ValueError("неполная почасовая сетка сезонной оценки")
+    if not np.isfinite(outlook.p50).all() or (outlook.p50 < 0).any():
+        raise ValueError("нечисловые или отрицательные значения оценки")
     sums = outlook.assign(month=outlook.date.str.slice(0, 7)).groupby(["route", "month"]).p50.sum()
     ref = year[year.method == "seasonal_index"].set_index(["route", "month"]).p50
     worst = float((sums.reindex(ref.index) / ref.replace(0, np.nan) - 1).abs().max())
-    if worst > 0.002:
+    if not sums.index.equals(ref.sort_index().index) or not np.isfinite(worst) or worst > 0.002:
         raise ValueError(f"оценка 2026 не сходится с помесячным прогнозом: {worst:.2%}")

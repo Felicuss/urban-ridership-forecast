@@ -35,8 +35,8 @@ const PERIODS: { value: Period; label: string; hint: string }[] = [
   { value: 'week', label: 'Неделя', hint: 'Понедельник-воскресенье выбранного дня' },
   { value: 'month', label: 'Месяц', hint: 'Месяц выбранного дня' },
   { value: 'horizon', label: 'Ноябрь-декабрь', hint: 'Горизонт прогноза из задания' },
-  { value: 'year', label: 'Год', hint: 'Ноябрь 2025 - октябрь 2026 по месяцам' },
-  { value: 'custom', label: 'Свой', hint: 'Любой интервал с января 2025 по октябрь 2026' },
+  { value: 'year', label: 'Год', hint: 'Календарный год выбранной даты, по месяцам' },
+  { value: 'custom', label: 'Свой', hint: 'Любой интервал с января 2025 по декабрь 2027' },
 ];
 
 const STEPS: { value: Step; label: string }[] = [
@@ -55,6 +55,7 @@ function range(period: Period, day: number, from: string, to: string): [string, 
     const m = monthOf(day);
     return [isoDate(m.first), isoDate(m.first + m.days - 1)];
   }
+  if (period === 'year') return [`${isoDate(day).slice(0, 4)}-01-01`, `${isoDate(day).slice(0, 4)}-12-31`];
   if (period === 'horizon') return [HORIZON_START, HORIZON_END];
   return [from, to];
 }
@@ -105,8 +106,8 @@ export function ExportSheet({ onClose }: { onClose: () => void }) {
   const objects = what === 'routes' ? ROUTES : what === 'stops' ? stops?.length ?? 0 : 1;
   const rows = objects * periods;
   const problems = [
-    period === 'custom' && (dayOf(start) < 0 || dayOf(end) < 0 || start > end)
-      ? 'Интервал должен лежать между 1 января 2025 и 31 октября 2026, начало не позже конца.' : null,
+    period === 'custom' && (!Number.isFinite(dayOf(start)) || !Number.isFinite(dayOf(end)) || start < TIMELINE_START || end > TIMELINE_END || start > end)
+      ? 'Интервал должен лежать между 1 января 2025 и 31 декабря 2027, начало не позже конца.' : null,
     hours && hourCount == null ? 'Часы пишутся как «7-10»: с 7:00 до 10:59.' : null,
     rows > MAX_ROWS ? `Выйдет ${fmtInt(rows)} ${plural(rows, ROW_FORMS)}, лист Excel вмещает ${fmtInt(MAX_ROWS)}: `
       + 'сузьте период или возьмите шаг «по суткам».' : null,
@@ -118,7 +119,7 @@ export function ExportSheet({ onClose }: { onClose: () => void }) {
     const level = what === 'target' ? targetQuery(target) : { level: what === 'routes' ? 'route' as const
       : what === 'stops' ? 'stop' as const : 'network' as const };
     const { id, ...rest } = level as ReturnType<typeof targetQuery>;
-    const when: Partial<SeriesQuery> = period === 'year' ? { horizon: 'year' }
+    const when: Partial<SeriesQuery> = period === 'year' ? { horizon: 'year', from: start }
       : { from: start, to: end, granularity: effectiveStep, ...(hours ? { hours: hours.trim() } : {}) };
     try {
       await download(format, { ...rest, ids: id ? [id] : undefined, ...when } as SeriesQuery & { ids?: string[] },
@@ -174,8 +175,8 @@ export function ExportSheet({ onClose }: { onClose: () => void }) {
                 onChange={(e) => setTo(e.target.value)} />
             </div>
           )}
-          <small className={styles.note}>{period === 'year' ? 'Ноябрь 2025 - октябрь 2026' : periodLabel(start, end)}.
-            До ноября 2025 - факт, ноябрь-декабрь 2025 - прогноз, 2026 год - оценка; источник в столбце «источник».</small>
+          <small className={styles.note}>{periodLabel(start, end)}.
+            До ноября 2025 - факт, ноябрь-декабрь 2025 - прогноз, 2026–2027 годы - оценка; источник в столбце «источник».</small>
         </section>
 
         <section className={styles.group}>

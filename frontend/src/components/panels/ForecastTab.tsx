@@ -23,14 +23,14 @@ const HORIZONS: { value: Horizon; label: string; hint: string }[] = [
   { value: 'day', label: 'Сутки', hint: 'По часам выбранного дня' },
   { value: 'week', label: 'Неделя', hint: 'По дням с понедельника по воскресенье, у каждого дня пиковый час' },
   { value: 'month', label: 'Месяц', hint: 'По дням месяца, у каждого дня пиковый час' },
-  { value: 'year', label: 'Год', hint: 'По месяцам: ноябрь 2025 - октябрь 2026' },
+  { value: 'year', label: 'Год', hint: 'Календарный год выбранной даты, по месяцам' },
 ];
 
 const UNIT: Record<Horizon, { total: string; peak: string; now: string }> = {
   day: { total: 'Посадок за сутки', peak: 'Пиковый час', now: 'В выбранный час' },
   week: { total: 'Посадок за неделю', peak: 'Пиковый час недели', now: 'В выбранный день' },
   month: { total: 'Посадок за месяц', peak: 'Пиковый час месяца', now: 'В выбранный день' },
-  year: { total: 'Посадок за 12 месяцев', peak: 'Пиковый месяц', now: 'Ноябрь 2025' },
+  year: { total: 'Посадок за 12 месяцев', peak: 'Пиковый месяц', now: 'В выбранный месяц' },
 };
 
 function label(period: string, horizon: Horizon): string {
@@ -65,7 +65,7 @@ function history2025(factors: Factors | undefined, series: Series, route: number
     const v = routes.reduce((a, r) => a + (factors.history.routes[r]?.[i] ?? 0), 0);
     byMonth.set(m, (byMonth.get(m) ?? 0) + v);
   });
-  return series.points.map((p) => (p.period.startsWith('2026') ? byMonth.get(p.period.slice(5, 7)) ?? null : null));
+  return series.points.map((p) => (p.period.slice(0, 4) >= '2026' ? byMonth.get(p.period.slice(5, 7)) ?? null : null));
 }
 
 export function ForecastTab() {
@@ -85,7 +85,7 @@ export function ForecastTab() {
     if (horizon === 'day') return { ...base, horizon: 'day', from: isoDate(day) };
     if (horizon === 'week') return { ...base, horizon: 'week', from: isoDate(weekStart(day)) };
     if (horizon === 'month') return { ...base, horizon: 'month', from: isoDate(day) };
-    return { ...base, horizon: 'year' };
+    return { ...base, horizon: 'year', from: `${isoDate(day).slice(0, 4)}-01-01` };
   }, [target, horizon, day]);
   const { data: series, isFetching } = useSeries(query, scenario);
   const compareDay = useCompareDay(day, horizon);
@@ -153,7 +153,7 @@ export function ForecastTab() {
             sub={horizon === 'day' ? `${peak.period.slice(11, 13)}:00–${Number(peak.period.slice(11, 13)) + 1}:00`
               : monthLabel(peak.period)} tone="accent" />
         )}
-        <Kpi label={UNIT[horizon].now} value={fmtInt(current.p50)}
+        <Kpi label={horizon === 'year' ? monthLabel(current.period) : UNIT[horizon].now} value={fmtInt(current.p50)}
           sub={band(current.p10, current.p90)} />
         {delta != null ? (
           <Kpi label="Сценарий к базе" value={fmtPct(delta)} tone={delta >= 0 ? 'up' : 'down'}

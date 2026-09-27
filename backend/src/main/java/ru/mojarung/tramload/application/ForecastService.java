@@ -16,13 +16,13 @@ public final class ForecastService {
 
 	static final String NOTE_ESTIMATE = "Остановки и участки - оценка: прогноз маршрута разложен по долям остановок, "
 			+ "в валидациях остановки посадки нет";
-	static final String NOTE_YEAR = "Январь-октябрь 2026 - качественный прогноз по сезонному индексу городского "
-			+ "трамвая, коридор ±12 %; ползунки модели на них не влияют, события сценария - на сутках, неделе и месяце";
+	static final String NOTE_YEAR = "2026–2027 годы - качественный прогноз по сезонному индексу городского "
+			+ "трамвая, условный коридор ±12 %, точность и покрытие для 2027 не проверены; ползунки модели на них не влияют, события сценария - на сутках, неделе и месяце";
 
 	static final String NOTE_FACT = "Январь-октябрь 2025 - факт: успешные валидации из данных организаторов, коридора нет";
-	static final String NOTE_OUTLOOK = "2026 год - оценка: помесячный прогноз по сезонному индексу разложен по дням с учётом "
-			+ "типа дня, дня недели, школьных каникул и погоды Open-Meteo (поправки оценены по факту 2025 года), по часам - "
-			+ "формой суток декабря 2025, коридор ±12 %; события сценария её умножают, ползунки модели - нет";
+	static final String NOTE_OUTLOOK = "2026–2027 годы - оценка: помесячный прогноз по сезонному индексу разложен по дням с учётом "
+			+ "типа дня, дня недели, известных школьных каникул и доступной погоды Open-Meteo (поправки оценены по факту 2025 года), по часам - "
+			+ "формой суток декабря 2025, условный коридор ±12 %, точность и покрытие для 2027 не проверены; события сценария её умножают, ползунки модели - нет";
 
 	private final ForecastModel model;
 	private final QueryResolver resolver;
@@ -70,12 +70,14 @@ public final class ForecastService {
 
 	/** Ноябрь и декабрь - из почасового прогноза сценария, дальше - годовой файл с сезонным индексом. */
 	private List<Point> year(ResolvedQuery q, double[] prediction) {
-		List<Point> hourly = aggregator.series(prediction, q.target().weights(), model.grid().start(),
-				model.grid().end(), q.hours(), Granularity.MONTH);
-		List<Point> out = new ArrayList<>(hourly);
-		for (YearMonth month : model.year().months()) {
+		List<Point> out = new ArrayList<>();
+		for (YearMonth month = YearMonth.from(q.from()); !month.isAfter(YearMonth.from(q.to()));
+				month = month.plusMonths(1)) {
 			if (month.isAfter(YearMonth.from(model.grid().end()))) {
 				out.add(Point.of(month.toString(), model.year().total(month, q.target().weights()), Source.OUTLOOK));
+			} else {
+				out.addAll(aggregator.series(prediction, q.target().weights(), month.atDay(1),
+						month.atEndOfMonth(), q.hours(), Granularity.MONTH));
 			}
 		}
 		return out;

@@ -94,6 +94,9 @@ final class OpenAiCompatibleModel implements LanguageModel {
 				fn.set("parameters", json.readTree(t.parametersJson()));
 			}
 		}
+		else {
+			body.put("tool_choice", "none");
+		}
 		return body;
 	}
 

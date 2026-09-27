@@ -9,8 +9,8 @@ export interface AgentEvent {
 }
 
 export type UiAction =
-  | { type: 'show'; date?: string; hour?: number; route?: number; stop?: string; view?: 'top' | 'perspective';
-    horizon?: 'day' | 'month' | 'year'; tab?: 'forecast' | 'shift' | 'scenario' | 'factors' | 'model' }
+  | { type: 'show'; network?: boolean; date?: string; hour?: number; route?: number; stop?: string; view?: 'top' | 'perspective';
+    horizon?: 'day' | 'week' | 'month' | 'year'; tab?: 'forecast' | 'shift' | 'scenario' | 'factors' | 'model' }
   | { type: 'layers'; enable?: string[]; disable?: string[]; hideRoutes?: number[] }
   | { type: 'ride'; route: number; direction?: 0 | 1 };
 
