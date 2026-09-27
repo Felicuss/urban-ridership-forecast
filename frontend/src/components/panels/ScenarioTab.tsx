@@ -174,7 +174,7 @@ function Events() {
     <section className={styles.group}>
       <h3 className={styles.groupTitle}>События: перекрытия, стройки, мероприятия
         <InfoTip>Событие умножает прогноз маршрута (или всех маршрутов) в выбранные дни и часы. 0 - перекрытие,
-          1,3 - на 30 % больше пассажиров. Так подключаются внешние данные, которых нет в модели.</InfoTip></h3>
+          1,3 - на 30 % больше пассажиров. Так в прогноз попадают события, о которых модель не знает.</InfoTip></h3>
       {events.map((e, i) => (
         <div key={`${e.from}-${i}`} className={styles.event}>
           <b>{e.label || 'событие'}: {e.route ? `маршрут ${e.route}` : 'все маршруты'} ×{fmtMultiplier(e.multiplier)}</b>

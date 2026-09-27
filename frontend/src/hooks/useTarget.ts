@@ -1,5 +1,6 @@
 import { useFactors, useStops, type SeriesQuery } from '../api/queries';
 import type { Factors, Level } from '../api/types';
+import { plainDash } from '../lib/format';
 import { routeColor } from '../lib/routes';
 import { useStore, type Segment } from '../state/store';
 
@@ -22,7 +23,7 @@ export function targetQuery(t: Target): Pick<SeriesQuery, 'level' | 'id' | 'dire
 
 /** Конечные маршрута из расписания: «Северное Медведково - Усадьба Останкино». */
 export function routeTitle(factors: Factors | undefined, route: number): string {
-  return factors?.schedule.routes[String(route)]?.title ?? '';
+  return plainDash(factors?.schedule.routes[String(route)]?.title ?? '');
 }
 
 /** Что сейчас прогнозируем: остановка или участок, если выбраны, иначе маршрут, иначе вся сеть. */

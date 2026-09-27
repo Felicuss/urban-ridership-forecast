@@ -40,7 +40,7 @@ export const LAYOUT_STEPS: TourStep[] = [
     prepare: () => useLayout.getState().setMode('panels'),
   },
   {
-    title: 'Всё связано',
+    title: 'Один выбор на все виджеты',
     text: 'Выберите маршрут слева или наберите номер цифрами, листайте дни стрелками: обновляются все виджеты '
       + 'сразу. Вернуться к карте - первым значком или клавишей V.',
     targets: ['[data-tour="routes"]', '[data-tour="timeline"]'],
