@@ -50,7 +50,7 @@ class AgentServiceTest {
 				AgentEvent.Type.UI, AgentEvent.Type.ANSWER);
 		assertThat(events.get(2).action()).containsEntry("route", 17);
 		assertThat(memory.history(SESSION)).extracting(ChatMessage::role)
-			.containsExactly(ChatMessage.Role.USER, ChatMessage.Role.ASSISTANT);
+			.containsExactly(ChatMessage.Role.SYSTEM, ChatMessage.Role.USER, ChatMessage.Role.ASSISTANT);
 		assertThat(model.seen.getFirst().getFirst().content()).contains("date=2025-11-14");
 		assertThat(model.seen.get(1)).anySatisfy(m -> assertThat(m.role()).isEqualTo(ChatMessage.Role.TOOL));
 	}
@@ -100,17 +100,79 @@ class AgentServiceTest {
 	}
 
 	@Test
-	void modelThatNeverStopsCallingToolsIsCutAfterSixSteps() {
+	void sixthRequestSummarisesCollectedDataWithoutToolsAndRemembersTheAnswer() {
 		ScriptedModel model = new ScriptedModel();
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < AgentService.MAX_STEPS - 1; i++) {
 			model.replies.add(calls(new ToolCall("c" + i, "calendar", "{\"n\":" + i + "}")));
 		}
+		model.replies.add(text("Проверена только часть недели: 42 800 посадок, прогноз."));
+		FakeTools tools = new FakeTools();
+		FakeMemory memory = new FakeMemory();
 
-		AgentEvent last = service(model, new FakeTools(), new FakeMemory()).turn(SESSION, "вопрос", Map.of()).blockLast();
+		AgentEvent last = service(model, tools, memory).turn(SESSION, "вопрос", Map.of()).blockLast();
 
 		assertThat(model.seen).hasSize(AgentService.MAX_STEPS);
+		assertThat(model.availableTools.getLast()).isEmpty();
+		assertThat(model.seen.getLast()).noneMatch(m -> m.role() == ChatMessage.Role.TOOL || !m.toolCalls().isEmpty());
+		assertThat(model.seen.getLast().getLast().content()).contains("{\"total\":42800}");
+		assertThat(model.seen.getLast().getFirst().content()).contains("Сбор данных завершён", "часть периода");
+		assertThat(tools.calls).isEqualTo(5);
 		assertThat(last.type()).isEqualTo(AgentEvent.Type.ANSWER);
-		assertThat(last.text()).contains("шесть шагов");
+		assertThat(last.text()).contains("Проверена только часть недели", "42 800");
+		assertThat(memory.history(SESSION).getLast().content()).isEqualTo(last.text());
+	}
+
+	@Test
+	void toolCallOnFinalRequestIsNotExecutedOrReportedAsSuccessfulAnswer() {
+		ScriptedModel model = new ScriptedModel();
+		for (int i = 0; i < AgentService.MAX_STEPS; i++) {
+			model.replies.add(calls(new ToolCall("c" + i, "calendar", "{\"n\":" + i + "}")));
+		}
+		FakeTools tools = new FakeTools();
+
+		AgentEvent last = service(model, tools, new FakeMemory()).turn(SESSION, "вопрос", Map.of()).blockLast();
+
+		assertThat(model.seen).hasSize(6);
+		assertThat(tools.calls).isEqualTo(5);
+		assertThat(last.type()).isEqualTo(AgentEvent.Type.ERROR);
+	}
+
+	@Test
+	void repeatingTheSameUiActionFinalisesEarlyWithoutApplyingItTwice() {
+		ScriptedModel model = new ScriptedModel(calls(new ToolCall("a", "ui_show", "{\"route\":17}")),
+				calls(new ToolCall("b", "ui_show", "{\"route\":17}")), text("Показал маршрут 17."));
+		FakeTools tools = new FakeTools();
+
+		List<AgentEvent> events = service(model, tools, new FakeMemory()).turn(SESSION, "покажи 17", Map.of())
+			.collectList().block();
+
+		assertThat(model.seen).hasSize(3);
+		assertThat(model.availableTools.getLast()).isEmpty();
+		assertThat(tools.calls).isEqualTo(1);
+		assertThat(events).filteredOn(e -> e.type() == AgentEvent.Type.UI).hasSize(1);
+		assertThat(model.seen.getLast()).noneMatch(m -> m.role() == ChatMessage.Role.TOOL || !m.toolCalls().isEmpty());
+		assertThat(model.seen.getLast().getLast().content()).contains("{\"total\":42800}");
+	}
+
+	@Test
+	void dayQuestionCannotExecuteWeeklyTool() {
+		ScriptedModel model = new ScriptedModel(calls(new ToolCall("a", "weekly_load", "{\"date\":\"2027-10-04\"}")),
+				calls(new ToolCall("b", "network_load", "{\"date\":\"2027-10-04\"}")), text("Итог за сутки."));
+		FakeTools tools = new FakeTools();
+		service(model, tools, new FakeMemory()).turn(SESSION, "нагрузка за 4 октября 2027", Map.of("date", "2025-11-16")).blockLast();
+		assertThat(tools.calls).isEqualTo(1);
+		assertThat(model.seen.get(1)).anySatisfy(m -> assertThat(m.content()).contains("Ошибка периода"));
+	}
+
+	@Test
+	void unfinishedShowGetsAnotherChanceBeforeAnswer() {
+		ScriptedModel model = new ScriptedModel(text("Маршрут 17 самый загруженный."),
+				calls(new ToolCall("a", "ui_show", "{\"route\":17}")), text("Показал маршрут 17."));
+		List<AgentEvent> events = service(model, new FakeTools(), new FakeMemory())
+				.turn(SESSION, "покажи маршрут 17", Map.of()).collectList().block();
+		assertThat(events).filteredOn(e -> e.type() == AgentEvent.Type.UI).hasSize(1);
+		assertThat(events).filteredOn(e -> e.type() == AgentEvent.Type.ANSWER).hasSize(1);
+		assertThat(model.seen).hasSize(3);
 	}
 
 	private static AgentService service(LanguageModel model, AgentTools tools, AgentMemory memory) {
@@ -129,6 +191,7 @@ class AgentServiceTest {
 
 		final Deque<ModelReply> replies = new ArrayDeque<>();
 		final List<List<ChatMessage>> seen = new ArrayList<>();
+		final List<List<ToolSpec>> availableTools = new ArrayList<>();
 		boolean configured = true;
 
 		ScriptedModel(ModelReply... replies) {
@@ -138,6 +201,7 @@ class AgentServiceTest {
 		@Override
 		public ModelReply complete(List<ChatMessage> messages, List<ToolSpec> tools) {
 			seen.add(List.copyOf(messages));
+			availableTools.add(List.copyOf(tools));
 			return replies.removeFirst();
 		}
 

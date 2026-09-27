@@ -14,8 +14,9 @@ export function applyUiAction(action: UiAction): void {
     const day = action.date ? dayOf(action.date) : -1;
     if (day >= 0 && day < TIMELINE_DAYS) s.setDay(day);
     if (action.hour != null) useStore.getState().setHour(action.hour);
-    if (action.route != null) s.selectRoute(action.route);
-    if (action.stop) useStore.getState().selectStop(action.stop);
+    if (action.network) s.selectRoute(null);
+    else if (action.route != null) s.selectRoute(action.route);
+    if (!action.network && action.stop) useStore.getState().selectStop(action.stop);
     if (action.view) s.setViewMode(action.view);
     if (action.horizon) s.setHorizon(action.horizon);
     if (action.tab) s.setTab(action.tab);

@@ -3,7 +3,7 @@ import { useWeatherGrid } from '../../hooks/useWeather';
 import { CENTER_INDEX, beyondForecast } from '../../lib/weatherGrid';
 import { useStore } from '../../state/store';
 import { HORIZON_START, MONTHS, dayIndex, dayLabel, hourOf, isoDate, monthLabel, monthOf, shortDate } from '../../lib/time';
-import { capitalize, fmt1, fmtCompact, fmtTemp } from '../../lib/format';
+import { capitalize, fmt1, fmtCompact, fmtTemp, plainDash } from '../../lib/format';
 import { routeColor } from '../../lib/routes';
 import { MiniBars, MiniLine } from '../charts/Mini';
 import { Card, TramDots } from '../ui/Controls';
@@ -63,7 +63,7 @@ export default function FactorsTab() {
       </Card>
 
       <Card title={`Календарь: ${MONTHS[month.month]} ${month.year}`}
-        info="Производственный календарь: 2025 год по постановлению № 1335, 2026 год по isdayoff.ru с переносами. Праздник в будний день прогнозируется как воскресенье ×0,95, рабочая суббота 1 ноября ×0,85 к будню, 29–30 декабря ×0,85, 31 декабря днём ×0,9 и ноль после 20:00: бесплатный проезд.">
+        info="Производственный календарь: 2025 год по постановлению № 1335, 2026 год по isdayoff.ru, 2027 год по постановлению №1187. Оценка 2026–2027 учитывает тип дня; следующие поправки относятся только к прогнозу ноября–декабря 2025. Праздник в будний день прогнозируется как воскресенье ×0,95, рабочая суббота 1 ноября ×0,85 к будню, 29–30 декабря ×0,85, 31 декабря днём ×0,9 и ноль после 20:00: бесплатный проезд.">
         <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.max(monthDays.length, 1)}, 1fr)`, gap: 2 }}>
           {monthDays.map((c, i) => (
             <button key={c.date} type="button" title={`${c.date}${c.holiday ? `, ${c.holiday}` : ''}`}
@@ -74,7 +74,7 @@ export default function FactorsTab() {
           ))}
         </div>
         <ul className={styles.list}>
-          {holidays.map((c) => <li key={c.date}><span>{shortDate(c.date)} — {c.holiday}</span></li>)}
+          {holidays.map((c) => <li key={c.date}><span>{shortDate(c.date)} - {c.holiday}</span></li>)}
           {holidays.length === 0 && <li><span className={styles.note}>Праздников в этом месяце нет.</span></li>}
         </ul>
         <p className={styles.note}>
@@ -90,10 +90,10 @@ export default function FactorsTab() {
           {trafficIndex >= 0
             ? `${capitalize(monthLabel(monthKey))}: ${fmt1(traffic.score[trafficIndex])} балла, выделен столбиком. `
             : `За ${monthLabel(monthKey)} балла ещё нет: последний месяц в наборе - ${monthLabel(traffic.months[traffic.months.length - 1] ?? monthKey)}. `}
-          Почему по месяцам, а не по часам: полного почасового ряда пробок Москвы в открытых данных нет. data.mos.ru
+          Балл месячный, потому что полного почасового ряда пробок Москвы в открытых данных нет. data.mos.ru
           публикует средний балл за месяц, а баллы ЦОДД в постах Дептранса выходят несколько раз в день, 386 постов
-          за 2025 год, в основном вечером в будни. Поэтому пробки двигают уровень месяца в прогнозе, а не отдельный
-          час.{' '}
+          за 2025 год, в основном вечером в будни. Поэтому пробки меняют в прогнозе уровень
+          месяца.{' '}
           <a href="https://data.mos.ru/opendata/62525" target="_blank" rel="noopener noreferrer">data.mos.ru, набор 62525</a></p>
       </Card>
 
@@ -101,26 +101,26 @@ export default function FactorsTab() {
         info="data.mos.ru, набор 62521: посадки в сутки по всем трамвайным маршрутам города. Из отношения месяцев прошлых лет к октябрю строится уровень ноября и декабря (амплитуда наших маршрутов 0,83) и годовой прогноз.">
         <MiniLine values={city.per_day.slice(cityFrom)} labels={city.months.slice(cityFrom)}
           color="#73daca" mark={city.months.indexOf('2025-11') - cityFrom} format={(v) => fmtCompact(v)} />
-        <p className={styles.note}>Отметка — ноябрь 2025. {capitalize(monthLabel(city.months[city.months.length - 1] ?? '2026-08'))}: {fmtCompact(city.per_day[city.per_day.length - 1])} посадок в сутки.{' '}
+        <p className={styles.note}>Отметка на графике - ноябрь 2025. {capitalize(monthLabel(city.months[city.months.length - 1] ?? '2026-08'))}: {fmtCompact(city.per_day[city.per_day.length - 1])} посадок в сутки.{' '}
           <a href="https://data.mos.ru/opendata/7704786030-mesyachniy-passajiropotok-po-vsem-vidam-obshchestvennogo-transporta-v-gorode-moskve"
             target="_blank" rel="noopener noreferrer">data.mos.ru, набор 62521</a></p>
       </Card>
 
       {sched && (
         <Card title={`Интервал движения: маршрут ${route ?? 17}`}
-          info={`${factors.schedule.source}, выгрузка ${factors.schedule.fetched_at}. Это действующее расписание, а не расписание ноября 2025: используем его как оценку числа рейсов в час.`}>
+          info={`${factors.schedule.source}, выгрузка ${factors.schedule.fetched_at}. Расписание действующее, в ноябре 2025 года оно могло отличаться. Число рейсов в час берём из него как оценку.`}>
           <MiniBars values={(sched.weekday?.headway_min ?? []).map((v) => v ?? 0)} labels={HOURS} color={routeColor(route ?? 17)} mark={hour} />
           <p className={styles.note}>Будни: работает {sched.weekday?.service_from}–{sched.weekday?.service_to}, выходные:
-            {' '}{sched.weekend?.service_from}–{sched.weekend?.service_to}. Столбик — интервал в минутах, выше — реже.{' '}
+            {' '}{sched.weekend?.service_from}–{sched.weekend?.service_to}. Столбик - интервал в минутах: чем выше, тем реже ходят вагоны.{' '}
             <a href={sched.page} target="_blank" rel="noopener noreferrer">Страница маршрута</a></p>
         </Card>
       )}
 
-      <Card title="События сети" info="Разбор постов Telegram-канала «Дептранс. Оперативно», mos.ru и sobyanin.ru. На проверке организаторов возврат выходных рейсов 7 и 50 с 15.11 поднял точность на 1,16 п. п., запуск маршрута 5 с 16.12 — на 0,41 п. п.">
+      <Card title="События сети" info="Разбор постов Telegram-канала «Дептранс. Оперативно», mos.ru и sobyanin.ru. На проверке организаторов возврат выходных рейсов 7 и 50 с 15.11 поднял точность на 1,16 п. п., запуск маршрута 5 с 16.12 - на 0,41 п. п.">
         <ul className={styles.list}>
           {factors.events.map((e) => (
             <li key={`${e.start}-${e.description}`}>
-              <span><b>{shortDate(e.start)}{e.end && e.end !== e.start ? `–${shortDate(e.end)}` : ''}</b> {e.description}</span>
+              <span><b>{shortDate(e.start)}{e.end && e.end !== e.start ? `–${shortDate(e.end)}` : ''}</b> {plainDash(e.description)}</span>
               <small>{e.routes === 'all' ? 'все маршруты' : `${e.routes.includes(';') ? 'маршруты' : 'маршрут'} ${e.routes.replaceAll(';', ', ')}`}
                 {e.effect ? `; ${e.start < HORIZON_START ? 'в данных' : 'эффект'}: ${e.effect}` : ''}{' '}
                 {e.source.startsWith('http') && <a href={e.source} target="_blank" rel="noopener noreferrer">источник</a>}</small>

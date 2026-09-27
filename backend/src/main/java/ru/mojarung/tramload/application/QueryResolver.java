@@ -17,11 +17,11 @@ import ru.mojarung.tramload.domain.ValidationException;
 import ru.mojarung.tramload.domain.ValidationException.Violation;
 
 /**
- * Проверяет запрос против области определения модели и заполняет умолчания по горизонту:
- * день - сутки по часам, неделя - 7 суток от from по дням, месяц - месяц по дням,
- * год - ноябрь 2025 - октябрь 2026 по месяцам.
- * Все нарушения собираются в одну ошибку, чтобы клиент исправил запрос за один раз.
- */
+* Проверяет запрос против области определения модели и заполняет умолчания по горизонту:
+* день - сутки по часам, неделя - 7 суток от from по дням, месяц - месяц по дням,
+* год - 12 месяцев от месяца from (без from: ноябрь 2025 - октябрь 2026) по месяцам.
+* Все нарушения собираются в одну ошибку, чтобы клиент исправил запрос за один раз.
+*/
 public final class QueryResolver {
 
 	private static final int WEEK_DAYS = 7;
@@ -77,12 +77,15 @@ public final class QueryResolver {
 		return new LocalDate[] { from, to };
 	}
 
-	/** Год всегда целиком: от начала горизонта до конца последнего месяца годового прогноза. */
+	/** До 12 месяцев от месяца from, ограниченных концом шкалы; без from — исходный год прогноза. */
 	private LocalDate[] yearRange(ForecastQuery q, List<Violation> violations) {
 		if (q.hours() != null && !q.hours().equals(HourWindow.ALL_DAY)) {
 			violations.add(new Violation("hours", "годовой прогноз считается по суткам целиком, окно часов не задаётся"));
 		}
-		return new LocalDate[] { grid().start(), model.year().months().getLast().atEndOfMonth() };
+		LocalDate from = q.from() != null ? q.from().withDayOfMonth(1) : grid().start();
+		LocalDate to = min(from.plusYears(1).minusDays(1), timeline().end());
+		checkDates(from, to, true, violations);
+		return new LocalDate[] { from, to };
 	}
 
 	public Target target(ForecastQuery q) {
@@ -132,7 +135,7 @@ public final class QueryResolver {
 		String range = timeline().start() + " - " + timeline().end();
 		if (!timeline().contains(from)) {
 			violations.add(new Violation("from", "дата " + from + " вне шкалы " + range
-					+ ": факт с января 2025, прогноз ноября-декабря 2025, оценка до октября 2026"));
+					+ ": факт с января 2025, прогноз ноября-декабря 2025, оценка до декабря 2027"));
 		}
 		if (explicitTo && !timeline().contains(to)) {
 			violations.add(new Violation("to", "дата " + to + " вне шкалы " + range));

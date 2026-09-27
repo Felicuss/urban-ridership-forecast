@@ -115,7 +115,7 @@ function RouteCard({ route, factors, load, hour }: {
           <span className={styles.label}>
             Посадок на рейс
             <InfoTip>Посадки маршрута в этот час делим на число рейсов в обе стороны по расписанию transport.mos.ru.
-              Это поток входящих, а не наполнение салона: выходы пассажиров в данных не видны.</InfoTip>
+              Считаются только вошедшие: выходов в данных нет, поэтому наполнение салона отсюда не видно.</InfoTip>
           </span>
           <b className="num">{perTrip != null ? fmtInt(perTrip) : '-'}</b>
         </div>

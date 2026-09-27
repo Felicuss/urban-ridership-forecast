@@ -86,7 +86,7 @@ function LoginScreen({ initialError }: { initialError: string | null }) {
         </label>
         {error && <p className={styles.error} role="alert">{error}</p>}
         <button type="submit" className={styles.submit} disabled={busy}>{busy ? 'Входим…' : 'Войти'}</button>
-        <p className={styles.note}>Сессия живёт 12 часов. Учётные записи задаёт администратор сервиса.</p>
+        <p className={styles.note}>Вход действует 12 часов. Учётные записи задаёт администратор сервиса.</p>
       </form>
     </main>
   );

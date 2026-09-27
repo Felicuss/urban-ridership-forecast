@@ -67,10 +67,21 @@ class ApiContractTest {
 		assertThat(r.notes()).isNotEmpty();
 	}
 
+	@Test
+	void selected2027YearAndLastDayAreAvailable() {
+		ForecastResponse year = get("/api/v1/forecast?level=network&horizon=year&from=2027-01-01", ForecastResponse.class);
+		assertThat(year.points()).extracting(PointDto::period).hasSize(12).startsWith("2027-01").endsWith("2027-12");
+		assertThat(year.to()).hasToString("2027-12-31");
+		assertThat(year.total().p50()).isPositive();
+		ForecastResponse day = get("/api/v1/forecast?level=route&id=17&horizon=day&from=2027-12-31", ForecastResponse.class);
+		assertThat(day.points()).hasSize(24);
+		assertThat(day.total().p50()).isPositive();
+	}
+
 	@ParameterizedTest
 	@CsvSource(delimiter = '|', value = {
 			"level=route&id=99|id",
-			"level=route&id=17&from=2027-01-05|from",
+			"level=route&id=17&from=2028-01-05|from",
 			"level=route&id=17&horizon=month&from=2024-10-10|from",
 			"level=route&id=17&from=2025-11-10&to=2025-11-05|to",
 			"level=route&id=17&horizon=decade|horizon",
@@ -91,7 +102,7 @@ class ApiContractTest {
 
 	@Test
 	void allViolationsAreReportedAtOnce() {
-		client.get().uri("/api/v1/forecast?level=route&id=99&from=2027-01-05").exchange()
+		client.get().uri("/api/v1/forecast?level=route&id=99&from=2028-01-05").exchange()
 			.expectStatus().isBadRequest()
 			.expectBody().jsonPath("$.errors.length()").isEqualTo(2);
 	}
@@ -152,7 +163,7 @@ class ApiContractTest {
 	void eventAfterTheTimelineIsRejected() {
 		String body = """
 				{"query": {"level": "route", "id": "17"},
-				 "events": [{"from": "2026-10-31", "to": "2026-11-01", "multiplier": 0.85}]}""";
+				 "events": [{"from": "2027-12-31", "to": "2028-01-01", "multiplier": 0.85}]}""";
 		postScenario(body).expectStatus().isBadRequest()
 			.expectBody().jsonPath("$.errors[0].field").isEqualTo("events[0]");
 	}
@@ -190,11 +201,11 @@ class ApiContractTest {
 		client.get().uri("/api/v1/calendar").exchange()
 			.expectStatus().isOk()
 			.expectBody()
-			.jsonPath("$.length()").isEqualTo(669)
+			.jsonPath("$.length()").isEqualTo(1095)
 			.jsonPath("$[0].date").isEqualTo("2025-01-01")
 			.jsonPath("$[0].source").isEqualTo("fact")
-			.jsonPath("$[668].date").isEqualTo("2026-10-31")
-			.jsonPath("$[668].source").isEqualTo("outlook");
+			.jsonPath("$[1094].date").isEqualTo("2027-12-31")
+			.jsonPath("$[1094].source").isEqualTo("outlook");
 	}
 
 	@Test

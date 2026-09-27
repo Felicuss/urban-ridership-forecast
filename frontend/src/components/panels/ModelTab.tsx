@@ -2,7 +2,7 @@ import { useFactors, useMeta } from '../../api/queries';
 import { useStore } from '../../state/store';
 import { MINUTES_PER_DAY, dayOf, fullDate, shortDate } from '../../lib/time';
 import type { Granularity } from '../../api/types';
-import { fmt1, fmtFixed, fmtInt, plural } from '../../lib/format';
+import { fmt1, fmtFixed, fmtInt, plainDash, plural } from '../../lib/format';
 import { Card, Kpi, TramDots } from '../ui/Controls';
 import styles from './Panels.module.css';
 
@@ -60,7 +60,7 @@ export default function ModelTab() {
         info="Организаторы сравнили прогноз с фактом за ноябрь-декабрь 2025 по каждому маршруту и часу: точность = 1 - сумма ошибок / сумма посадок (WAPE-score). Выше 0,88 критерий точности даёт максимум баллов.">
         <div className={styles.big}>{fmtFixed(score, 5)}</div>
         <div className={styles.gauge}><i style={{ width: pos(score) }} /><b style={{ left: pos(0.88) }} /></div>
-        <p className={styles.note}>Шкала 0,80–0,92, жёлтая отметка — порог 0,88. По умолчанию сервис отдаёт прогноз v11:
+        <p className={styles.note}>Шкала 0,80–0,92, жёлтая отметка - порог 0,88. По умолчанию сервис отдаёт прогноз v11:
           адаптивные профили, ансамбль LightGBM, сезонная модель долей часов и распределение объёма между днями. В нём
           есть открытые данные, вышедшие после {fullDate(meta.forecastOrigin)}: организаторы это разрешили. Ползунки сдвигают
           v11 так же, как формулу профиля.</p>
@@ -124,14 +124,14 @@ export default function ModelTab() {
 
       {gaps && gaps.periods.length > 0 && (
         <Card title="Пропуски в данных"
-          info={`Пропуск - ${gaps.rule}. Восстановление ${gaps.restore}. Факт остаётся фактом: восстановленные посадки показаны пунктиром на графике и в прогноз не подмешиваются.`}>
+          info={`Пропуск - ${gaps.rule}. Восстановление ${gaps.restore}. Факт в данных не меняем: восстановленные посадки показаны пунктиром на графике и в прогноз не попадают.`}>
           <ul className={styles.gapList}>
             {gaps.periods.map((g) => (
               <li key={`${g.route}-${g.from}`}>
                 <button type="button" className={styles.gapItem} title="Показать этот день на графике"
                   onClick={() => { selectRoute(g.route); setMinute(dayOf(g.from) * MINUTES_PER_DAY + 8 * 60 + 30); setTab('forecast'); }}>
                   <b>№{g.route} · {shortDate(g.from)}{g.to !== g.from ? `-${shortDate(g.to)}` : ''} · {g.days} дн. ({g.day_kinds})</b>
-                  <span>{g.reason}</span>
+                  <span>{plainDash(g.reason)}</span>
                   <small>факт {fmtInt(g.fact)}, восстановлено {fmtInt(g.restored)} посадок{g.source ? ' · есть пост Дептранса' : ''}</small>
                 </button>
               </li>

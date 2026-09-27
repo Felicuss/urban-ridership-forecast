@@ -1,16 +1,16 @@
-// Время интерфейса. Шкала - 01.01.2025-31.10.2026: факт, прогноз ноября-декабря 2025 и оценка 2026.
+// Время интерфейса. Шкала - 01.01.2025-31.12.2027: факт, прогноз ноября-декабря 2025 и оценка 2026.
 // Внутри приложения время хранится как минуты от начала шкалы: проигрывание, перемотка и положение
 // трамваев считаются одной арифметикой.
 
 export const TIMELINE_START = '2025-01-01';
-export const TIMELINE_END = '2026-10-31';
+export const TIMELINE_END = '2027-12-31';
 export const HORIZON_START = '2025-11-01';
 export const HORIZON_END = '2025-12-31';
 export const MINUTES_PER_DAY = 1440;
 
 const START_UTC = Date.UTC(2025, 0, 1);
 const DAY_MS = 86_400_000;
-export const TIMELINE_DAYS = Math.round((Date.UTC(2026, 9, 31) - START_UTC) / DAY_MS) + 1;
+export const TIMELINE_DAYS = Math.round((Date.parse(`${TIMELINE_END}T00:00:00Z`) - START_UTC) / DAY_MS) + 1;
 export const TIMELINE_MINUTES = TIMELINE_DAYS * MINUTES_PER_DAY;
 
 const WEEKDAYS = ['понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота', 'воскресенье'];
@@ -92,7 +92,7 @@ export function monthOf(day: number): { first: number; days: number; year: numbe
   return { first, days, year, month };
 }
 
-/** Режим «Сейчас»: московское время сегодня. Шкала доходит до 31.10.2026, поэтому дата настоящая. */
+/** Режим «Сейчас»: московское время сегодня. Шкала доходит до 31.12.2027, поэтому дата настоящая. */
 export function nowOnTimeline(now = new Date()): number {
   const moscow = new Date(now.getTime() + 3 * 3_600_000);
   const iso = moscow.toISOString().slice(0, 10);

@@ -1,3 +1,5 @@
+import pytest
+pytest.importorskip("torch", reason="torch is not installed: uv sync --extra fm")
 import numpy as np
 from s100_markov_entropy import chain_posterior
 from s93_entropy_scores import posterior

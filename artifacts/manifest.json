@@ -2,7 +2,7 @@
  "schema_version": 1,
  "model_version": "seasonal_daily_v11",
  "git_commit": "f0c871886d8d954c6d66efbda82a1449a0e6519d",
- "generated_at": "2026-09-26T20:05:13+00:00",
+ "generated_at": "2026-09-27T17:21:11+00:00",
  "forecast_origin": "2025-10-31",
  "horizon": {
   "from": "2025-11-01",
@@ -54,8 +54,8 @@
    "rows": null
   },
   "forecast_year.csv": {
-   "sha256": "5c792875c6c4544ee34d6bb385718d93aeba01c5d450211a5da8c196cb3b5d9a",
-   "rows": 120
+   "sha256": "b46a2ffe0cdd95b1437ff6dc00c755b45f22b005d02ad233d6c47f3c762e5658",
+   "rows": 260
   },
   "backtest_metrics.json": {
    "sha256": "a95dcc1f718d21fe6d5b5620faede78f1a934cacde5d31873f3f9144fb42e5da",
@@ -66,16 +66,16 @@
    "rows": null
   },
   "timeline_calendar.csv": {
-   "sha256": "d3ea7f88882d93a02f5f2ba54c72cf71b4cd9b4388fc3c7af2fcd5c46ff1ca9e",
-   "rows": 669
+   "sha256": "9ae956b6b75d587b86d975351975e79b6fac0775f8cf41192e515214532c4187",
+   "rows": 1095
   },
   "actuals.csv": {
    "sha256": "5729ae585af0f2815b75b5d92f4b2a55296510c15bc6d4ca71a45f242f3799b7",
    "rows": 72960
   },
   "outlook.csv": {
-   "sha256": "bfd171d8562c19cbb0de84fd4fc443b0f6ed4d68158ccac1de4c40d4bd54b3bd",
-   "rows": 72960
+   "sha256": "b756bd13c5045c274784b7c4fbc05975553f8603eaa1852b4d77ff3828a1d3a5",
+   "rows": 175200
   },
   "plan.csv": {
    "sha256": "ad488aa8dd545ec0043d19bed5de9721606bf828e44aa919ba05e63d05205d47",
@@ -85,5 +85,11 @@
    "sha256": "ebf8029a17c80b0fba41558e2866add75670bf4d2afce7dd28a7d932a77d7d1e",
    "rows": null
   }
+ },
+ "outlook": {
+  "from": "2026-01-01",
+  "to": "2027-12-31",
+  "method": "seasonal_index",
+  "note": "Сезонная оценка без тренда роста; точность 2027 и покрытие коридора ±12 % не проверены"
  }
 }

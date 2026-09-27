@@ -90,7 +90,7 @@ function Ticks({ max, label }: { max: number; label: string }) {
 function LoadLegend({ hour, source, flags }: { hour: number; source: string; flags: Flags }) {
   const stopsShown = flags.stops || flags.heat;
   const what = [flags.lines && 'цвет и толщина линии - посадки маршрута', flags.stops && 'кружок - посадки на остановке',
-    flags.heat && 'тепло - остановки рядом складываются'].filter(Boolean).join(', ');
+    flags.heat && 'теплокарта - сумма посадок соседних остановок'].filter(Boolean).join(', ');
   return (
     <div className={styles.legendRow}>
       <span>Посадки за час {hour}:00–{hour + 1}:00, {source}</span>

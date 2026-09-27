@@ -1,3 +1,5 @@
+import pytest
+pytest.importorskip("torch", reason="torch is not installed: uv sync --extra fm")
 import sys
 from pathlib import Path
 from types import SimpleNamespace

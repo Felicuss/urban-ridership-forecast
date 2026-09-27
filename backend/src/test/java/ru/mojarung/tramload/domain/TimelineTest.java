@@ -30,6 +30,16 @@ class TimelineTest {
 	private static final double[] DEFAULT = ENGINE.compute(Scenario.of(MODEL.catalog().defaults()));
 
 	@Test
+	void calendar2027IncludesWorkingSaturdayAndTransfers() {
+		assertThat(TIMELINE.end()).isEqualTo(LocalDate.of(2027, 12, 31));
+		assertThat(TIMELINE.day(TIMELINE.dayIndex(LocalDate.of(2027, 2, 20))).dayOff()).isFalse();
+		for (LocalDate date : List.of(LocalDate.of(2027, 2, 22), LocalDate.of(2027, 5, 3),
+				LocalDate.of(2027, 5, 10), LocalDate.of(2027, 6, 14), LocalDate.of(2027, 11, 5), LocalDate.of(2027, 12, 31))) {
+			assertThat(TIMELINE.day(TIMELINE.dayIndex(date)).dayOff()).as(date.toString()).isTrue();
+		}
+	}
+
+	@Test
 	void factIsTheOrganizersHourlyLabelsWithoutEquipmentChecks() throws IOException {
 		List<String> lines = Files.readAllLines(TestArtifacts.repoRoot().resolve("dataset/labels/labels_day_test.csv"));
 		JsonNode checks = JsonMapper.builder().build()

@@ -57,3 +57,8 @@ export function plural(n: number, forms: [string, string, string]): string {
   if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return forms[1];
   return forms[2];
 }
+
+/** Тексты из данных (названия трасс, события) пишут длинное тире, в интерфейсе везде обычный дефис. */
+export function plainDash(text: string): string {
+  return text.replaceAll('—', '-');
+}

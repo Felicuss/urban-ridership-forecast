@@ -292,7 +292,7 @@ export interface paths {
         };
         /**
          * Прогноз по умолчанию
-         * @description Горизонт day - сутки по часам, month - месяц по дням, year - ноябрь 2025 - октябрь 2026 по месяцам. Без горизонта ряд строится от from до to с шагом granularity.
+         * @description Горизонт day - сутки по часам, month - месяц по дням, year - 12 месяцев от месяца from (без from: ноябрь 2025 - октябрь 2026) по месяцам. Без горизонта ряд строится от from до to с шагом granularity.
          */
         get: operations["forecast"];
         put?: never;

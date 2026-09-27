@@ -3,7 +3,7 @@ import { useCalendar, useFactors, useMeta, useNetworkLoad, useSeries, type Serie
 import type { Factors, Horizon, Series } from '../../api/types';
 import { useStore } from '../../state/store';
 import { MINUTES_PER_DAY, dayIndex, dayOf, hourOf, isoDate, monthLabel, shortDate, weekStart, weekdayName } from '../../lib/time';
-import { fmtCompact, fmtInt, fmtPct, fmtRange } from '../../lib/format';
+import { fmtCompact, fmtInt, fmtPct, fmtRange, plainDash } from '../../lib/format';
 import { targetQuery, useTarget } from '../../hooks/useTarget';
 import { CAPACITY, MIN_HEADWAY, headway } from '../../lib/dispatch';
 import { BandChart, type BandSeries } from '../charts/BandChart';
@@ -23,14 +23,14 @@ const HORIZONS: { value: Horizon; label: string; hint: string }[] = [
   { value: 'day', label: 'Сутки', hint: 'По часам выбранного дня' },
   { value: 'week', label: 'Неделя', hint: 'По дням с понедельника по воскресенье, у каждого дня пиковый час' },
   { value: 'month', label: 'Месяц', hint: 'По дням месяца, у каждого дня пиковый час' },
-  { value: 'year', label: 'Год', hint: 'По месяцам: ноябрь 2025 - октябрь 2026' },
+  { value: 'year', label: 'Год', hint: 'Календарный год выбранной даты, по месяцам' },
 ];
 
 const UNIT: Record<Horizon, { total: string; peak: string; now: string }> = {
   day: { total: 'Посадок за сутки', peak: 'Пиковый час', now: 'В выбранный час' },
   week: { total: 'Посадок за неделю', peak: 'Пиковый час недели', now: 'В выбранный день' },
   month: { total: 'Посадок за месяц', peak: 'Пиковый час месяца', now: 'В выбранный день' },
-  year: { total: 'Посадок за 12 месяцев', peak: 'Пиковый месяц', now: 'Ноябрь 2025' },
+  year: { total: 'Посадок за 12 месяцев', peak: 'Пиковый месяц', now: 'В выбранный месяц' },
 };
 
 function label(period: string, horizon: Horizon): string {
@@ -65,7 +65,7 @@ function history2025(factors: Factors | undefined, series: Series, route: number
     const v = routes.reduce((a, r) => a + (factors.history.routes[r]?.[i] ?? 0), 0);
     byMonth.set(m, (byMonth.get(m) ?? 0) + v);
   });
-  return series.points.map((p) => (p.period.startsWith('2026') ? byMonth.get(p.period.slice(5, 7)) ?? null : null));
+  return series.points.map((p) => (p.period.slice(0, 4) >= '2026' ? byMonth.get(p.period.slice(5, 7)) ?? null : null));
 }
 
 export function ForecastTab() {
@@ -85,7 +85,7 @@ export function ForecastTab() {
     if (horizon === 'day') return { ...base, horizon: 'day', from: isoDate(day) };
     if (horizon === 'week') return { ...base, horizon: 'week', from: isoDate(weekStart(day)) };
     if (horizon === 'month') return { ...base, horizon: 'month', from: isoDate(day) };
-    return { ...base, horizon: 'year' };
+    return { ...base, horizon: 'year', from: `${isoDate(day).slice(0, 4)}-01-01` };
   }, [target, horizon, day]);
   const { data: series, isFetching } = useSeries(query, scenario);
   const compareDay = useCompareDay(day, horizon);
@@ -147,13 +147,13 @@ export function ForecastTab() {
           info="Прогноз и коридор: на проверке по прошлым месяцам факт попадал в коридор в 8 случаях из 10. Коридор за сутки или месяц складывается из коридоров часов, поэтому он шире реального." />
         {peakHour?.peak != null && peakHour.peakAt ? (
           <Kpi label={UNIT[horizon].peak} value={fmtInt(peakHour.peak)} sub={peakLabel(peakHour.peakAt)} tone="accent"
-            info="Самый загруженный час за период: посадки в этот час по всему объекту. По нему видно пиковую нагрузку, а не только сумму за сутки." />
+            info="Самый загруженный час за период и посадки в нём по всему объекту." />
         ) : (
           <Kpi label={UNIT[horizon].peak} value={fmtCompact(peak.p50)}
             sub={horizon === 'day' ? `${peak.period.slice(11, 13)}:00–${Number(peak.period.slice(11, 13)) + 1}:00`
               : monthLabel(peak.period)} tone="accent" />
         )}
-        <Kpi label={UNIT[horizon].now} value={fmtInt(current.p50)}
+        <Kpi label={horizon === 'year' ? monthLabel(current.period) : UNIT[horizon].now} value={fmtInt(current.p50)}
           sub={band(current.p10, current.p90)} />
         {delta != null ? (
           <Kpi label="Сценарий к базе" value={fmtPct(delta)} tone={delta >= 0 ? 'up' : 'down'}
@@ -185,7 +185,7 @@ export function ForecastTab() {
       </Card>
       {gap && (
         <p className={styles.gapNote}>
-          <b>Пропуск в данных {shortDate(gap.from)}{gap.to !== gap.from ? `-${shortDate(gap.to)}` : ''}:</b> {gap.reason}.
+          <b>Пропуск в данных {shortDate(gap.from)}{gap.to !== gap.from ? `-${shortDate(gap.to)}` : ''}:</b> {plainDash(gap.reason)}.
           {gap.source && <>{' '}<a href={gap.source} target="_blank" rel="noopener noreferrer">Источник</a>.</>}
           {' '}Белый пунктир - посадки, восстановленные по прошлым неделям: {fmtInt(gap.restored)} за период при факте {fmtInt(gap.fact)}.
         </p>
@@ -238,7 +238,7 @@ function PeakDays({ points, horizon, day, onPick }: {
   if (!rows.length) return null;
   return (
     <Card title={horizon === 'month' ? 'Самые напряжённые дни месяца' : 'Пики нагрузки по дням'}
-      info="Для каждого дня - час с наибольшим числом посадок, посадки в этот час и справа посадки за сутки. Сумма за сутки прячет пики: день с меньшей суммой может дать более острый утренний час.">
+      info="Для каждого дня - час с наибольшим числом посадок, посадки в этот час и справа посадки за сутки. По сумме за сутки пик не виден: у дня с меньшей суммой утренний час бывает загруженнее.">
       <ul className={styles.peaks}>
         {rows.map((p) => {
           const d = dayOf(p.period);
@@ -289,7 +289,7 @@ function PerTrip({ route, load, factors, dayOff, hour }: {
       <div className={styles.barsAxis}><span>0</span><span>6</span><span>12</span><span>18</span><span>23</span></div>
       <p className={styles.note}>
         Больше всего на рейс в {peakHour}:00, около {fmtInt(perTrip[peakHour])} посадок.
-        <InfoTip>Это поток входящих за рейс, а не наполнение: выходы в данных не видны. «Витязь-М» везёт 185 человек при 5 чел/м² и 260 при 8 чел/м² (данные производителя, pk-ts.org).</InfoTip>
+        <InfoTip>Считаются только вошедшие за рейс: выходов в данных нет. «Витязь-М» везёт 185 человек при 5 чел/м² и 260 при 8 чел/м² (данные производителя, pk-ts.org).</InfoTip>
       </p>
       <div className={styles.coefHead}>
         <span>Порог посадок на рейс

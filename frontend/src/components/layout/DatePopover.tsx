@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { CalendarDay } from '../../api/types';
-import { HORIZON_START, MONTHS, TIMELINE_DAYS, dayOf, monthOf, nowOnTimeline, weekday } from '../../lib/time';
+import { HORIZON_START, MONTHS, TIMELINE_DAYS, TIMELINE_START, TIMELINE_END, dayOf, monthOf, nowOnTimeline, weekday } from '../../lib/time';
 import { Icon } from '../ui/Icons';
 import styles from './DatePopover.module.css';
 
@@ -40,14 +40,24 @@ export function DatePopover({ day, onPick, onClose, calendar }: {
     const target = dayOf(d.toISOString().slice(0, 10));
     if (target >= 0 && target < TIMELINE_DAYS) setFirst(target);
   };
-  const source = calendar?.[first]?.source ?? 'forecast';
+  const source = calendar?.[first]?.source ?? (month.year >= 2026 ? 'outlook' : first < dayOf(HORIZON_START) ? 'fact' : 'forecast');
+  const firstYear = Number(TIMELINE_START.slice(0, 4));
+  const lastYear = Number(TIMELINE_END.slice(0, 4));
 
   return (
     <div ref={box} className={styles.pop} role="dialog" aria-label="Выбор даты">
       <div className={styles.head}>
         <button type="button" onClick={() => shift(-1)} aria-label="Предыдущий месяц" disabled={first === 0}><Icon.prev /></button>
         <div className={styles.month}>
-          {MONTHS[month.month]} {month.year}
+          <div className={styles.selects}>
+            <select aria-label="Месяц календаря" value={month.month} onChange={(e) => shift(Number(e.target.value) - month.month)}>
+              {MONTHS.map((name, index) => <option key={name} value={index}>{name}</option>)}
+            </select>
+            <select aria-label="Год календаря" value={month.year} onChange={(e) => shift((Number(e.target.value) - month.year) * 12)}>
+              {Array.from({ length: lastYear - firstYear + 1 }, (_, i) => firstYear + i)
+                .map((year) => <option key={year} value={year}>{year}</option>)}
+            </select>
+          </div>
           <small className={styles[source]}>{SOURCE_NOTE[source]}</small>
         </div>
         <button type="button" onClick={() => shift(1)} aria-label="Следующий месяц"
@@ -70,11 +80,11 @@ export function DatePopover({ day, onPick, onClose, calendar }: {
         })}
       </div>
       <div className={styles.jumps}>
-        <button type="button" onClick={() => onPick(dayOf(HORIZON_START) + 9)}>Прогноз ноября 2025</button>
+        <button type="button" onClick={() => onPick(dayOf(HORIZON_START) + 9)}><span>Прогноз ноября</span><span>2025</span></button>
         <button type="button" onClick={() => onPick(Math.floor(nowOnTimeline() / 1440))}>Сегодня</button>
       </div>
       <p className={styles.note}>
-        Январь-октябрь 2025 - факт, ноябрь-декабрь 2025 - прогноз модели, 2026 год - оценка по сезонному индексу.
+        Январь-октябрь 2025 - факт, ноябрь-декабрь 2025 - прогноз модели, 2026–2027 годы - оценка по сезонному индексу.
         Красным - праздники, жёлтым - рабочие субботы.
       </p>
     </div>

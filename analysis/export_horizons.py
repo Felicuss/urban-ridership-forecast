@@ -6,7 +6,7 @@
 для каждого типа дня, по месяцам одним числом. Покрытие проверяем честно: квантили по четырём
 фолдам, покрытие на пятом.
 
-Год. Ноябрь и декабрь 2025 - суммы почасового прогноза. Январь-октябрь 2026 - уровень маршрута,
+Год. Ноябрь и декабрь 2025 - суммы почасового прогноза. Январь 2026 - декабрь 2027 - уровень маршрута,
 приведённый к октябрю, × сезонный индекс городского трамвая (медиана 2022-2024, амплитуда 0.83).
 Коридор ±12 %: на реальных месяцах индекс ошибался до 12.6 % (docs/research/review_round1.md, п. 7.4).
 """
@@ -15,10 +15,6 @@ import numpy as np
 import pandas as pd
 
 from common import ROOT, wape_score
-from models import ProfileConfig, profile_forecast
-from s06_backtest import load_frame
-from s31_weather_probe import CV_FOLDS
-from s34_traffic_probe import city_tram_monthly
 
 PAST_YEARS = [2019, 2022, 2023, 2024]  # как в s30 и s34
 YEAR_BASE_YEARS = [2022, 2023, 2024]  # октябрь года Y -> месяцы года Y + 1, без ковидных 2020-2021
@@ -29,6 +25,11 @@ QUANTILES = (0.1, 0.9)
 
 def backtest_frame() -> pd.DataFrame:
     """Факт и прогноз схемы по умолчанию на всех фолдах, по часам."""
+    from models import ProfileConfig, profile_forecast
+    from s06_backtest import load_frame
+    from s31_weather_probe import CV_FOLDS
+    from s34_traffic_probe import city_tram_monthly
+
     full = load_frame()
     lr = city_tram_monthly().set_index(["year", "month"]).lr
     parts = []
@@ -75,6 +76,8 @@ def _coverage(df: pd.DataFrame, key: str) -> float:
 
 
 def intervals_and_metrics(bt: pd.DataFrame) -> tuple[dict, dict]:
+    from s31_weather_probe import CV_FOLDS
+
     intervals, coverage, scores = {}, {}, {}
     for gran, (df, key) in by_granularity(bt).items():
         intervals[gran] = {"by": key, "factors": _quantiles(df, key)}
@@ -114,7 +117,7 @@ def index_check(index: pd.Series) -> dict:
 
 
 def year_forecast(comp: pd.DataFrame, prediction: np.ndarray) -> tuple[pd.DataFrame, dict]:
-    """Помесячный прогноз ноябрь 2025 - октябрь 2026 по маршрутам."""
+    """Помесячный прогноз ноябрь 2025 - декабрь 2027 по маршрутам."""
     index = seasonal_index()
     fc = comp[["route", "date"]].assign(p=prediction, month=pd.to_datetime(comp.date).dt.month)
     novdec = fc.groupby(["route", "month"]).p.sum()
@@ -126,7 +129,8 @@ def year_forecast(comp: pd.DataFrame, prediction: np.ndarray) -> tuple[pd.DataFr
             level = d.mean() / index[12]
         else:
             level = sum(novdec[(route, m)] for m in (11, 12)) / sum(days[m] * index[m] for m in (11, 12))
-        for year, month in [(2025, 11), (2025, 12), *[(2026, m) for m in range(1, 11)]]:
+        for period in pd.period_range("2025-11", "2027-12", freq="M"):
+            year, month = period.year, period.month
             if (year, month) in [(2025, 11), (2025, 12)]:
                 p50, method = float(novdec[(route, month)]), "hourly"
             else:

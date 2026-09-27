@@ -5,6 +5,7 @@ import type {
   CalendarDay, Coefficient, ExplainStep, Factors, Granularity, Horizon, Level, Meta, NetworkGeoJson, NetworkLoad, Point, RouteInfo,
   RouteStop, Scenario, Series, Stop,
 } from './types';
+import { TIMELINE_END } from '../lib/time';
 import { isDefaultScenario } from '../state/store';
 
 const FOREVER = { staleTime: Infinity, gcTime: Infinity } as const;
@@ -70,11 +71,11 @@ export function useNetwork() {
   });
 }
 
-/** Календарь шкалы: тип дня, праздник и источник данных на каждый из 669 дней. */
+/** Календарь шкалы: тип дня, праздник и источник данных на каждый день с 2025 по 2027 год. */
 export function useCalendar() {
   return useQuery({
-    queryKey: ['calendar'],
-    queryFn: ({ signal }) => getJson<CalendarDay[]>('/api/v1/calendar', signal),
+    queryKey: ['calendar', TIMELINE_END],
+    queryFn: ({ signal }) => getJson<CalendarDay[]>(`/api/v1/calendar?through=${TIMELINE_END}`, signal),
     ...FOREVER,
   });
 }
