@@ -2,7 +2,7 @@
 
 Сервис на Java модели не запускает, он читает эти файлы при старте, сверяет их с manifest.json
 по sha256 и числу строк и пересчитывает прогноз по формуле export_components.recompute.
-По умолчанию это лучший конкурсный прогноз v11 (0.90741): формула s30/s32 с множителем до v11 в каждой ячейке,
+По умолчанию это конкурсный прогноз v25: формула s30/s32 с множителем до v25 в каждой ячейке,
 см. export_components.calibration.
 Контракт описан в docs/research/review_round1.md, п. 7.1, и docs/architecture/backend_brief.md.
 Запуск: uv run python analysis/s40_export_artifacts.py (после s33, если обновлялся трафик)
@@ -35,8 +35,8 @@ from s34_traffic_probe import city_tram_monthly, novdec_levels
 OUT = ROOT / "artifacts"
 GOLDEN = OUT / "golden"
 DEFAULT_SUBMISSION = TARGET_SUBMISSION
-LEADERBOARD_SCORE = 0.90741
-MODEL_VERSION = "seasonal_daily_v11"
+LEADERBOARD_SCORE = 0.91274  # Предположительная привязка скриншота к v25; порядок v25/v26 не подтверждён.
+MODEL_VERSION = "final_feedback_v25"
 SCHEMA_VERSION = 1
 
 
@@ -107,7 +107,7 @@ def coefficient_catalog(c: s10.Coefficients, traffic: dict) -> dict:
 
 
 def golden_scenarios(comp: pd.DataFrame, default: s10.Coefficients) -> tuple[pd.DataFrame, dict]:
-    """Прогноз исходной реализацией s10 на наборах коэффициентов, с тем же множителем до v11: сервис
+    """Прогноз исходной реализацией s10 на наборах коэффициентов, с тем же множителем до v25: сервис
     обязан совпасть с ним."""
     table = comp[["route", "date", "hour"]].copy()
     sets = {}
@@ -138,8 +138,17 @@ def write_csv(df: pd.DataFrame, name: str) -> None:
     df.to_csv(OUT / name, index=False, lineterminator="\n")
 
 
+def write_text(path, content: str) -> None:
+    """Keep the checked-in artifact's line endings so rebuilds produce focused diffs."""
+    if path.exists():
+        old = path.read_bytes()
+        if b"\r\n" in old and old.count(b"\r\n") == old.count(b"\n"):
+            content = content.replace("\n", "\r\n")
+    path.write_bytes(content.encode("utf-8"))
+
+
 def write_json(obj: dict, name: str) -> None:
-    (OUT / name).write_text(json.dumps(obj, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    write_text(OUT / name, json.dumps(obj, ensure_ascii=False, indent=1) + "\n")
 
 
 def main() -> None:
@@ -177,19 +186,19 @@ def main() -> None:
     plan = plan_frame()
     check_plan(plan, ROUTES)
     write_csv(plan, "plan.csv")
-    write_json({**metrics, "leaderboard_wape_score": LEADERBOARD_SCORE, "year": year_meta, "stops": stop_stats,
+    write_json({**metrics, "leaderboard_wape_score": LEADERBOARD_SCORE,
+                "leaderboard_score_attribution": "tentative_v25_v26_order", "year": year_meta, "stops": stop_stats,
                 "plan": plan_quality(plan, actuals)}, "backtest_metrics.json")
 
     factors = {**build_factors(), "equipment_checks": equipment_checks, "gaps": gaps}
     check_factors(factors)
-    (OUT / "factors.json").write_text(json.dumps(factors, ensure_ascii=False, separators=(",", ":")) + "\n",
-                                      encoding="utf-8")
+    write_text(OUT / "factors.json", json.dumps(factors, ensure_ascii=False, separators=(",", ":")) + "\n")
 
     write_json(build_news(), "news.json")
 
     table, sets = golden_scenarios(comp, c)
     table.to_csv(GOLDEN / "scenarios.csv", index=False, lineterminator="\n")
-    (GOLDEN / "scenarios.json").write_text(json.dumps(sets, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    write_text(GOLDEN / "scenarios.json", json.dumps(sets, ensure_ascii=False, indent=1) + "\n")
 
     files = ["forecast_components.csv", "coefficients.json", "stops.csv", "route_stops.csv", "network.geojson",
              "intervals.json", "forecast_year.csv", "backtest_metrics.json", "factors.json",
@@ -202,14 +211,17 @@ def main() -> None:
         "forecast_origin": TEST_END,
         "horizon": {"from": FORECAST_START, "to": FORECAST_END},
         "routes": ROUTES,
-        "default_scenario": {"name": MODEL_VERSION, "script": "analysis/s83_package_seasonal_daily_v11.py",
-                             "formula": "analysis/s32_ex_ante_route5.py × calib до v11",
-                             "submission": "forecasts/submission_seasonal_daily_v11.csv",
+        "default_scenario": {"name": MODEL_VERSION, "script": "analysis/s121_final_two_submissions.py",
+                             "formula": "analysis/s32_ex_ante_route5.py × calib до v25",
+                             "submission": "forecasts/submission_final_feedback_v25.csv",
                              "submission_sha256_lf": text_sha256(DEFAULT_SUBMISSION),
-                             "leaderboard_wape_score": LEADERBOARD_SCORE},
+                             "leaderboard_wape_score": LEADERBOARD_SCORE,
+                             "score_attribution": "tentative: 0.91274 is assumed to belong to v25; v25/v26 upload order awaits confirmation"},
         "files": {name: {"sha256": sha256(OUT / name),
                          "rows": sum(1 for _ in (OUT / name).open(encoding="utf-8")) - 1 if name.endswith(".csv") else None}
                   for name in files},
+        "outlook": {"from": "2026-01-01", "to": "2027-12-31", "method": "seasonal_index",
+                    "note": "Сезонная оценка без тренда роста; точность 2027 и покрытие коридора ±12 % не проверены"},
     }
     write_json(manifest, "manifest.json")
     print(f"artifacts: {len(comp)} ячеек, сумма {pred.sum():,.0f}, совпадает с {DEFAULT_SUBMISSION.name}; "

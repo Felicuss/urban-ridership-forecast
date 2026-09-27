@@ -64,7 +64,7 @@ public class ForecastController {
 	@GetMapping("/explain")
 	@Operation(summary = "Из чего сложился прогноз",
 			description = "Посадки маршрута или сети за сутки после каждого шага формулы: профиль последних недель, "
-					+ "уровень месяца, календарь, события сети, погода, поправка до v11, события сценария.")
+					+ "уровень месяца, календарь, события сети, погода, поправка до v25, события сценария.")
 	public Mono<ExplainResponse> explain(
 			@Parameter(description = "маршрут; без него - вся сеть", example = "17") @RequestParam(
 					required = false) Integer route,

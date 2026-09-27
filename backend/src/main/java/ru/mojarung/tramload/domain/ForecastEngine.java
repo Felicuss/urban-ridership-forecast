@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Пересчёт прогноза по сценарию. Порядок операций повторяет analysis/s10_forecast.py (apply_rules)
  * и analysis/export_components.py (recompute): правила, погода, множитель ячейки до лучшего конкурсного
- * прогноза (v11), события сценария. От порядка зависит совпадение с сабмитом до последнего знака.
+ * прогноза (v25), события сценария. От порядка зависит совпадение с сабмитом до последнего знака.
  * Эталонные тесты сверяют результат с сабмитом и с Python на пяти наборах коэффициентов.
  */
 public final class ForecastEngine {
@@ -92,7 +92,7 @@ public final class ForecastEngine {
 	public record Explanation(double[] totals) {
 
 		/** profile - профиль последних недель, level - уровень месяца, calendar - календарь, network - события
-		 * сети (выходные 7 и 50, Т1, маршрут 5), weather - погода, model - поправка до v11, scenario - события сценария. */
+		 * сети (выходные 7 и 50, Т1, маршрут 5), weather - погода, model - поправка до v25, scenario - события сценария. */
 		public static final List<String> STEPS = List.of("profile", "level", "calendar", "network", "weather", "model",
 				"scenario");
 

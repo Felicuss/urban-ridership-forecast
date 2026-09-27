@@ -51,7 +51,7 @@ export interface paths {
         };
         /**
          * Из чего сложился прогноз
-         * @description Посадки маршрута или сети за сутки после каждого шага формулы: профиль последних недель, уровень месяца, календарь, события сети, погода, поправка до v11, события сценария.
+         * @description Посадки маршрута или сети за сутки после каждого шага формулы: профиль последних недель, уровень месяца, календарь, события сети, погода, поправка до v25, события сценария.
          */
         get: operations["explain"];
         put?: never;
@@ -564,7 +564,7 @@ export interface components {
             };
             events?: components["schemas"]["EventDto"][];
         };
-        /** @description Шаги: profile - профиль последних недель, level - уровень месяца, calendar - календарь, network - события сети, weather - погода, model - поправка до v11, scenario - события сценария */
+        /** @description Шаги: profile - профиль последних недель, level - уровень месяца, calendar - календарь, network - события сети, weather - погода, model - поправка до v25, scenario - события сценария */
         ExplainResponse: {
             /** Format: int32 */
             route?: number;

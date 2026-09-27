@@ -137,7 +137,7 @@ public final class ForecastComponents {
 		return precipHour[cell];
 	}
 
-	/** Множитель до лучшего конкурсного прогноза (v11) в ячейке: при коэффициентах по умолчанию формула даёт v11. */
+	/** Множитель до конкурсного прогноза (v25) в ячейке: при коэффициентах по умолчанию формула даёт v25. */
 	public double calib(int cell) {
 		return calib[cell];
 	}

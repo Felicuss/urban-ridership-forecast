@@ -1,8 +1,8 @@
 {
  "schema_version": 1,
- "model_version": "seasonal_daily_v11",
- "git_commit": "f0c871886d8d954c6d66efbda82a1449a0e6519d",
- "generated_at": "2026-09-27T17:21:11+00:00",
+ "model_version": "final_feedback_v25",
+ "git_commit": "ece8fb4f41bb73131df78cbc96faca8976468bd8",
+ "generated_at": "2026-09-27T19:20:01+00:00",
  "forecast_origin": "2025-10-31",
  "horizon": {
   "from": "2025-11-01",
@@ -21,20 +21,21 @@
   50
  ],
  "default_scenario": {
-  "name": "seasonal_daily_v11",
-  "script": "analysis/s83_package_seasonal_daily_v11.py",
-  "formula": "analysis/s32_ex_ante_route5.py × calib до v11",
-  "submission": "forecasts/submission_seasonal_daily_v11.csv",
-  "submission_sha256_lf": "69cf0a7cf4aced43d98238fac52efb4be2c134ab08b36033f6e2f5946076e9cf",
-  "leaderboard_wape_score": 0.90741
+  "name": "final_feedback_v25",
+  "script": "analysis/s121_final_two_submissions.py",
+  "formula": "analysis/s32_ex_ante_route5.py × calib до v25",
+  "submission": "forecasts/submission_final_feedback_v25.csv",
+  "submission_sha256_lf": "8e115ed5f27b768e1fa5473326a29e89efd4f4a92b27d8960f99d19389e3b824",
+  "leaderboard_wape_score": 0.91274,
+  "score_attribution": "tentative: 0.91274 is assumed to belong to v25; v25/v26 upload order awaits confirmation"
  },
  "files": {
   "forecast_components.csv": {
-   "sha256": "ea1cfd03cc48fd189d89cd5c3bf179016392835fa87afe1b522387fa08e34e0d",
+   "sha256": "7cc4efb20b4e119cf334f799a5aec07d4be3074d7b53b5dd6f60026cdaacec75",
    "rows": 14640
   },
   "coefficients.json": {
-   "sha256": "a0172e3d21acb645c13f307a45222094eecc150e269e3cfb49f869e816c6b00a",
+   "sha256": "b870409534095d14b33de0b267f8c78fd1bd2d8739d2da39f074eaa48abcd276",
    "rows": null
   },
   "stops.csv": {
@@ -54,11 +55,11 @@
    "rows": null
   },
   "forecast_year.csv": {
-   "sha256": "b46a2ffe0cdd95b1437ff6dc00c755b45f22b005d02ad233d6c47f3c762e5658",
+   "sha256": "4e4b8e8f9b7c6078ba1192b8d6f4e297386b54c03f3017cd96d47c05a251adec",
    "rows": 260
   },
   "backtest_metrics.json": {
-   "sha256": "a95dcc1f718d21fe6d5b5620faede78f1a934cacde5d31873f3f9144fb42e5da",
+   "sha256": "aae62f243ec97e4235e58b8efcf7d1162fb36c11b6c68520f97cd4ed9905e14c",
    "rows": null
   },
   "factors.json": {
@@ -74,7 +75,7 @@
    "rows": 72960
   },
   "outlook.csv": {
-   "sha256": "b756bd13c5045c274784b7c4fbc05975553f8603eaa1852b4d77ff3828a1d3a5",
+   "sha256": "b615865ecbeedbab8f8e918f39066036ede4c447aafa515578d65a8b39521274",
    "rows": 175200
   },
   "plan.csv": {

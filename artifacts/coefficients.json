@@ -1,6 +1,6 @@
 {
  "schema_version": 1,
- "scenario": "seasonal_daily_v11",
+ "scenario": "final_feedback_v25",
  "coefficients": [
   {
    "key": "level_nov",

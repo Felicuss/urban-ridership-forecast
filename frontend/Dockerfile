@@ -14,5 +14,6 @@ RUN npm run build \
 
 FROM nginx:1.30-alpine
 COPY deploy/nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY --chmod=755 deploy/nginx/45-resolver.sh /docker-entrypoint.d/45-resolver.sh
 COPY --from=build /app/dist /usr/share/nginx/html
 EXPOSE 80
