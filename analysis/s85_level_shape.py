@@ -3,7 +3,8 @@
 Уровень - медиана суточных посадок маршрута того же типа дня и того же режима (действующие события
 сети из external/events_2025.csv) за последние недели до даты прогноза, умноженная на сезонный переход
 трамвая Москвы (data.mos.ru, прошлые годы). Режим, которого ещё не было, - обычный уровень × множитель
-по типу события. Форма - доли часов того же типа дня за 8 недель с полураспадом 14 дней. Каждый множитель
+по типу события. Форма - поровну доли часов того же типа дня за 8 недель с полураспадом 14 дней и сезонная
+модель долей по типу дня, дню недели, годовой гармонике и погоде, как у v10. Каждый множитель
 виден отдельно, поэтому такой прогноз сервис может разложить по шагам без непрозрачной поправки до v11.
 
 Поправка уровня LightGBM (календарь, погода, горизонт, тренд) на фолдах ухудшала скор: 0.835 со всеми
@@ -75,6 +76,23 @@ def network_events() -> list[dict]:
     return out
 
 
+def daily_weather() -> pd.DataFrame:
+    """Погода дня для формы суток: средняя температура и дождь за 6-22 ч (Open-Meteo, разрешённые данные)."""
+    w = pd.read_csv(ROOT / "external/weather_moscow_2025_hourly.csv", parse_dates=["ts"])
+    w = w[(w.ts.dt.hour >= 6) & (w.ts.dt.hour <= 22)]
+    day = w.groupby(w.ts.dt.normalize())
+    return pd.DataFrame({"temp": day.temperature_2m.mean() / 20, "rain": day.precipitation.mean()})
+
+
+# Сезонная модель долей часов, как у v10 (s80): робастная ридж-регрессия долей на тип дня, день недели,
+# годовую гармонику, погоду и сезон × выходные, с поправкой на смещение последних 6 недель.
+SHAPE_RIDGE = 20.0
+SHAPE_RECENCY = 180
+SHAPE_BIAS_DAYS = 42
+SHAPE_ITERATIONS = 12
+SHAPE_MODEL_WEIGHT = 0.5
+
+
 def anomalies() -> set:
     a = pd.read_csv(ROOT / "docs/analysis/tables/anomalous_days.csv", parse_dates=["date"])
     return set(zip(a.route, a.date))
@@ -90,6 +108,49 @@ class Data:
         self.bad = anomalies()
         self.events = network_events()
         self._regime = {}
+        self.dates = pd.date_range(HISTORY_START, "2025-12-31")
+        self.weather = daily_weather().reindex(self.dates)
+
+    def design(self) -> np.ndarray:
+        kinds = self.cal.kind.reindex(self.dates).map({"workday": 0, "saturday": 1, "sunday": 2}).to_numpy()
+        dow = self.cal.dow.reindex(self.dates).to_numpy()
+        t = 2 * np.pi * (self.dates.dayofyear.to_numpy() - 1) / 365
+        season = np.column_stack([np.sin(t), np.cos(t)])
+        temp = self.weather.temp.to_numpy()
+        return np.column_stack([np.eye(3)[kinds], np.eye(7)[dow][:, :6], season, temp, np.maximum(-temp, 0),
+                                self.weather.rain.to_numpy(), season * (kinds != 0)[:, None]]), kinds
+
+    def model_shapes(self, route: int, origin: pd.Timestamp) -> np.ndarray:
+        """Доли часов на каждый день года по сезонной модели, обученной на днях маршрута до origin."""
+        x, kinds = self.design()
+        h = self.hourly.loc[route].reindex(self.dates).to_numpy()
+        total = h.sum(axis=1)
+        cutoff = self.dates.get_loc(origin)
+        idx = np.arange(cutoff + 1)
+        good = np.isfinite(total[idx]) & (total[idx] > 0.2 * np.nanmedian(total[idx]))
+        good &= np.array([(route, self.dates[i]) not in self.bad for i in idx])
+        ix = idx[good]
+        y = h[ix] / total[ix, None] * 24
+        xx = x[ix]
+        importance = total[ix] / np.median(total[ix]) * np.exp((ix - cutoff) / SHAPE_RECENCY)
+        reg = np.full(x.shape[1], SHAPE_RIDGE)
+        reg[:3] = 0.001
+        reg[3:9] = SHAPE_RIDGE * 2
+        weights = np.broadcast_to(importance, (24, len(ix))).copy()
+        for _ in range(SHAPE_ITERATIONS):
+            lhs = np.einsum("ni,hn,nj->hij", xx, weights, xx) + np.diag(reg)[None]
+            rhs = np.einsum("ni,hn,nh->hi", xx, weights, y)
+            beta = np.linalg.solve(lhs, rhs[..., None])[..., 0]
+            residual = y - np.einsum("ni,hi->nh", xx, beta)
+            weights = importance[None] / np.maximum(np.abs(residual.T), 0.04)
+        pred = np.einsum("ni,hi->nh", x, beta)
+        fitted = np.einsum("ni,hi->nh", xx, beta)
+        for k in range(3):
+            local = (ix > cutoff - SHAPE_BIAS_DAYS) & (kinds[ix] == k)
+            if local.sum() >= 3:
+                pred[kinds == k] += 0.5 * np.median((y - fitted)[local], axis=0)
+        pred = np.maximum(pred, 0.001)
+        return pred / pred.sum(axis=1, keepdims=True)
 
     def regime(self, route: int, date: pd.Timestamp) -> frozenset:
         """Типы событий, которые действуют на маршрут в этот день с учётом типа дня: закрытие, укорочение,
@@ -187,11 +248,17 @@ def frame(data: Data, origin: pd.Timestamp, days: int) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def hourly(data: Data, fold: pd.DataFrame, origin: pd.Timestamp, totals: np.ndarray) -> pd.DataFrame:
+def hourly(data: Data, fold: pd.DataFrame, origin: pd.Timestamp, totals: np.ndarray,
+           model_weight: float = SHAPE_MODEL_WEIGHT) -> pd.DataFrame:
+    """Суммы дней по часам: смесь формы последних недель и сезонной модели долей с весом model_weight."""
     shapes = {(r, k): data.shape(r, origin, k) for r in fold.route.unique() for k in LEVEL_DAYS}
+    models = {r: data.model_shapes(r, origin) for r in fold.route.unique()} if model_weight > 0 else {}
     out = []
     for (r, d, k), total in zip(fold[["route", "date", "kind"]].itertuples(index=False), totals):
-        out.append(pd.DataFrame({"route": r, "date": d, "hour": range(24), "pred": total * shapes[(r, k)]}))
+        shape = shapes[(r, k)]
+        if model_weight > 0:
+            shape = (1 - model_weight) * shape + model_weight * models[r][data.dates.get_loc(d)]
+        out.append(pd.DataFrame({"route": r, "date": d, "hour": range(24), "pred": total * shape}))
     return pd.concat(out, ignore_index=True)
 
 
