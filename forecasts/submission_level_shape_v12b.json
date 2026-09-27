@@ -1,0 +1,7 @@
+{
+  "file": "submission_level_shape_v12b.csv",
+  "status": "unscored",
+  "sha256": "dd7d321e28c3b12d74278408e7799d8329dac7005fdf2b3fc22e00dab6b6cc53",
+  "model": "s85 (submission_level_shape_v12.csv), маршрут 5 из v11: у v11 оценка по опубликованным первым неделям после запуска",
+  "report": "docs/research/level_shape_2026-09-27.md"
+}
