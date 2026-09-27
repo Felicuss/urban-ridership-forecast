@@ -38,7 +38,7 @@ def learn_basis(history, cutoff):
     past['month'] = (pd.Timestamp('2025-01-01') + pd.to_timedelta(past.day, unit='D')).dt.month
     sums = past.groupby(['route','month'])[['y','p']].transform('sum')
     adjusted = past.p * sums.y / sums.p.clip(lower=1)
-    residual = np.clip((past.y-adjusted)/(past.p+50), -.75, .75).to_numpy()
+    residual = np.clip((past.y-adjusted)/(past.p+50), -.75, .75).to_numpy(copy=True)
     protected = (past.route==5) | (past.route.isin([7,50]) & (past.kind!=0)) | (past.p<=0)
     residual[protected.to_numpy()] = 0
     x = residual.reshape(-1, 240)

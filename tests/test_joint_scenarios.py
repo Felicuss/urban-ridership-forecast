@@ -1,3 +1,5 @@
+import pytest
+pytest.importorskip("torch", reason="torch is not installed: uv sync --extra fm")
 import numpy as np
 import pandas as pd
 from s98_joint_scenarios import residual_factor,joint_posterior
