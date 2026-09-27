@@ -62,7 +62,7 @@
   z-index: 5;
   display: grid;
   gap: 5px;
-  width: 250px;
+  width: 270px;
   padding: 8px 10px;
   border: 1px solid var(--line);
   border-radius: 12px;
@@ -76,16 +76,46 @@
   gap: 4px;
 }
 
+/* цвет полосы задаётся из style.ts (LOAD_GRADIENT), как и у слоёв карты */
 .ramp {
-  height: 6px;
-  border-radius: 3px;
-  background: linear-gradient(90deg, #4a5e8c, #6f8fc9, #8fb8a8, #d9b36c, #e0876a, #d8666f);
+  height: 8px;
+  border-radius: 4px;
 }
 
-.rampLabels {
-  display: flex;
-  justify-content: space-between;
+.scaleRow {
+  display: grid;
+  grid-template-columns: 58px 1fr;
+  align-items: center;
+  gap: 6px;
+}
+
+.scaleLabel {
   color: var(--muted);
+  font-size: 10.5px;
+}
+
+.ticks {
+  position: relative;
+  height: 13px;
+  margin-right: 2px;
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.ticks small {
+  position: absolute;
+  top: 0;
+  font-size: 10px;
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+
+.ticks small:first-child {
+  transform: none;
+}
+
+.ticks small:last-child {
+  transform: translateX(-100%);
 }
 
 .legendNote {
