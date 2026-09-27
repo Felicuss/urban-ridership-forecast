@@ -197,6 +197,9 @@ interface State {
   setBoardOpen: (open: boolean) => void;
   /** День шкалы, с которым сравнивается прогноз; null - без сравнения. */
   compareDay: number | null;
+  /** Быстрый вариант сравнения («неделей раньше»): день второй даты считается от выбранной даты заново. */
+  comparePreset: string | null;
+  setComparePreset: (label: string | null) => void;
   setCompareDay: (day: number | null) => void;
   viewMode: ViewMode;
   setViewMode: (v: ViewMode) => void;
@@ -288,7 +291,9 @@ export const useStore = create<State>((set, get) => {
     boardOpen: false,
     setBoardOpen: (boardOpen) => set({ boardOpen }),
     compareDay: null,
-    setCompareDay: (compareDay) => set({ compareDay }),
+    setCompareDay: (compareDay) => set({ compareDay, comparePreset: null }),
+    comparePreset: null,
+    setComparePreset: (comparePreset) => set({ comparePreset, compareDay: null }),
     viewMode: 'perspective',
     setViewMode: (viewMode) => set({ viewMode }),
     rotated: false,

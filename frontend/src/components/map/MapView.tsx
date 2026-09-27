@@ -4,6 +4,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 import type { CalendarDay, Factors, NetworkGeoJson, NetworkLoad, RouteStop } from '../../api/types';
 import type { GridPoint } from '../../lib/weatherGrid';
+import { useLayout } from '../../state/layout';
 import { useStore } from '../../state/store';
 import { dayIndex, hourOf, sunElevation } from '../../lib/time';
 import { fmtInt } from '../../lib/format';
@@ -46,6 +47,7 @@ export default function MapView({ network, load, factors, calendar, weather, rid
   const container = useRef<HTMLDivElement>(null);
   const tooltip = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibre | null>(null);
+  const layoutMode = useLayout((l) => l.mode);
   const ready = useRef(false);
   const scale = useRef<Scale>({ stop: 1, route: 1 });
   const lines = useRef<Line[]>(buildLines(network));
@@ -300,6 +302,18 @@ export default function MapView({ network, load, factors, calendar, weather, rid
     applyDaylight(map, s.minute, s.flags.daylight, !s.flags.satellite);
   }
 
+  // сплит и панели сужают карту: она подстраивает размер и снова показывает выбранный маршрут целиком
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return undefined;
+    const t = window.setTimeout(() => {
+      map.resize();
+      const s = useStore.getState();
+      if (s.route != null && !s.ride && !s.segment) fitRoute(map, s.route);
+    }, 60);
+    return () => window.clearTimeout(t);
+  }, [layoutMode]);
+
   return (
     <div className={styles.wrap}>
       <div ref={container} className={styles.map} />
@@ -313,7 +327,11 @@ function bindPointer(map: MapLibre, tip: HTMLDivElement | null) {
   const show = (e: MapLayerMouseEvent, html: string) => {
     if (!tip) return;
     tip.innerHTML = html;
-    tip.style.transform = `translate(${e.point.x + 14}px, ${e.point.y + 14}px)`;
+    // у правого и нижнего края подсказка переходит на другую сторону курсора, иначе карта её обрезает
+    const box = map.getContainer();
+    const x = e.point.x + 14 + tip.offsetWidth > box.clientWidth - 4 ? e.point.x - 14 - tip.offsetWidth : e.point.x + 14;
+    const y = e.point.y + 14 + tip.offsetHeight > box.clientHeight - 4 ? e.point.y - 14 - tip.offsetHeight : e.point.y + 14;
+    tip.style.transform = `translate(${Math.max(x, 4)}px, ${Math.max(y, 4)}px)`;
     tip.style.opacity = '1';
     map.getCanvas().style.cursor = 'pointer';
   };

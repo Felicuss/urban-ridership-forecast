@@ -37,6 +37,9 @@ function routeNow(route: number, load: NetworkLoad | undefined, factors: Factors
   return { route, now, next: hours[Math.min(hour + 1, 23)] ?? 0, hw, hours, perTrip: hw ? now / tripsPerHour(hw) : null };
 }
 
+/** Что на табло: факт прошедшего дня, прогноз ноября-декабря 2025 или оценка 2026 года. */
+const SOURCE_LABEL: Record<string, string> = { fact: 'факт посадок', forecast: 'прогноз посадок', outlook: 'оценка посадок' };
+
 function tone(perTrip: number | null): string {
   if (perTrip == null) return styles.idle ?? '';
   if (perTrip > CAPACITY) return styles.hot ?? '';
@@ -147,7 +150,7 @@ function Spotlight({ spot, factors, load, hour }: { spot: RouteNow; factors: Fac
         <span className={styles.spotNo}>{spot.route}</span>
         <div>
           <h2>{routeTitle(factors, spot.route) || `Маршрут ${spot.route}`}</h2>
-          <p>{hour}:00–{hour + 1}:00 · прогноз посадок</p>
+          <p>{hour}:00–{hour + 1}:00 · {SOURCE_LABEL[load?.source ?? 'forecast'] ?? 'прогноз посадок'}</p>
         </div>
       </div>
       <div className={styles.numbers}>
