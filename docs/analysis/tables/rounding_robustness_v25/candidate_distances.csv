@@ -1,0 +1,9 @@
+candidate,weight,l1_distance,changed_cells
+original,0.5,11478.0,6561
+original,1.0,23866.0,8799
+centered,0.5,20406.0,8182
+centered,1.0,41366.0,9831
+quantile_risk,0.5,12330.0,6981
+quantile_risk,1.0,25162.0,8830
+mean_of_priors,0.5,11414.0,6599
+mean_of_priors,1.0,23680.0,8723

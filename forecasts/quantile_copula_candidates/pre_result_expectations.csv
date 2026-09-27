@@ -1,0 +1,7 @@
+prior,file,expected_score,expected_gain_vs_v21
+centered,submission_distributional_v21.csv,0.9126300002882826,0.0
+centered,submission_centered_quantiles_v22.csv,0.9126431952698834,1.3194981600794797e-05
+centered,submission_quantile_shape_v23.csv,0.9126060849035688,-2.3915384713801835e-05
+quantile_risk,submission_distributional_v21.csv,0.9126299969878602,0.0
+quantile_risk,submission_centered_quantiles_v22.csv,0.9125987368387716,-3.126014908860775e-05
+quantile_risk,submission_quantile_shape_v23.csv,0.91273973116953,0.0001097341816698183

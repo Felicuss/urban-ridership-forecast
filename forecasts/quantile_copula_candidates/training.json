@@ -1,0 +1,25 @@
+{
+  "noise": {
+    "training_days": 184,
+    "last_training_day": 303,
+    "relative_mean_error": 0.11546501693699401
+  },
+  "correlation": {
+    "last_training_day": 303,
+    "training_days": 184,
+    "source": "past v11 residual ranks, route-month normalized"
+  },
+  "quantile_levels": [
+    0.01,
+    0.05,
+    0.1,
+    0.2,
+    0.35,
+    0.5,
+    0.65,
+    0.8,
+    0.9,
+    0.95,
+    0.99
+  ]
+}

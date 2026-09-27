@@ -160,30 +160,6 @@
     "evidence": "User reported 0.90764 for the v11 raked to 8 probe sums (s84, q01-q03, q06, q24)."
   },
   {
-    "file": "probes/p10_total.csv",
-    "sha256": "ee290e01da3e04565e626c20d95f102caa16e7a61d02bd7f876a61c259860b76",
-    "leaderboard_score": 0.51431,
-    "platform_display_number": 1,
-    "submitted_at": "2026-09-25T22:38:00+03:00",
-    "evidence": "Platform screenshot: 25.09.2026 22:38 +03:00, score 0.51431. Level probe from analysis/s65_level_probes.py, see forecasts/probes/level_probes.json."
-  },
-  {
-    "file": "probes/p11_r17_wd_11.csv",
-    "sha256": "fcef284e7de668c594eea10d40de98e30727a713dfa98a97f61a08415cd52285",
-    "leaderboard_score": 0.03337,
-    "platform_display_number": null,
-    "submitted_at": "2026-09-25T22:39:00+03:00",
-    "evidence": "Platform screenshot: 25.09.2026 22:39 +03:00, score 0.03337. Level probe from analysis/s65_level_probes.py, see forecasts/probes/level_probes.json."
-  },
-  {
-    "file": "probes/p12_r17_wd_12.csv",
-    "sha256": "477e6438fca253d6c8ced207bee2d3f74141fba2805552cbc5be21ee25e2fb7c",
-    "leaderboard_score": 0.03692,
-    "platform_display_number": null,
-    "submitted_at": "2026-09-25T22:40:00+03:00",
-    "evidence": "Platform screenshot: 25.09.2026 22:40 +03:00, score 0.03692. Level probe from analysis/s65_level_probes.py, see forecasts/probes/level_probes.json."
-  },
-  {
     "file": "submission_v11_probe_rake_r2.csv",
     "sha256": "b3fa9fe15a4a87b392c2b584482289af13a2628ad4dd3172e98f0aeec591e0c8",
     "leaderboard_score": 0.90939,
@@ -214,48 +190,6 @@
     "platform_display_number": 1,
     "submitted_at": "2026-09-27T14:04:00+03:00",
     "evidence": "Platform result 27.09.2026 14:04 +03:00, score 0.90274. v11 daily totals distributed over hours by the s85 shape."
-  },
-  {
-    "file": "route17_diagnostics/01_r17_11_morning.csv",
-    "sha256": "b12b39e14ca8480ed4a1ba3eaa0564d202a6bc46a20646bcb0eaca37b6e40b3b",
-    "leaderboard_score": 0.03624,
-    "evidence": "User screenshot 2026-09-27 18:57 Moscow; rows newest first; mapped to upload order 01 through 07 in reverse, consistent with previous batches. No explicit filename labels in screenshot."
-  },
-  {
-    "file": "route17_diagnostics/02_r17_11_evening.csv",
-    "sha256": "e402f9e127c1ebca79da41cdf9f6b0769720adb797d3419079aede23e96449f7",
-    "leaderboard_score": 0.03692,
-    "evidence": "User screenshot 2026-09-27 18:57 Moscow; rows newest first; mapped to upload order 01 through 07 in reverse, consistent with previous batches. No explicit filename labels in screenshot."
-  },
-  {
-    "file": "route17_diagnostics/03_r17_12_morning.csv",
-    "sha256": "adb7e30d1cec27b41486a03eec1f3996c8d2a8cebdc35072b55c86c263473e3f",
-    "leaderboard_score": 0.03224,
-    "evidence": "User screenshot 2026-09-27 18:57 Moscow; rows newest first; mapped to upload order 01 through 07 in reverse, consistent with previous batches. No explicit filename labels in screenshot."
-  },
-  {
-    "file": "route17_diagnostics/04_r17_12_evening.csv",
-    "sha256": "bd786c03ceb19576fe2b763211e5ac13d77f3f78c68206ad2e53252b55cd3257",
-    "leaderboard_score": 0.03177,
-    "evidence": "User screenshot 2026-09-27 18:57 Moscow; rows newest first; mapped to upload order 01 through 07 in reverse, consistent with previous batches. No explicit filename labels in screenshot."
-  },
-  {
-    "file": "route17_diagnostics/05_q14_r17_nwd_11.csv",
-    "sha256": "e8fed4e7c8d1d43f2749486824d074feeb5cf00119011d8d36044795a26fe320",
-    "leaderboard_score": 0.07087,
-    "evidence": "User screenshot 2026-09-27 18:57 Moscow; rows newest first; mapped to upload order 01 through 07 in reverse, consistent with previous batches. No explicit filename labels in screenshot."
-  },
-  {
-    "file": "route17_diagnostics/06_q15_r17_nwd_12.csv",
-    "sha256": "c660c7936167e62f406a686037942dc9ad2284949ce0a7438ff9a75547668130",
-    "leaderboard_score": 0.06832,
-    "evidence": "User screenshot 2026-09-27 18:57 Moscow; rows newest first; mapped to upload order 01 through 07 in reverse, consistent with previous batches. No explicit filename labels in screenshot."
-  },
-  {
-    "file": "route17_diagnostics/07_q26_dec22_26_wd.csv",
-    "sha256": "bd31b569ca379b747de80be3eba4204fd7c39214e64874a3b3e01b82acf8cd60",
-    "leaderboard_score": 0.06795,
-    "evidence": "User screenshot 2026-09-27 18:57 Moscow; rows newest first; mapped to upload order 01 through 07 in reverse, consistent with previous batches. No explicit filename labels in screenshot."
   },
   {
     "file": "submission_r17_measured_v13.csv",
@@ -320,23 +254,5 @@
     "platform_display_number": 1,
     "submitted_at": "2026-09-27T16:14:00+03:00",
     "evidence": "Platform result 27.09.2026 16:14 +03:00, score 0.90742. analysis/s86_model_ensemble.py: v11, v8, v9 equal weights."
-  },
-  {
-    "file": "submission_centered_quantiles_v22.csv",
-    "sha256": "c551447425353f7784613cd433755389c5940717fb7d9ce97a340894b81745fb",
-    "leaderboard_score": 0.91257,
-    "evidence": "Screenshot 2026-09-27 21:13 +03:00; user confirmed upload order v22 then v23."
-  },
-  {
-    "file": "submission_quantile_shape_v23.csv",
-    "sha256": "be50663eb41a7bb6b5fb8bafe89afd9524c4c79a1aa4ae2e966e589d5f6a67ab",
-    "leaderboard_score": 0.9125,
-    "evidence": "Screenshot 2026-09-27 21:13 +03:00; user confirmed upload order v22 then v23."
-  },
-  {
-    "file": "submission_feedback_v24.csv",
-    "sha256": "000f58329989c743423db90d2201462bcf7bac85ca69c6bbd579ae0d6bf9ba2f",
-    "leaderboard_score": 0.91262,
-    "evidence": "User reported 0.91262 immediately after v24 delivery."
   }
 ]

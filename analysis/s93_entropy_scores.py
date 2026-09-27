@@ -41,10 +41,18 @@ def prior_grid(anchor,total_error,noise_multiplier=None,skew=None,distribution='
     return y,probabilities,alpha
 
 
-def posterior(anchor,pool,scores,A,b,total,penalty=1e-6,maxiter=450,queries=None,noise_multiplier=None,skew=None,distribution='laplace',return_distribution=False):
+def posterior(anchor,pool,scores,A,b,total,penalty=1e-6,maxiter=450,queries=None,noise_multiplier=None,skew=None,distribution='laplace',return_distribution=False,custom_prior=None,entropy_power=1.):
     reference=int(np.argmin(abs(pool-anchor[None]).sum(1)))
-    support,prior,noise=prior_grid(anchor,(1-scores[reference])*total,noise_multiplier,skew,distribution)
-    weights=(anchor+30)/(anchor+30).sum()
+    if custom_prior is None:
+        support,prior,noise=prior_grid(anchor,(1-scores[reference])*total,noise_multiplier,skew,distribution)
+    else:
+        support,prior=custom_prior
+        support=np.asarray(support,dtype=float);prior=np.asarray(prior,dtype=float)
+        if support.shape!=(len(anchor),len(prior)) or not np.isfinite(support).all() or (support<0).any():raise ValueError('Invalid custom support')
+        if (np.diff(support,axis=1)<0).any() or (prior<=0).any() or not np.isclose(prior.sum(),1):raise ValueError('Invalid custom probabilities/order')
+        noise=None
+    weights=(anchor+30)**entropy_power
+    weights/=weights.sum()
     normalized=support/(total*weights[:,None])
     # Difference constraints cancel much of the common irreducible noise.
     cost_anchor=abs(support-anchor[:,None])

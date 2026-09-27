@@ -1,0 +1,24 @@
+{
+  "status": "awaiting_upload_order_confirmation",
+  "submitted_at": "2026-09-27T21:44:00+03:00",
+  "display_rows": [
+    {
+      "number": 1,
+      "score": 0.91223
+    },
+    {
+      "number": 2,
+      "score": 0.91274
+    }
+  ],
+  "candidate_files": [
+    {
+      "file": "submission_final_feedback_v25.csv",
+      "sha256": "8e115ed5f27b768e1fa5473326a29e89efd4f4a92b27d8960f99d19389e3b824"
+    },
+    {
+      "file": "submission_final_profile_v26.csv",
+      "sha256": "5eb85a6700f2ffee3eea10cecc77fa0dc07c7c994047ee30fa9ad2a67016728b"
+    }
+  ]
+}
