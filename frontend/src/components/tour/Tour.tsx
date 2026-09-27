@@ -63,6 +63,8 @@ function TourRun() {
   const primary = useRef<HTMLButtonElement>(null);
   /** Раскладка, из которой тур переключил на карту; при закрытии она возвращается. */
   const layoutBefore = useRef<LayoutMode | null>(null);
+  /** Вкладка правой панели до тура: закрытый на полпути тур возвращает её. */
+  const tabBefore = useRef(useStore.getState().tab);
   const step = STEPS[index]!;
   const last = index === STEPS.length - 1;
 
@@ -70,9 +72,10 @@ function TourRun() {
     setIndex((i) => Math.min(Math.max(i + delta, 0), STEPS.length - 1));
   }, []);
 
-  const close = useCallback((restoreLayout = true) => {
+  const close = useCallback((restore = true) => {
     markSeen();
-    if (restoreLayout && layoutBefore.current) useLayout.getState().setMode(layoutBefore.current);
+    if (restore && layoutBefore.current) useLayout.getState().setMode(layoutBefore.current);
+    if (restore) useStore.getState().setTab(tabBefore.current);
     setTourOpen(false);
   }, [setTourOpen]);
 
