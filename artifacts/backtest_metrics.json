@@ -36,7 +36,8 @@
   "day": 0.777,
   "month": 0.74
  },
- "leaderboard_wape_score": 0.90741,
+ "leaderboard_wape_score": 0.91274,
+ "leaderboard_score_attribution": "tentative_v25_v26_order",
  "year": {
   "seasonal_index": {
    "11": 1.0027,

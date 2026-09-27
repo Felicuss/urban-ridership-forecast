@@ -45,7 +45,7 @@ class NewsApiTest {
 
 	@Test
 	void dayAfterTheTimelineAndUnknownIncidentAreProblemDetails() {
-		client.get().uri("/api/v1/news/23459/events?date=2026-11-01").exchange()
+		client.get().uri("/api/v1/news/23459/events?date=2028-01-01").exchange()
 			.expectStatus().isBadRequest()
 			.expectBody().jsonPath("$.errors[0].field").isEqualTo("date");
 		client.get().uri("/api/v1/news/1/events?date=2025-11-14").exchange()

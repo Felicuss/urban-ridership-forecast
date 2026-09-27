@@ -19,7 +19,7 @@ import styles from './TopBar.module.css';
 
 const SOURCE_BADGE: Record<string, { label: string; hint: string }> = {
   fact: { label: 'факт', hint: 'Успешные валидации из данных организаторов' },
-  forecast: { label: 'прогноз', hint: 'Почасовой прогноз v11' },
+  forecast: { label: 'прогноз', hint: 'Почасовой прогноз v25' },
   outlook: { label: 'оценка', hint: 'Месячный прогноз по сезонному индексу, разложенный по дням и часам; коридор ±12 %' },
 };
 
