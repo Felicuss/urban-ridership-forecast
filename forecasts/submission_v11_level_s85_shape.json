@@ -1,7 +1,8 @@
 {
   "file": "submission_v11_level_s85_shape.csv",
-  "status": "unscored",
+  "status": "scored",
   "sha256": "9f11bb0b7abd5abf251b9dfbc4bd81fe8879e5498c905e29c32eb66f01fafb58",
   "model": "суточные суммы v11, распределённые по часам формой s85 (submission_level_shape_v12.csv); нули v11 сохранены",
-  "purpose": "отделить вклад формы s85 от уровня на ноябре-декабре"
+  "purpose": "отделить вклад формы s85 от уровня на ноябре-декабре",
+  "leaderboard_score": 0.90274
 }

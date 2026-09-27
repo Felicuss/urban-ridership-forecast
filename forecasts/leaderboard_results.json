@@ -206,5 +206,13 @@
     "platform_display_number": 1,
     "submitted_at": "2026-09-27T14:01:00+03:00",
     "evidence": "Platform result 27.09.2026 14:01 +03:00, score 0.89761. analysis/s85_level_shape.py future: level x shape with event regimes, route 5 from s32."
+  },
+  {
+    "file": "submission_v11_level_s85_shape.csv",
+    "sha256": "9f11bb0b7abd5abf251b9dfbc4bd81fe8879e5498c905e29c32eb66f01fafb58",
+    "leaderboard_score": 0.90274,
+    "platform_display_number": 1,
+    "submitted_at": "2026-09-27T14:04:00+03:00",
+    "evidence": "Platform result 27.09.2026 14:04 +03:00, score 0.90274. v11 daily totals distributed over hours by the s85 shape."
   }
 ]
