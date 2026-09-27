@@ -1,0 +1,7 @@
+{
+  "file": "submission_blend_r3_level_shape.csv",
+  "status": "unscored",
+  "sha256": "262c38335c74722334887e032d5448b932f181db0ba0d911752520a7e4d8244a",
+  "model": "r3 (0,90997) и s85 v12b, масштабированный под суммы r3 по группам маршрут × месяц × тип дня; среднее 50/50 по ячейкам, нули r3 сохранены",
+  "report": "docs/research/level_shape_2026-09-27.md"
+}
