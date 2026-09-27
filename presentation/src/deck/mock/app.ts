@@ -594,7 +594,7 @@ function shift(ctx: Ctx, s: UiState): void {
   t(ctx, 'События дня', 1536, y + 390, { size: 11, color: U.muted });
   t(ctx, `•  ${M.brief.events[0] ?? ''}`, 1540, y + 410, { size: 11.5, color: U.text2 });
   button(ctx, 1536, y + 432, 170, 32, s.copied ? 'Скопировано' : 'Скопировать для чата', { primary: true, size: 12.5 });
-  button(ctx, 1714, y + 432, 170, 32, 'Пересказать агентом', { size: 12.5 });
+  button(ctx, 1714, y + 432, 170, 32, 'Сводка от помощника', { size: 12.5 });
   // оповещения
   y = 676;
   card(ctx, 1522, y, 378, s.alertQ > 0 ? 230 : 170, U.surface);

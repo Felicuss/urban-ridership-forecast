@@ -170,7 +170,7 @@ const model: Slide = {
       ctx.fillRect(cx + 40, by, 520 * v * q, 14);
       text(ctx, `${l}: ${v.toFixed(i ? 3 : 5).replace('.', ',')}`, cx + 40, by + 44, { size: 22, weight: 500, color: P.lineWhite, alpha: q });
     });
-    para(ctx, 'Лучший из 19 прогнозов, отправленных на проверку. Факт попадает в коридор прогноза 8 раз из 10.',
+    para(ctx, 'Финальная модель v11 на проверке организаторов. Факт попадает в коридор прогноза 8 раз из 10.',
       cx + 40, cy + 430, { size: 23, weight: 400, maxW: 530, lh: 32, color: P.lavender, p: seg(t, 5.4, 1.4, 'linear') });
   },
 };
