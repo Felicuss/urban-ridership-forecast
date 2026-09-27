@@ -30,6 +30,12 @@ public final class Aggregator {
 
 	public List<Point> series(double[] prediction, Map<Integer, Double> weights, LocalDate from, LocalDate to,
 			HourWindow hours, Granularity granularity) {
+		return series(prediction, List.of(), weights, from, to, hours, granularity);
+	}
+
+	/** Ряд со сценарием: события умножают и дни оценки 2026 года, прогноз берётся из массива сценария. */
+	public List<Point> series(double[] prediction, List<ScenarioEvent> events, Map<Integer, Double> weights,
+			LocalDate from, LocalDate to, HourWindow hours, Granularity granularity) {
 		List<Point> out = new ArrayList<>();
 		YearMonth month = null;
 		Source monthSource = null;
@@ -43,7 +49,7 @@ public final class Aggregator {
 			double dayPlan = 0;
 			Peak dayPeak = null;
 			for (int h = hours.first(); h <= hours.last(); h++) {
-				double v = cellSum(prediction, weights, d, h);
+				double v = cellSum(prediction, events, weights, d, h);
 				double plan = planSum(weights, d, h);
 				daySum += v;
 				dayPlan += plan;
@@ -101,9 +107,14 @@ public final class Aggregator {
 
 	/** Значение объекта в ячейке день шкалы × час: сумма маршрутов с весами. */
 	public double cellSum(double[] prediction, Map<Integer, Double> weights, int day, int hour) {
+		return cellSum(prediction, List.of(), weights, day, hour);
+	}
+
+	public double cellSum(double[] prediction, List<ScenarioEvent> events, Map<Integer, Double> weights, int day,
+			int hour) {
 		double sum = 0;
 		for (Map.Entry<Integer, Double> w : weights.entrySet()) {
-			sum += w.getValue() * timeline.value(timeline.routeIndex(w.getKey()), day, hour, prediction);
+			sum += w.getValue() * timeline.value(timeline.routeIndex(w.getKey()), day, hour, prediction, events);
 		}
 		return sum;
 	}

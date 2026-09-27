@@ -27,11 +27,18 @@ public final class NewsService {
 	private final NewsArchive archive;
 	private final NewsSource live;
 	private final ForecastGrid grid;
+	private final LocalDate lastDay;
 
 	public NewsService(NewsArchive archive, NewsSource live, ForecastGrid grid) {
+		this(archive, live, grid, grid.end());
+	}
+
+	/** @param lastDay последний день, на который можно примерить сбой: конец оценки 2026 года */
+	public NewsService(NewsArchive archive, NewsSource live, ForecastGrid grid, LocalDate lastDay) {
 		this.archive = archive;
 		this.live = live;
 		this.grid = grid;
+		this.lastDay = lastDay;
 	}
 
 	/**
@@ -60,16 +67,18 @@ public final class NewsService {
 		return new Feed(items, archive.alpha(), archive.alphaSource(), fresh.checkedAt(), fresh.error());
 	}
 
-	/** События, если такой же сбой случится в день date горизонта прогноза. */
+	/** События, если такой же сбой случится в день date прогноза или оценки 2026 года. */
 	public List<ScenarioEvent> tryOn(String id, LocalDate date) {
-		if (date == null || !grid.contains(date)) {
-			throw ValidationException.of("date", "примерить сбой можно на день прогноза: " + grid.start() + " - " + grid.end());
+		if (date == null || date.isBefore(grid.start()) || date.isAfter(lastDay)) {
+			throw ValidationException.of("date", "примерить сбой можно на день прогноза или оценки: " + grid.start() + " - "
+					+ lastDay);
 		}
 		Incident incident = find(id);
 		if (incident.ongoing()) {
 			throw ValidationException.of("id", "движение ещё не восстановлено: длительность сбоя неизвестна");
 		}
-		return inGrid(IncidentImpact.events(incident, archive.alpha(), date));
+		// ночной сбой в последний день шкалы заходит за её конец: эти часы не считаются
+		return IncidentImpact.events(incident, archive.alpha(), date).stream().filter(e -> !e.from().isAfter(lastDay)).toList();
 	}
 
 	private Incident find(String id) {

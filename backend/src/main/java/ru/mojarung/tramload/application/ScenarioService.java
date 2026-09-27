@@ -97,8 +97,10 @@ public final class ScenarioService {
 		if (e.from() == null || e.to() == null) {
 			violations.add(new Violation(field, "укажите from и to"));
 		}
-		else if (e.from().isAfter(e.to()) || !grid.contains(e.from()) || !grid.contains(e.to())) {
-			violations.add(new Violation(field, "интервал должен идти вперёд и лежать в " + grid.start() + " - " + grid.end()));
+		else if (e.from().isAfter(e.to()) || e.from().isBefore(grid.start()) || e.to().isAfter(model.timeline().end())) {
+			// событие примеряется на будущее: почасовой прогноз ноября-декабря 2025 и оценку 2026 года, факт не меняется
+			violations.add(new Violation(field, "интервал должен идти вперёд и лежать в " + grid.start() + " - "
+					+ model.timeline().end()));
 		}
 		Double m = e.multiplier();
 		if (m == null || !Double.isFinite(m) || m < 0 || m > MAX_EVENT_MULTIPLIER) {

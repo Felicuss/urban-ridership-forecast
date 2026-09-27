@@ -87,10 +87,29 @@ public final class Timeline {
 
 	/** Посадки маршрута в час: для горизонта прогноза - из массива сценария, иначе факт или оценка. */
 	public double value(int routeIndex, int day, int hour, double[] prediction) {
-		if (days[day].source() == Source.FORECAST) {
+		return value(routeIndex, day, hour, prediction, List.of());
+	}
+
+	/**
+	 * То же, но события сценария умножают и оценку 2026 года: перекрытие или мероприятие можно примерить на любой
+	 * будущий день. В горизонте прогноза события уже учтены в массиве сценария, факт они не меняют.
+	 */
+	public double value(int routeIndex, int day, int hour, double[] prediction, List<ScenarioEvent> events) {
+		Source source = days[day].source();
+		if (source == Source.FORECAST) {
 			return prediction[horizon.cell(routeIndex, day - horizonOffset, hour)];
 		}
-		return values[(routeIndex * days.length + day) * ForecastGrid.HOURS + hour];
+		double v = values[(routeIndex * days.length + day) * ForecastGrid.HOURS + hour];
+		if (source == Source.OUTLOOK) {
+			int route = routes.get(routeIndex);
+			LocalDate date = days[day].date();
+			for (ScenarioEvent e : events) {
+				if (e.covers(route, date, hour)) {
+					v *= e.multiplier();
+				}
+			}
+		}
+		return v;
 	}
 
 	/** План маршрута на час прошедшего дня: прогноз, сделанный вечером накануне; NaN, если плана нет. */

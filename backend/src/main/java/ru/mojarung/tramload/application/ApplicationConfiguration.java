@@ -48,7 +48,7 @@ public class ApplicationConfiguration {
 
 	@Bean
 	NewsService newsService(NewsArchive archive, NewsSource live, ForecastModel model) {
-		return new NewsService(archive, live, model.grid());
+		return new NewsService(archive, live, model.grid(), model.timeline().end());
 	}
 
 	/** Агент ходит в модель и MCP-сервер по сети: каждый ход на своём виртуальном потоке. */
