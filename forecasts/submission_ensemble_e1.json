@@ -1,0 +1,13 @@
+{
+  "file": "submission_ensemble_e1.csv",
+  "status": "unscored",
+  "sha256": "0c0f056b88a4ed9789c13550aa8ac209eb469acffd855b54c44770d54825ccca",
+  "weights": {
+    "v11": 0.3333333333333333,
+    "v8": 0.3333333333333333,
+    "v9": 0.3333333333333333
+  },
+  "floor_from_convexity": 0.90613,
+  "diff_to_v11": 0.0108,
+  "script": "analysis/s86_model_ensemble.py"
+}
