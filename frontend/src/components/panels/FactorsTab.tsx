@@ -33,6 +33,8 @@ export default function FactorsTab() {
   const month = monthOf(day);
   const monthDays = calendar?.slice(month.first, month.first + month.days) ?? [];
   const holidays = monthDays.filter((c) => c.holiday);
+  const monthKey = isoDate(month.first).slice(0, 7);
+  const trafficIndex = traffic.months.indexOf(monthKey);
 
   return (
     <div className={styles.stack}>
@@ -41,7 +43,7 @@ export default function FactorsTab() {
         {center ? (
           <>
             <MiniLine values={center.temp} labels={HOURS} color="#e0af68" mark={hour} format={(v) => fmtTemp(v)} />
-            <MiniBars values={center.rain.map((v, i) => (v ?? 0) + (center.snow[i] ?? 0))} labels={HOURS} color="#7aa2f7"
+            <MiniBars values={center.rain.map((v, i) => (v ?? 0) + (center.snow[i] ?? 0))} color="#7aa2f7"
               mark={hour} height={46} />
             <p className={styles.note}>Температура по часам и осадки (дождь, мм/ч, и снег, см/ч). Эффект на посадки по
               истории 2025 года: −0,74 % на мм осадков за день.{' '}
@@ -83,8 +85,15 @@ export default function FactorsTab() {
       <Card title="Загруженность дорог"
         info="data.mos.ru, набор 62525: средний балл пробок по месяцам. Рост на 1 балл сопровождается ростом посадок трамвая Москвы на 10,5 % (p = 0,0001). Вес трафика в уровне ноября–декабря настраивается на вкладке «Сценарий».">
         <MiniBars values={traffic.score} labels={traffic.months}
-          color="#bb9af7" highlight={(i) => (traffic.months[i] ?? '') >= '2025-11' && (traffic.months[i] ?? '') <= '2025-12'} />
-        <p className={styles.note}>Ноябрь–декабрь 2025 выделены: {traffic.score.slice(-2).map((v) => fmt1(v)).join(' и ')} балла.{' '}
+          color="#bb9af7" highlight={(i) => i === trafficIndex} />
+        <p className={styles.note}>
+          {trafficIndex >= 0
+            ? `${capitalize(monthLabel(monthKey))}: ${fmt1(traffic.score[trafficIndex])} балла, выделен столбиком. `
+            : `За ${monthLabel(monthKey)} балла ещё нет: последний месяц в наборе - ${monthLabel(traffic.months[traffic.months.length - 1] ?? monthKey)}. `}
+          Почему по месяцам, а не по часам: полного почасового ряда пробок Москвы в открытых данных нет. data.mos.ru
+          публикует средний балл за месяц, а баллы ЦОДД в постах Дептранса выходят несколько раз в день, 386 постов
+          за 2025 год, в основном вечером в будни. Поэтому пробки двигают уровень месяца в прогнозе, а не отдельный
+          час.{' '}
           <a href="https://data.mos.ru/opendata/62525" target="_blank" rel="noopener noreferrer">data.mos.ru, набор 62525</a></p>
       </Card>
 
