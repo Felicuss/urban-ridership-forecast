@@ -198,5 +198,13 @@
     "platform_display_number": 1,
     "submitted_at": "2026-09-26T17:46:00+03:00",
     "evidence": "Platform screenshot: 26.09.2026 17:46 +03:00, score 0.90997. v11 raked by analysis/s84_block_probes.py apply over probes q01 q02 q03 q04 q05 q06 q07 q08 q09 q10 q12 q13 q20 q24 q25 q27."
+  },
+  {
+    "file": "submission_level_shape_v12.csv",
+    "sha256": "7eb8d9fc05ff0064f5ab8575edbbf403cad377a78e8ddcb964abe47f0657a48e",
+    "leaderboard_score": 0.89761,
+    "platform_display_number": 1,
+    "submitted_at": "2026-09-27T14:01:00+03:00",
+    "evidence": "Platform result 27.09.2026 14:01 +03:00, score 0.89761. analysis/s85_level_shape.py future: level x shape with event regimes, route 5 from s32."
   }
 ]
