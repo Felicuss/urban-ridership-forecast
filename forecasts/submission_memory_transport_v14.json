@@ -1,0 +1,115 @@
+{
+  "status": "scored_rejected",
+  "file": "submission_memory_transport_v14.csv",
+  "anchor": "submission_r17_measured_v13.csv",
+  "anchor_score": 0.91048,
+  "sha256": "641aaaf7b2a8766acdfbb2a095fa97b445709f5ec84b2a7c5c4ecec247f20744",
+  "method": "transport",
+  "weight": 0.5,
+  "changed_cells": 9962,
+  "l1_distance_from_anchor": 209354,
+  "max_constraint_error": 1.4419508203864098,
+  "training": [
+    {
+      "label": "R06",
+      "cutoff": 180,
+      "steps": 600,
+      "seed": 2026,
+      "seconds": 0.47109500000000004,
+      "parameters": 1075,
+      "loss_trace": [
+        [
+          200,
+          0.096614770591259
+        ],
+        [
+          400,
+          0.09359471499919891
+        ],
+        [
+          600,
+          0.0921289399266243
+        ]
+      ]
+    },
+    {
+      "label": "R08",
+      "cutoff": 242,
+      "steps": 600,
+      "seed": 2026,
+      "seconds": 0.4828453749999997,
+      "parameters": 1075,
+      "loss_trace": [
+        [
+          200,
+          0.10292217135429382
+        ],
+        [
+          400,
+          0.10867933183908463
+        ],
+        [
+          600,
+          0.10389500111341476
+        ]
+      ]
+    },
+    {
+      "label": "B",
+      "cutoff": 272,
+      "steps": 600,
+      "seed": 2026,
+      "seconds": 0.5003588749999999,
+      "parameters": 1075,
+      "loss_trace": [
+        [
+          200,
+          0.11721315234899521
+        ],
+        [
+          400,
+          0.11199697852134705
+        ],
+        [
+          600,
+          0.09797258675098419
+        ]
+      ]
+    },
+    {
+      "label": "future",
+      "cutoff": 303,
+      "steps": 800,
+      "seed": 2026,
+      "seconds": 0.6768958329999997,
+      "parameters": 1075,
+      "loss_trace": [
+        [
+          200,
+          0.1127396821975708
+        ],
+        [
+          400,
+          0.1090417429804802
+        ],
+        [
+          600,
+          0.11831165850162506
+        ],
+        [
+          800,
+          0.10753501206636429
+        ]
+      ]
+    }
+  ],
+  "architecture": "Learned network-day memory retrieval of joint level and hourly shape; conditional donor reweighting ablation",
+  "caveat": "Risk-taking new architecture; conditional development evaluations use truth aggregates. No new LB score.",
+  "constraint_count": 26,
+  "model_file": "memory_transport_v14/metric.pt",
+  "model_sha256": "63d601165a39b31600c26e039d9fa82d8c9126bf117d895a55ca16ff77b80ede",
+  "source_sha256": "49f9f7163a241d2443ac12ba25ab49cf1fb533c11fa53b03c3a58b2913bae26c",
+  "leaderboard_score": 0.90845,
+  "gain_vs_anchor": -0.00203,
+  "evidence": "User reported 0.90845 immediately after receiving the single v14 submission."
+}

@@ -1,0 +1,261 @@
+{
+  "status": "scored",
+  "anchor": "submission_v11_probe_rake_r3.csv",
+  "measurements": [
+    {
+      "id": "01_r17_11_morning",
+      "score": 0.03624,
+      "estimated_sum": 253464.35583559124
+    },
+    {
+      "id": "02_r17_11_evening",
+      "score": 0.03692,
+      "estimated_sum": 310251.0
+    },
+    {
+      "id": "03_r17_12_morning",
+      "score": 0.03224,
+      "estimated_sum": 288352.231020909
+    },
+    {
+      "id": "04_r17_12_evening",
+      "score": 0.03177,
+      "estimated_sum": 346857.7784366853
+    }
+  ],
+  "sha256": "201ef9bace0cc0dd8b43dbe803fe6e1298b15b23fb998d854c799608e77dcd7c",
+  "max_constraint_error": 1.8490363478194922,
+  "anchor_score": 0.90997,
+  "changed_cells": 9682,
+  "l1_distance_from_r3": 98768,
+  "all_constraint_count": 26,
+  "all_constraint_results": [
+    {
+      "name": "T",
+      "target": 12882776.954143452,
+      "predicted": 12882777,
+      "error": 0.045856548473238945
+    },
+    {
+      "name": "p11",
+      "target": 1054235,
+      "predicted": 1054235,
+      "error": 0.0
+    },
+    {
+      "name": "p12",
+      "target": 1211812,
+      "predicted": 1211812,
+      "error": 0.0
+    },
+    {
+      "name": "c50_nov",
+      "target": 8330.7093195645,
+      "predicted": 8331,
+      "error": 0.2906804355006898
+    },
+    {
+      "name": "r50_11",
+      "target": 587531.587163233,
+      "predicted": 587530,
+      "error": -1.5871632329653949
+    },
+    {
+      "name": "r7_11",
+      "target": 653361.1905833036,
+      "predicted": 653361,
+      "error": -0.19058330357074738
+    },
+    {
+      "name": "r50_12",
+      "target": 704249.6687030316,
+      "predicted": 704250,
+      "error": 0.3312969683902338
+    },
+    {
+      "name": "r7_12",
+      "target": 688147.8142221768,
+      "predicted": 688149,
+      "error": 1.1857778232079
+    },
+    {
+      "name": "dec29_30",
+      "target": 348224.3577526712,
+      "predicted": 348224,
+      "error": -0.35775267117423937
+    },
+    {
+      "name": "r12_11",
+      "target": 921483.6369306273,
+      "predicted": 921483,
+      "error": -0.6369306272827089
+    },
+    {
+      "name": "r12_12",
+      "target": 987058.4821328154,
+      "predicted": 987059,
+      "error": 0.5178671845933422
+    },
+    {
+      "name": "r11_11",
+      "target": 909865.7128469915,
+      "predicted": 909867,
+      "error": 1.2871530085103586
+    },
+    {
+      "name": "r11_12",
+      "target": 957907.8251111907,
+      "predicted": 957909,
+      "error": 1.1748888093279675
+    },
+    {
+      "name": "nov03_04",
+      "target": 206256.14948111045,
+      "predicted": 206255,
+      "error": -1.1494811104494147
+    },
+    {
+      "name": "nov01",
+      "target": 163615.88124329026,
+      "predicted": 163616,
+      "error": 0.11875670973677188
+    },
+    {
+      "name": "r17_nwd_11",
+      "target": 426153.00531670166,
+      "predicted": 426153,
+      "error": -0.005316701659467071
+    },
+    {
+      "name": "r17_nwd_12",
+      "target": 336482.4647001688,
+      "predicted": 336482,
+      "error": -0.4647001688135788
+    },
+    {
+      "name": "r5_12",
+      "target": 84206.64787076328,
+      "predicted": 84206,
+      "error": -0.6478707632777514
+    },
+    {
+      "name": "h_wd_07_09",
+      "target": 1811428.6376718984,
+      "predicted": 1811429,
+      "error": 0.36232810164801776
+    },
+    {
+      "name": "h_wd_16_19",
+      "target": 2365610.4419508204,
+      "predicted": 2365611,
+      "error": 0.5580491796135902
+    },
+    {
+      "name": "dec22_26_wd",
+      "target": 983547.1509636522,
+      "predicted": 983549,
+      "error": 1.8490363478194922
+    },
+    {
+      "name": "r7_dec20_31",
+      "target": 245793.38155002304,
+      "predicted": 245794,
+      "error": 0.6184499769588001
+    },
+    {
+      "name": "01_r17_11_morning",
+      "target": 253464.35583559124,
+      "predicted": 253464,
+      "error": -0.3558355912391562
+    },
+    {
+      "name": "02_r17_11_evening",
+      "target": 310251.0,
+      "predicted": 310251,
+      "error": 0.0
+    },
+    {
+      "name": "03_r17_12_morning",
+      "target": 288352.231020909,
+      "predicted": 288352,
+      "error": -0.2310209089773707
+    },
+    {
+      "name": "04_r17_12_evening",
+      "target": 346857.7784366853,
+      "predicted": 346858,
+      "error": 0.2215633147279732
+    }
+  ],
+  "total_prediction": 12882777,
+  "mapping_assumption": "Screenshot newest first; files uploaded 01 through 07.",
+  "new_measurements": [
+    {
+      "id": "01_r17_11_morning",
+      "score": 0.03624,
+      "r3_sum": 257417,
+      "estimated_sum": 253464.35583559124,
+      "v13_sum": 253464,
+      "change_percent": -1.5355023811204238,
+      "replayed_score": 0.03623993491465394
+    },
+    {
+      "id": "02_r17_11_evening",
+      "score": 0.03692,
+      "r3_sum": 309681,
+      "estimated_sum": 310251.0,
+      "v13_sum": 310251,
+      "change_percent": 0.1840603718019418,
+      "replayed_score": 0.0369199901542967
+    },
+    {
+      "id": "03_r17_12_morning",
+      "score": 0.03224,
+      "r3_sum": 295136,
+      "estimated_sum": 288352.231020909,
+      "v13_sum": 288352,
+      "change_percent": -2.2985230466940787,
+      "replayed_score": 0.032239943297939555
+    },
+    {
+      "id": "04_r17_12_evening",
+      "score": 0.03177,
+      "r3_sum": 356504,
+      "estimated_sum": 346857.7784366853,
+      "v13_sum": 346858,
+      "change_percent": -2.705782140821622,
+      "replayed_score": 0.031770013561517096
+    },
+    {
+      "id": "05_q14_r17_nwd_11",
+      "score": 0.07087,
+      "r3_sum": 430805,
+      "estimated_sum": 426153.00531670166,
+      "v13_sum": 426153,
+      "change_percent": -1.0798376721018466,
+      "replayed_score": 0.07086996848583194
+    },
+    {
+      "id": "06_q15_r17_nwd_12",
+      "score": 0.06832,
+      "r3_sum": 353909,
+      "estimated_sum": 336482.4647001688,
+      "v13_sum": 336482,
+      "change_percent": -4.924015862787101,
+      "replayed_score": 0.06831989717744857
+    },
+    {
+      "id": "07_q26_dec22_26_wd",
+      "score": 0.06795,
+      "r3_sum": 985712,
+      "estimated_sum": 983547.1509636522,
+      "v13_sum": 983549,
+      "change_percent": -0.21962287527673707,
+      "replayed_score": 0.06795025637717711
+    }
+  ],
+  "rounding": "largest remainder within constraint membership groups",
+  "leaderboard_score": 0.91048,
+  "evidence": "User reported 0.91048 immediately after receiving the single v13 submission.",
+  "gain_vs_anchor": 0.00051
+}

@@ -1,0 +1,232 @@
+[
+  {
+    "file": "submission_ex_ante_route5.csv",
+    "sha256": "cd3e465e97fa845a932ed6be38f7f752fdf8c709efecf1cee7e271d4a7e468c7",
+    "leaderboard_score": 0.8995,
+    "platform_display_number": null,
+    "submitted_at": null,
+    "evidence": "Previously reported leaderboard result"
+  },
+  {
+    "file": "submission_kaggle_v1_weather.csv",
+    "sha256": "fd4b02f32eb93ddb281f0eac2a313417ad01162d6f642002c574b68c387b3ce9",
+    "leaderboard_score": 0.90236,
+    "platform_display_number": 1,
+    "submitted_at": "2026-09-25T19:04:00+03:00",
+    "evidence": "User screenshot and explicit mapping: platform #1 = v1_weather"
+  },
+  {
+    "file": "submission_kaggle_v1.csv",
+    "sha256": "8ceb3898b7c3a037264b21a8d3f6202e0efbce9e3e879d0c5c2544791e533624",
+    "leaderboard_score": 0.90189,
+    "platform_display_number": 2,
+    "submitted_at": "2026-09-25T19:03:00+03:00",
+    "evidence": "User full screenshot: platform #2 = v1, #1 = v1_weather"
+  },
+  {
+    "file": "submission_kaggle_unified_v2.csv",
+    "sha256": "dcf149b828e1272a2b7004705e239abaf7d1291c4a645480c16f53d616eb334b",
+    "leaderboard_score": 0.90358,
+    "platform_display_number": null,
+    "submitted_at": null,
+    "evidence": "User reported 0.90358 in response to the single unified_v2 candidate"
+  },
+  {
+    "file": "submission_future_facts_v3.csv",
+    "sha256": "9c469e17734008a7a08266203c2b021a5cf61dc0cc32d90cd88ebc34726a0474",
+    "leaderboard_score": 0.89817,
+    "platform_display_number": null,
+    "submitted_at": null,
+    "evidence": "User reported 0.89817 in response to the single future_facts_v3 candidate"
+  },
+  {
+    "file": "round4/submit/01_combined_models.csv",
+    "sha256": "1319a2f351136e61f8266b0efbfe3ad7e2120bd650b62b4393d2012b80ec4dfb",
+    "leaderboard_score": 0.90347,
+    "platform_display_number": 6,
+    "submitted_at": "2026-09-25T20:29:00+03:00",
+    "evidence": "User screenshot of six results and explicit confirmation that upload order was 01 through 06; platform newest first."
+  },
+  {
+    "file": "round4/submit/02_catboost_20.csv",
+    "sha256": "7797a5502ad8b6288c2addd7326e2954589c65daac76602411a606ae8bfab745",
+    "leaderboard_score": 0.90343,
+    "platform_display_number": 5,
+    "submitted_at": "2026-09-25T20:29:00+03:00",
+    "evidence": "User screenshot of six results and explicit confirmation that upload order was 01 through 06; platform newest first."
+  },
+  {
+    "file": "round4/submit/03_route5_weekly_fact.csv",
+    "sha256": "48c2304599a2b9fb42d93e0ed5773e03fda9a2d8e1aedeac61ef2d77b0639397",
+    "leaderboard_score": 0.90382,
+    "platform_display_number": 4,
+    "submitted_at": "2026-09-25T20:30:00+03:00",
+    "evidence": "User screenshot of six results and explicit confirmation that upload order was 01 through 06; platform newest first."
+  },
+  {
+    "file": "round4/submit/04_route_kind_weights.csv",
+    "sha256": "16535f120344bd58c18025b52bbefd9704197aecba09b5ef77bf0e9df5a020e7",
+    "leaderboard_score": 0.90344,
+    "platform_display_number": 3,
+    "submitted_at": "2026-09-25T20:30:00+03:00",
+    "evidence": "User screenshot of six results and explicit confirmation that upload order was 01 through 06; platform newest first."
+  },
+  {
+    "file": "round4/submit/05_daily_optimal_25.csv",
+    "sha256": "a30c072c2e4dc18ef2d1b89dcfc278ec4ea17c829aa8c7d61e2a946cff7a7b91",
+    "leaderboard_score": 0.90394,
+    "platform_display_number": 2,
+    "submitted_at": "2026-09-25T20:30:00+03:00",
+    "evidence": "User screenshot of six results and explicit confirmation that upload order was 01 through 06; platform newest first."
+  },
+  {
+    "file": "round4/submit/06_restored_weekends.csv",
+    "sha256": "e8a21eb2315dc23d4c9115be05d12212dd72c7159bc69077ec17b2a256fdd508",
+    "leaderboard_score": 0.90354,
+    "platform_display_number": 1,
+    "submitted_at": "2026-09-25T20:30:00+03:00",
+    "evidence": "User screenshot of six results and explicit confirmation that upload order was 01 through 06; platform newest first."
+  },
+  {
+    "file": "submission_daily_route5_v4.csv",
+    "sha256": "718acf30fb2d84e3684902f660b5485370acbc8ce2b039122c410f3b5ae302eb",
+    "leaderboard_score": 0.90418,
+    "platform_display_number": null,
+    "submitted_at": null,
+    "evidence": "User reported 0.90418 in direct response to the single combined daily_route5_v4 candidate; matches the previously calculated additive score."
+  },
+  {
+    "file": "submission_arima_v5.csv",
+    "sha256": "8a95f22f4b9f6716007b065e9494380400619db5073faf90c02244f1056a008d",
+    "leaderboard_score": 0.90309,
+    "platform_display_number": null,
+    "submitted_at": null,
+    "evidence": "User reported 0.90309 in response to the single authorized ARIMA v5 submission."
+  },
+  {
+    "file": "submission_shape_facts_v6.csv",
+    "sha256": "ae13aca28a9c388f69981fd07d9a118c687fbecbcbfafd9df6faf2180d61ea5c",
+    "leaderboard_score": 0.90553,
+    "platform_display_number": 1,
+    "submitted_at": "2026-09-25T21:16:00+03:00",
+    "evidence": "User reported 0.90553 in direct response to the single shape_facts_v6 submission. Upload time and score confirmed by a platform screenshot."
+  },
+  {
+    "file": "submission_shape50_v7.csv",
+    "sha256": "16048f68932802813d4760e0907b6ed3c09892f8c4aaf191327279755308d13e",
+    "leaderboard_score": 0.9057,
+    "platform_display_number": null,
+    "submitted_at": null,
+    "evidence": "User reported 0.90570 in response to the primary shape50_v7 submission; diagnostic submissions were separately identified."
+  },
+  {
+    "file": "submission_joint_day_v8.csv",
+    "sha256": "a275ee495a20f029085e46565d9d2cd8897f50c62efbf061ac243844b91dfa63",
+    "leaderboard_score": 0.90555,
+    "platform_display_number": null,
+    "submitted_at": null,
+    "evidence": "User reported 0.90555 after receiving the verified submission_joint_day_v8.csv; the earlier evaluation log was a parsing failure, not a score."
+  },
+  {
+    "file": "submission_architecture_v9.csv",
+    "sha256": "42a4bd1e6cb7da55d6c92a2c8e3191cdfb914eaec3d3ee100e25f8b607ee5183",
+    "leaderboard_score": 0.90543,
+    "platform_display_number": null,
+    "submitted_at": null,
+    "evidence": "User explicitly reported 0.90543 for v9 during final documentation of the architecture round."
+  },
+  {
+    "file": "submission_seasonal_v10.csv",
+    "sha256": "79f790c81e396b6ddb9cbf9b2261b2890ab2da31d510cdb4eb66857d71fe0ea1",
+    "leaderboard_score": 0.90731,
+    "platform_display_number": null,
+    "submitted_at": null,
+    "evidence": "User reported 0.90731 in direct response to the single submission_seasonal_v10.csv candidate."
+  },
+  {
+    "file": "submission_seasonal_daily_v11.csv",
+    "sha256": "69cf0a7cf4aced43d98238fac52efb4be2c134ab08b36033f6e2f5946076e9cf",
+    "leaderboard_score": 0.90741,
+    "platform_display_number": null,
+    "submitted_at": null,
+    "evidence": "User reported 0.90741 in direct response to the single submission_seasonal_daily_v11.csv candidate."
+  },
+  {
+    "file": "submission_v11_probe_rake.csv",
+    "sha256": "a02d70630174ca56f6adfbbbc7c84ee102833f86d9e9c84dcdbc161e9623ea54",
+    "leaderboard_score": 0.90764,
+    "platform_display_number": null,
+    "submitted_at": "2026-09-26",
+    "evidence": "User reported 0.90764 for the v11 raked to 8 probe sums (s84, q01-q03, q06, q24)."
+  },
+  {
+    "file": "submission_v11_probe_rake_r2.csv",
+    "sha256": "b3fa9fe15a4a87b392c2b584482289af13a2628ad4dd3172e98f0aeec591e0c8",
+    "leaderboard_score": 0.90939,
+    "platform_display_number": 1,
+    "submitted_at": "2026-09-26T17:15:00+03:00",
+    "evidence": "Platform screenshot: 26.09.2026 17:15 +03:00, score 0.90939. v11 raked by analysis/s84_block_probes.py apply over probes q01 q02 q03 q04 q05 q06 q20 q24 q25."
+  },
+  {
+    "file": "submission_v11_probe_rake_r3.csv",
+    "sha256": "acbf8b8303da05f0c1a7e1927bffce9b646fa01c55645e7529202ca235f35cb0",
+    "leaderboard_score": 0.90997,
+    "platform_display_number": 1,
+    "submitted_at": "2026-09-26T17:46:00+03:00",
+    "evidence": "Platform screenshot: 26.09.2026 17:46 +03:00, score 0.90997. v11 raked by analysis/s84_block_probes.py apply over probes q01 q02 q03 q04 q05 q06 q07 q08 q09 q10 q12 q13 q20 q24 q25 q27."
+  },
+  {
+    "file": "submission_level_shape_v12.csv",
+    "sha256": "7eb8d9fc05ff0064f5ab8575edbbf403cad377a78e8ddcb964abe47f0657a48e",
+    "leaderboard_score": 0.89761,
+    "platform_display_number": 1,
+    "submitted_at": "2026-09-27T14:01:00+03:00",
+    "evidence": "Platform result 27.09.2026 14:01 +03:00, score 0.89761. analysis/s85_level_shape.py future: level x shape with event regimes, route 5 from s32."
+  },
+  {
+    "file": "submission_v11_level_s85_shape.csv",
+    "sha256": "9f11bb0b7abd5abf251b9dfbc4bd81fe8879e5498c905e29c32eb66f01fafb58",
+    "leaderboard_score": 0.90274,
+    "platform_display_number": 1,
+    "submitted_at": "2026-09-27T14:04:00+03:00",
+    "evidence": "Platform result 27.09.2026 14:04 +03:00, score 0.90274. v11 daily totals distributed over hours by the s85 shape."
+  },
+  {
+    "file": "submission_r17_measured_v13.csv",
+    "sha256": "201ef9bace0cc0dd8b43dbe803fe6e1298b15b23fb998d854c799608e77dcd7c",
+    "leaderboard_score": 0.91048,
+    "submitted_at": null,
+    "evidence": "User reported 0.91048 immediately after receiving the single v13 submission."
+  },
+  {
+    "file": "submission_memory_transport_v14.csv",
+    "sha256": "641aaaf7b2a8766acdfbb2a095fa97b445709f5ec84b2a7c5c4ecec247f20744",
+    "leaderboard_score": 0.90845,
+    "submitted_at": null,
+    "evidence": "User reported 0.90845 immediately after receiving the single v14 submission."
+  },
+  {
+    "file": "submission_weak_tensor_v15.csv",
+    "sha256": "1ebb6169ed584588d93e117145647445f91b0920cc6b588a0ac03f0d787a5780",
+    "leaderboard_score": 0.90598,
+    "evidence": "User reported 0.90598 for the single v15 candidate."
+  },
+  {
+    "file": "submission_score_geometry_v16.csv",
+    "sha256": "90fd3c8d472671830517f3556ea7f982ef6c5faa0f89f6f6dfa37e0780e126d9",
+    "leaderboard_score": 0.91036,
+    "evidence": "User reported 0.91036 for v16."
+  },
+  {
+    "file": "submission_entropy_scores_v17.csv",
+    "sha256": "4bc3018acd2ba4bf01129914fde274cb5c8607b2df100eb0e62e249d4a60126c",
+    "leaderboard_score": 0.91223,
+    "evidence": "User reported 0.91223 for v17."
+  },
+  {
+    "file": "submission_heterogeneous_entropy_v18.csv",
+    "sha256": "6addcd3b474e6b84398a86cb5e7645554f81a4fb38fa70becbc752e74097a7aa",
+    "leaderboard_score": 0.91253,
+    "evidence": "User reported 0.91253 for v18."
+  }
+]

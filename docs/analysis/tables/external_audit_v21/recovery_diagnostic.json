@@ -1,0 +1,15 @@
+{
+  "events": 15,
+  "cells": 46,
+  "coefficient_all": -0.09999999999999998,
+  "baseline_absolute_error": 6186.443459802953,
+  "loo_absolute_error": 6358.224552714029,
+  "error_reduction": -171.78109291107737,
+  "events_improved": 10,
+  "caveat": "Same-day controls, leave-event-out effect diagnostic; NOT forecast CV or predicted LB improvement.",
+  "event_bootstrap_gain_95": [
+    -900.9466318036557,
+    460.54495957485557
+  ],
+  "status": "rejected_no_reliable_increment"
+}

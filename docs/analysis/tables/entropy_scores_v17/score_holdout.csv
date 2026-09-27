@@ -1,0 +1,4 @@
+file,actual,predicted,error,converged
+submission_memory_transport_v14.csv,0.90845,0.9075455392582623,-0.0009044607417376671,True
+submission_weak_tensor_v15.csv,0.90598,0.8998422542801291,-0.006137745719870913,True
+submission_score_geometry_v16.csv,0.91036,0.9107354098967004,0.00037540989670048486,True

@@ -1,0 +1,112 @@
+{
+  "new_route17_probes": [
+    {
+      "name": "r17_11_morning",
+      "spec": {
+        "routes": [
+          17
+        ],
+        "months": [
+          11
+        ],
+        "kind": "wd",
+        "hours": [
+          7,
+          8,
+          9
+        ]
+      },
+      "carrier": "p12",
+      "carrier_score": 0.03692,
+      "cells": 57,
+      "prior_sum": 257417,
+      "ceiling_sum": 515689,
+      "expected_score_if_r3_were_truth": 0.036853632321428575,
+      "decode": "Y=(sum_H+(score-carrier_score)*T)/2",
+      "status": "plan_only_no_csv_no_score"
+    },
+    {
+      "name": "r17_11_evening",
+      "spec": {
+        "routes": [
+          17
+        ],
+        "months": [
+          11
+        ],
+        "kind": "wd",
+        "hours": [
+          16,
+          17,
+          18,
+          19
+        ]
+      },
+      "carrier": "p12",
+      "carrier_score": 0.03692,
+      "cells": 76,
+      "prior_sum": 309681,
+      "ceiling_sum": 620502,
+      "expected_score_if_r3_were_truth": 0.03683150976190476,
+      "decode": "Y=(sum_H+(score-carrier_score)*T)/2",
+      "status": "plan_only_no_csv_no_score"
+    },
+    {
+      "name": "r17_12_morning",
+      "spec": {
+        "routes": [
+          17
+        ],
+        "months": [
+          12
+        ],
+        "kind": "wd",
+        "hours": [
+          7,
+          8,
+          9
+        ]
+      },
+      "carrier": "p11",
+      "carrier_score": 0.03337,
+      "cells": 66,
+      "prior_sum": 295136,
+      "ceiling_sum": 591262,
+      "expected_score_if_r3_were_truth": 0.03329315321428571,
+      "decode": "Y=(sum_H+(score-carrier_score)*T)/2",
+      "status": "plan_only_no_csv_no_score"
+    },
+    {
+      "name": "r17_12_evening",
+      "spec": {
+        "routes": [
+          17
+        ],
+        "months": [
+          12
+        ],
+        "kind": "wd",
+        "hours": [
+          16,
+          17,
+          18,
+          19
+        ]
+      },
+      "carrier": "p11",
+      "carrier_score": 0.03337,
+      "cells": 88,
+      "prior_sum": 356504,
+      "ceiling_sum": 714328,
+      "expected_score_if_r3_were_truth": 0.03326753761904762,
+      "decode": "Y=(sum_H+(score-carrier_score)*T)/2",
+      "status": "plan_only_no_csv_no_score"
+    }
+  ],
+  "existing_first": [
+    "q14",
+    "q15",
+    "q26"
+  ],
+  "caveat": "Expected scores are feasibility checks under r3 as hypothetical truth; ceilings are not proven bounds. Existing s84 hardcodes both carriers and must be extended for this plan."
+}

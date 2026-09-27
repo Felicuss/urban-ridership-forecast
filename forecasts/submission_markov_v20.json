@@ -1,0 +1,42 @@
+{
+  "status": "scored",
+  "file": "submission_markov_v20.csv",
+  "sha256": "97e08c49ac171f8bbef50bb221c8dc75b146449224ac182e1688b4557bf2ac33",
+  "anchor": "submission_prior_family_v19.csv",
+  "anchor_score": 0.91255,
+  "observed_full_submissions": 31,
+  "dual_penalty": 1e-10,
+  "model": "Exact six-hour Markov chain posterior",
+  "strength": 0.8,
+  "block": 6,
+  "weight": 1.0,
+  "validation_mean_gain": 0.0006919738853661666,
+  "validation_min_gain": 0.0003078425431377,
+  "changed_cells": 10596,
+  "l1_distance": 123242,
+  "max_constraint_error": 1.3623281016480178,
+  "diagnostics": [
+    {
+      "converged": true,
+      "iterations": 20,
+      "score_rmse": 3.3287027646546026e-09,
+      "max_group_error": 0.04001690406585112,
+      "strength": 0.8,
+      "block": 6
+    }
+  ],
+  "noise_model": {
+    "last_training_day": 303,
+    "training_days": 184,
+    "pooled_relative_error": 0.11546501693699401,
+    "min_multiplier": 0.5,
+    "max_multiplier": 2.0
+  },
+  "covariance_model": {
+    "training_days": 184,
+    "last_training_day": 303
+  },
+  "caveat": "Selected on three reused historical feedback simulations; not an independent evaluation or an observed LB gain.",
+  "leaderboard_score": 0.91227,
+  "gain_vs_anchor": -0.00028
+}

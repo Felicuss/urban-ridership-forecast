@@ -1,0 +1,33 @@
+{
+  "rank": 8,
+  "regularization": 10.0,
+  "noise": 0.0863021601419108,
+  "calibrate_anchor": true,
+  "coefficients": [
+    0.7495733499526978,
+    -0.17059656977653503,
+    -0.01919776201248169,
+    0.6961832642555237,
+    0.2781946659088135,
+    0.0364978052675724,
+    -0.1048290953040123,
+    -0.013949238695204258
+  ],
+  "fit_rmse": 0.0017743731543132877,
+  "status": "scored_rejected",
+  "file": "submission_score_geometry_v16.csv",
+  "anchor": "submission_r17_measured_v13.csv",
+  "anchor_score": 0.91048,
+  "sha256": "90fd3c8d472671830517f3556ea7f982ef6c5faa0f89f6f6dfa37e0780e126d9",
+  "observed_full_submissions": 27,
+  "changed_cells": 10443,
+  "l1_distance": 116954,
+  "max_constraint_error": 1.6376718983519822,
+  "observations": "score_geometry_v16/observations.json",
+  "source_sha256": "f1600e337f2aa9853fc1101abe8bfe590840fa81a7eb0fd39543a802d020c98c",
+  "caveat": "Distributional inverse-score model; latent hourly labels are not observed. Historical checks use simulated score feedback.",
+  "constraint_count": 26,
+  "leaderboard_score": 0.91036,
+  "gain_vs_anchor": -0.00012,
+  "evidence": "User reported 0.91036 for v16."
+}

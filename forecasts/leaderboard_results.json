@@ -214,5 +214,103 @@
     "platform_display_number": 1,
     "submitted_at": "2026-09-27T14:04:00+03:00",
     "evidence": "Platform result 27.09.2026 14:04 +03:00, score 0.90274. v11 daily totals distributed over hours by the s85 shape."
+  },
+  {
+    "file": "route17_diagnostics/01_r17_11_morning.csv",
+    "sha256": "b12b39e14ca8480ed4a1ba3eaa0564d202a6bc46a20646bcb0eaca37b6e40b3b",
+    "leaderboard_score": 0.03624,
+    "evidence": "User screenshot 2026-09-27 18:57 Moscow; rows newest first; mapped to upload order 01 through 07 in reverse, consistent with previous batches. No explicit filename labels in screenshot."
+  },
+  {
+    "file": "route17_diagnostics/02_r17_11_evening.csv",
+    "sha256": "e402f9e127c1ebca79da41cdf9f6b0769720adb797d3419079aede23e96449f7",
+    "leaderboard_score": 0.03692,
+    "evidence": "User screenshot 2026-09-27 18:57 Moscow; rows newest first; mapped to upload order 01 through 07 in reverse, consistent with previous batches. No explicit filename labels in screenshot."
+  },
+  {
+    "file": "route17_diagnostics/03_r17_12_morning.csv",
+    "sha256": "adb7e30d1cec27b41486a03eec1f3996c8d2a8cebdc35072b55c86c263473e3f",
+    "leaderboard_score": 0.03224,
+    "evidence": "User screenshot 2026-09-27 18:57 Moscow; rows newest first; mapped to upload order 01 through 07 in reverse, consistent with previous batches. No explicit filename labels in screenshot."
+  },
+  {
+    "file": "route17_diagnostics/04_r17_12_evening.csv",
+    "sha256": "bd786c03ceb19576fe2b763211e5ac13d77f3f78c68206ad2e53252b55cd3257",
+    "leaderboard_score": 0.03177,
+    "evidence": "User screenshot 2026-09-27 18:57 Moscow; rows newest first; mapped to upload order 01 through 07 in reverse, consistent with previous batches. No explicit filename labels in screenshot."
+  },
+  {
+    "file": "route17_diagnostics/05_q14_r17_nwd_11.csv",
+    "sha256": "e8fed4e7c8d1d43f2749486824d074feeb5cf00119011d8d36044795a26fe320",
+    "leaderboard_score": 0.07087,
+    "evidence": "User screenshot 2026-09-27 18:57 Moscow; rows newest first; mapped to upload order 01 through 07 in reverse, consistent with previous batches. No explicit filename labels in screenshot."
+  },
+  {
+    "file": "route17_diagnostics/06_q15_r17_nwd_12.csv",
+    "sha256": "c660c7936167e62f406a686037942dc9ad2284949ce0a7438ff9a75547668130",
+    "leaderboard_score": 0.06832,
+    "evidence": "User screenshot 2026-09-27 18:57 Moscow; rows newest first; mapped to upload order 01 through 07 in reverse, consistent with previous batches. No explicit filename labels in screenshot."
+  },
+  {
+    "file": "route17_diagnostics/07_q26_dec22_26_wd.csv",
+    "sha256": "bd31b569ca379b747de80be3eba4204fd7c39214e64874a3b3e01b82acf8cd60",
+    "leaderboard_score": 0.06795,
+    "evidence": "User screenshot 2026-09-27 18:57 Moscow; rows newest first; mapped to upload order 01 through 07 in reverse, consistent with previous batches. No explicit filename labels in screenshot."
+  },
+  {
+    "file": "submission_r17_measured_v13.csv",
+    "sha256": "201ef9bace0cc0dd8b43dbe803fe6e1298b15b23fb998d854c799608e77dcd7c",
+    "leaderboard_score": 0.91048,
+    "submitted_at": null,
+    "evidence": "User reported 0.91048 immediately after receiving the single v13 submission."
+  },
+  {
+    "file": "submission_memory_transport_v14.csv",
+    "sha256": "641aaaf7b2a8766acdfbb2a095fa97b445709f5ec84b2a7c5c4ecec247f20744",
+    "leaderboard_score": 0.90845,
+    "submitted_at": null,
+    "evidence": "User reported 0.90845 immediately after receiving the single v14 submission."
+  },
+  {
+    "file": "submission_weak_tensor_v15.csv",
+    "sha256": "1ebb6169ed584588d93e117145647445f91b0920cc6b588a0ac03f0d787a5780",
+    "leaderboard_score": 0.90598,
+    "evidence": "User reported 0.90598 for the single v15 candidate."
+  },
+  {
+    "file": "submission_score_geometry_v16.csv",
+    "sha256": "90fd3c8d472671830517f3556ea7f982ef6c5faa0f89f6f6dfa37e0780e126d9",
+    "leaderboard_score": 0.91036,
+    "evidence": "User reported 0.91036 for v16."
+  },
+  {
+    "file": "submission_entropy_scores_v17.csv",
+    "sha256": "4bc3018acd2ba4bf01129914fde274cb5c8607b2df100eb0e62e249d4a60126c",
+    "leaderboard_score": 0.91223,
+    "evidence": "User reported 0.91223 for v17."
+  },
+  {
+    "file": "submission_heterogeneous_entropy_v18.csv",
+    "sha256": "6addcd3b474e6b84398a86cb5e7645554f81a4fb38fa70becbc752e74097a7aa",
+    "leaderboard_score": 0.91253,
+    "evidence": "User reported 0.91253 for v18."
+  },
+  {
+    "file": "submission_prior_family_v19.csv",
+    "sha256": "207bc209e5b501ed3dd272a19ae60283b5fe39263d01064b7e778cdb70d6b319",
+    "leaderboard_score": 0.91255,
+    "evidence": "User reported 0.91255 for v19."
+  },
+  {
+    "file": "submission_markov_v20.csv",
+    "sha256": "97e08c49ac171f8bbef50bb221c8dc75b146449224ac182e1688b4557bf2ac33",
+    "leaderboard_score": 0.91227,
+    "evidence": "User reported 0.91227 for v20."
+  },
+  {
+    "file": "submission_distributional_v21.csv",
+    "sha256": "515c63de2938bdf38ed898cdf78add6727ae66235da6deecff3c2024b804bc9e",
+    "leaderboard_score": 0.91263,
+    "evidence": "User reported 0.91263 for v21."
   }
 ]

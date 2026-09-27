@@ -388,7 +388,8 @@
   "base_sum": 420437,
   "file": "q14_r17_nwd_11.csv",
   "sha256": "e8fed4e7c8d1d43f2749486824d074feeb5cf00119011d8d36044795a26fe320",
-  "score": null
+  "score": 0.07087,
+  "evidence": "User screenshot 2026-09-27 18:57 Moscow; rows newest first; mapped to upload order 01 through 07 in reverse, consistent with previous batches. No explicit filename labels in screenshot."
  },
  {
   "id": "q15",
@@ -414,7 +415,8 @@
   "base_sum": 347552,
   "file": "q15_r17_nwd_12.csv",
   "sha256": "c660c7936167e62f406a686037942dc9ad2284949ce0a7438ff9a75547668130",
-  "score": null
+  "score": 0.06832,
+  "evidence": "User screenshot 2026-09-27 18:57 Moscow; rows newest first; mapped to upload order 01 through 07 in reverse, consistent with previous batches. No explicit filename labels in screenshot."
  },
  {
   "id": "q16",
@@ -724,7 +726,8 @@
   "base_sum": 990520,
   "file": "q26_dec22_26_wd.csv",
   "sha256": "bd31b569ca379b747de80be3eba4204fd7c39214e64874a3b3e01b82acf8cd60",
-  "score": null
+  "score": 0.06795,
+  "evidence": "User screenshot 2026-09-27 18:57 Moscow; rows newest first; mapped to upload order 01 through 07 in reverse, consistent with previous batches. No explicit filename labels in screenshot."
  },
  {
   "id": "q27",

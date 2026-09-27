@@ -1,0 +1,354 @@
+{
+  "status": "scored_rejected",
+  "file": "submission_weak_tensor_v15.csv",
+  "anchor": "submission_r17_measured_v13.csv",
+  "anchor_score": 0.91048,
+  "knots": 12,
+  "weak_training": 1,
+  "weight": 0.5,
+  "sha256": "1ebb6169ed584588d93e117145647445f91b0920cc6b588a0ac03f0d787a5780",
+  "changed_cells": 10641,
+  "l1_distance": 536516,
+  "max_constraint_error": 1.8251111906720325,
+  "training": [
+    {
+      "label": "R06",
+      "knots": 6,
+      "weak": 0,
+      "steps": 900,
+      "cutoff": 180,
+      "parameters": 8424,
+      "trace": [
+        {
+          "step": 300,
+          "history": 0.06810171902179718,
+          "aggregate": 0.02384009025990963
+        },
+        {
+          "step": 600,
+          "history": 0.06814096122980118,
+          "aggregate": 0.022975346073508263
+        },
+        {
+          "step": 900,
+          "history": 0.06791357696056366,
+          "aggregate": 0.02336827479302883
+        }
+      ]
+    },
+    {
+      "label": "R06",
+      "knots": 6,
+      "weak": 1,
+      "steps": 900,
+      "cutoff": 180,
+      "parameters": 8424,
+      "trace": [
+        {
+          "step": 300,
+          "history": 0.07743973284959793,
+          "aggregate": 2.5486717731837416e-06
+        },
+        {
+          "step": 600,
+          "history": 0.07681547850370407,
+          "aggregate": 4.009272015537135e-05
+        },
+        {
+          "step": 900,
+          "history": 0.07632897049188614,
+          "aggregate": 2.5763449684745865e-06
+        }
+      ]
+    },
+    {
+      "label": "R06",
+      "knots": 12,
+      "weak": 0,
+      "steps": 900,
+      "cutoff": 180,
+      "parameters": 11016,
+      "trace": [
+        {
+          "step": 300,
+          "history": 0.06544537097215652,
+          "aggregate": 0.022855909541249275
+        },
+        {
+          "step": 600,
+          "history": 0.06535087525844574,
+          "aggregate": 0.02301339991390705
+        },
+        {
+          "step": 900,
+          "history": 0.06521393358707428,
+          "aggregate": 0.023109344765543938
+        }
+      ]
+    },
+    {
+      "label": "R06",
+      "knots": 12,
+      "weak": 1,
+      "steps": 900,
+      "cutoff": 180,
+      "parameters": 11016,
+      "trace": [
+        {
+          "step": 300,
+          "history": 0.06770681589841843,
+          "aggregate": 1.759924998623319e-05
+        },
+        {
+          "step": 600,
+          "history": 0.06717830896377563,
+          "aggregate": 2.5226025172742084e-05
+        },
+        {
+          "step": 900,
+          "history": 0.06665947288274765,
+          "aggregate": 1.0158992154174484e-05
+        }
+      ]
+    },
+    {
+      "label": "R08",
+      "knots": 6,
+      "weak": 0,
+      "steps": 900,
+      "cutoff": 242,
+      "parameters": 8424,
+      "trace": [
+        {
+          "step": 300,
+          "history": 0.07857163995504379,
+          "aggregate": 0.03194959834218025
+        },
+        {
+          "step": 600,
+          "history": 0.07850097119808197,
+          "aggregate": 0.03208928927779198
+        },
+        {
+          "step": 900,
+          "history": 0.07841099053621292,
+          "aggregate": 0.03225378319621086
+        }
+      ]
+    },
+    {
+      "label": "R08",
+      "knots": 6,
+      "weak": 1,
+      "steps": 900,
+      "cutoff": 242,
+      "parameters": 8424,
+      "trace": [
+        {
+          "step": 300,
+          "history": 0.08225463330745697,
+          "aggregate": 4.050583811476827e-06
+        },
+        {
+          "step": 600,
+          "history": 0.08207292854785919,
+          "aggregate": 7.833732524886727e-06
+        },
+        {
+          "step": 900,
+          "history": 0.08215216547250748,
+          "aggregate": 2.143811980204191e-05
+        }
+      ]
+    },
+    {
+      "label": "R08",
+      "knots": 12,
+      "weak": 0,
+      "steps": 900,
+      "cutoff": 242,
+      "parameters": 11016,
+      "trace": [
+        {
+          "step": 300,
+          "history": 0.07102721184492111,
+          "aggregate": 0.018973255529999733
+        },
+        {
+          "step": 600,
+          "history": 0.07091165333986282,
+          "aggregate": 0.019172299653291702
+        },
+        {
+          "step": 900,
+          "history": 0.07089614123106003,
+          "aggregate": 0.019125428050756454
+        }
+      ]
+    },
+    {
+      "label": "R08",
+      "knots": 12,
+      "weak": 1,
+      "steps": 900,
+      "cutoff": 242,
+      "parameters": 11016,
+      "trace": [
+        {
+          "step": 300,
+          "history": 0.07223030924797058,
+          "aggregate": 4.0877621358959004e-05
+        },
+        {
+          "step": 600,
+          "history": 0.07167886197566986,
+          "aggregate": 2.734054760367144e-05
+        },
+        {
+          "step": 900,
+          "history": 0.07124263793230057,
+          "aggregate": 4.704013008449692e-06
+        }
+      ]
+    },
+    {
+      "label": "B",
+      "knots": 6,
+      "weak": 0,
+      "steps": 900,
+      "cutoff": 272,
+      "parameters": 8424,
+      "trace": [
+        {
+          "step": 300,
+          "history": 0.08049699664115906,
+          "aggregate": 0.005444664042443037
+        },
+        {
+          "step": 600,
+          "history": 0.08034627884626389,
+          "aggregate": 0.005433597136288881
+        },
+        {
+          "step": 900,
+          "history": 0.08035844564437866,
+          "aggregate": 0.005506075918674469
+        }
+      ]
+    },
+    {
+      "label": "B",
+      "knots": 6,
+      "weak": 1,
+      "steps": 900,
+      "cutoff": 272,
+      "parameters": 8424,
+      "trace": [
+        {
+          "step": 300,
+          "history": 0.08111993223428726,
+          "aggregate": 8.385350156459026e-06
+        },
+        {
+          "step": 600,
+          "history": 0.08089267462491989,
+          "aggregate": 1.2985929060960189e-05
+        },
+        {
+          "step": 900,
+          "history": 0.08097363263368607,
+          "aggregate": 3.223124804208055e-05
+        }
+      ]
+    },
+    {
+      "label": "B",
+      "knots": 12,
+      "weak": 0,
+      "steps": 900,
+      "cutoff": 272,
+      "parameters": 11016,
+      "trace": [
+        {
+          "step": 300,
+          "history": 0.07193249464035034,
+          "aggregate": 0.004459694493561983
+        },
+        {
+          "step": 600,
+          "history": 0.07184736430644989,
+          "aggregate": 0.004570141900330782
+        },
+        {
+          "step": 900,
+          "history": 0.07184341549873352,
+          "aggregate": 0.004439595155417919
+        }
+      ]
+    },
+    {
+      "label": "B",
+      "knots": 12,
+      "weak": 1,
+      "steps": 900,
+      "cutoff": 272,
+      "parameters": 11016,
+      "trace": [
+        {
+          "step": 300,
+          "history": 0.07225324958562851,
+          "aggregate": 1.5447566283910419e-06
+        },
+        {
+          "step": 600,
+          "history": 0.07194128632545471,
+          "aggregate": 1.517088321634219e-06
+        },
+        {
+          "step": 900,
+          "history": 0.07184300571680069,
+          "aggregate": 1.0038945674750721e-06
+        }
+      ]
+    },
+    {
+      "label": "future",
+      "knots": 12,
+      "weak": 1,
+      "steps": 1200,
+      "cutoff": 303,
+      "parameters": 11016,
+      "trace": [
+        {
+          "step": 300,
+          "history": 0.07431375980377197,
+          "aggregate": 1.6293210137519054e-05
+        },
+        {
+          "step": 600,
+          "history": 0.0738922730088234,
+          "aggregate": 3.655442014860455e-06
+        },
+        {
+          "step": 900,
+          "history": 0.07415356487035751,
+          "aggregate": 2.5695118893054314e-05
+        },
+        {
+          "step": 1200,
+          "history": 0.07386312633752823,
+          "aggregate": 1.1535202247614507e-05
+        }
+      ]
+    }
+  ],
+  "caveat": "Historical evaluation is conditional on truth aggregates; no hourly test labels were available.",
+  "constraint_count": 26,
+  "model_file": "weak_tensor_v15/model.pt",
+  "model_sha256": "7c888f8d047fc1853c24fbf6b01bf08a5fb5fa68a9bece54b95081ef78987130",
+  "source_sha256": "f10e82744a5e8bd5fbbd9b01b1b0cad0233c944be116bdf49b2f483784d6a73f",
+  "additional_validation": "docs/analysis/tables/weak_tensor_v15/additional_validation.csv",
+  "leaderboard_score": 0.90598,
+  "gain_vs_anchor": -0.0045,
+  "evidence": "User reported 0.90598 for the single v15 candidate."
+}

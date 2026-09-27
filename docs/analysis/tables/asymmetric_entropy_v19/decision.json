@@ -1,0 +1,4 @@
+{
+  "status": "rejected_no_upload",
+  "reason": "All configurations have negative mean sequential gain."
+}

@@ -1,0 +1,182 @@
+[
+  {
+    "id": "01_r17_11_morning",
+    "file": "01_r17_11_morning.csv",
+    "spec": {
+      "routes": [
+        17
+      ],
+      "months": [
+        11
+      ],
+      "kind": "wd",
+      "hours": [
+        7,
+        8,
+        9
+      ]
+    },
+    "carrier": "p12",
+    "carrier_score": 0.03692,
+    "sum_h": 515689,
+    "prior_sum": 257417,
+    "expected_score_if_r3_were_truth": 0.036853632321428575,
+    "sha256": "b12b39e14ca8480ed4a1ba3eaa0564d202a6bc46a20646bcb0eaca37b6e40b3b",
+    "score": 0.03624,
+    "evidence": "User screenshot 2026-09-27 18:57 Moscow; rows newest first; mapped to upload order 01 through 07 in reverse, consistent with previous batches. No explicit filename labels in screenshot."
+  },
+  {
+    "id": "02_r17_11_evening",
+    "file": "02_r17_11_evening.csv",
+    "spec": {
+      "routes": [
+        17
+      ],
+      "months": [
+        11
+      ],
+      "kind": "wd",
+      "hours": [
+        16,
+        17,
+        18,
+        19
+      ]
+    },
+    "carrier": "p12",
+    "carrier_score": 0.03692,
+    "sum_h": 620502,
+    "prior_sum": 309681,
+    "expected_score_if_r3_were_truth": 0.03683150976190476,
+    "sha256": "e402f9e127c1ebca79da41cdf9f6b0769720adb797d3419079aede23e96449f7",
+    "score": 0.03692,
+    "evidence": "User screenshot 2026-09-27 18:57 Moscow; rows newest first; mapped to upload order 01 through 07 in reverse, consistent with previous batches. No explicit filename labels in screenshot."
+  },
+  {
+    "id": "03_r17_12_morning",
+    "file": "03_r17_12_morning.csv",
+    "spec": {
+      "routes": [
+        17
+      ],
+      "months": [
+        12
+      ],
+      "kind": "wd",
+      "hours": [
+        7,
+        8,
+        9
+      ]
+    },
+    "carrier": "p11",
+    "carrier_score": 0.03337,
+    "sum_h": 591262,
+    "prior_sum": 295136,
+    "expected_score_if_r3_were_truth": 0.03329315321428571,
+    "sha256": "adb7e30d1cec27b41486a03eec1f3996c8d2a8cebdc35072b55c86c263473e3f",
+    "score": 0.03224,
+    "evidence": "User screenshot 2026-09-27 18:57 Moscow; rows newest first; mapped to upload order 01 through 07 in reverse, consistent with previous batches. No explicit filename labels in screenshot."
+  },
+  {
+    "id": "04_r17_12_evening",
+    "file": "04_r17_12_evening.csv",
+    "spec": {
+      "routes": [
+        17
+      ],
+      "months": [
+        12
+      ],
+      "kind": "wd",
+      "hours": [
+        16,
+        17,
+        18,
+        19
+      ]
+    },
+    "carrier": "p11",
+    "carrier_score": 0.03337,
+    "sum_h": 714328,
+    "prior_sum": 356504,
+    "expected_score_if_r3_were_truth": 0.03326753761904762,
+    "sha256": "bd786c03ceb19576fe2b763211e5ac13d77f3f78c68206ad2e53252b55cd3257",
+    "score": 0.03177,
+    "evidence": "User screenshot 2026-09-27 18:57 Moscow; rows newest first; mapped to upload order 01 through 07 in reverse, consistent with previous batches. No explicit filename labels in screenshot."
+  },
+  {
+    "id": "05_q14_r17_nwd_11",
+    "file": "05_q14_r17_nwd_11.csv",
+    "spec": {
+      "routes": [
+        17
+      ],
+      "months": [
+        11
+      ],
+      "kind": "nwd"
+    },
+    "source_id": "q14",
+    "carrier": "p11+p12",
+    "carrier_score": 0.07028999999999999,
+    "sum_h": 844834,
+    "prior_sum": 420437,
+    "sha256": "e8fed4e7c8d1d43f2749486824d074feeb5cf00119011d8d36044795a26fe320",
+    "score": 0.07087,
+    "evidence": "User screenshot 2026-09-27 18:57 Moscow; rows newest first; mapped to upload order 01 through 07 in reverse, consistent with previous batches. No explicit filename labels in screenshot."
+  },
+  {
+    "id": "06_q15_r17_nwd_12",
+    "file": "06_q15_r17_nwd_12.csv",
+    "spec": {
+      "routes": [
+        17
+      ],
+      "months": [
+        12
+      ],
+      "kind": "nwd"
+    },
+    "source_id": "q15",
+    "carrier": "p11+p12",
+    "carrier_score": 0.07028999999999999,
+    "sum_h": 698344,
+    "prior_sum": 347552,
+    "sha256": "c660c7936167e62f406a686037942dc9ad2284949ce0a7438ff9a75547668130",
+    "score": 0.06832,
+    "evidence": "User screenshot 2026-09-27 18:57 Moscow; rows newest first; mapped to upload order 01 through 07 in reverse, consistent with previous batches. No explicit filename labels in screenshot."
+  },
+  {
+    "id": "07_q26_dec22_26_wd",
+    "file": "07_q26_dec22_26_wd.csv",
+    "spec": {
+      "routes": [
+        1,
+        5,
+        7,
+        11,
+        12,
+        25,
+        26,
+        28,
+        50
+      ],
+      "dates": [
+        "2025-12-22",
+        "2025-12-23",
+        "2025-12-24",
+        "2025-12-25",
+        "2025-12-26"
+      ]
+    },
+    "source_id": "q26",
+    "carrier": "p11+p12",
+    "carrier_score": 0.07028999999999999,
+    "sum_h": 1997240,
+    "prior_sum": 990520,
+    "sha256": "bd31b569ca379b747de80be3eba4204fd7c39214e64874a3b3e01b82acf8cd60",
+    "score": 0.06795,
+    "evidence": "User screenshot 2026-09-27 18:57 Moscow; rows newest first; mapped to upload order 01 through 07 in reverse, consistent with previous batches. No explicit filename labels in screenshot."
+  }
+]

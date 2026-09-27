@@ -1,0 +1,17 @@
+{
+  "best_file": "submission_v11_probe_rake_r3.csv",
+  "best_score": 0.90997,
+  "verified_scored_files": 27,
+  "measured_probes": 16,
+  "linear_constraints": 19,
+  "constraint_rank": 19,
+  "unresolved_dimensions_on_full_grid": 14621,
+  "approximate_target_total": 12882776.954143452,
+  "target_total_rounding_interval": [
+    12882447.665056363,
+    12883106.26006493
+  ],
+  "error_reduction_required_for_094": 0.33355548150616443,
+  "absolute_error_reduction_required_for_094": 386869.79193292785,
+  "caveat": "Decoded sums assume ceilings exceed truth and unclipped probe scores; otherwise they measure capped sums. Rounding intervals are conservative and correlated via shared carriers."
+}
