@@ -298,7 +298,7 @@ export const useStore = create<State>((set, get) => {
     })),
     togglePlay: () => set(manual({ playing: !get().playing })),
     setSpeed: (speed) => set(manual({ speed })),
-    setFollowNow: (on) => set(on ? { followNow: true, playing: false, speed: 1, minute: nowOnTimeline(), nowNotice: null }
+    setFollowNow: (on) => set(on ? { followNow: true, playing: true, speed: 1, minute: nowOnTimeline(), nowNotice: null }
       : { followNow: false }),
     selectRoute: (route) => set(route == null ? { route, stop: null, segment: null, stopsOpen: false, matrixOpen: false }
       : { route, stop: null, segment: null }),

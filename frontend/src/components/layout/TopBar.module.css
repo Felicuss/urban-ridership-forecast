@@ -123,7 +123,14 @@
 }
 
 .clockTime {
+  width: auto;
+  min-width: 84px;
   cursor: text;
+}
+
+.clockSec {
+  color: var(--text-2);
+  font-size: 0.6em;
 }
 
 .clockTime:hover {

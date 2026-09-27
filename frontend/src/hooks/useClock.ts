@@ -4,7 +4,7 @@ import { nowOnTimeline } from '../lib/time';
 
 /**
  * Часы симуляции. При проигрывании время идёт в speed раз быстрее настоящего: ×60 - минута за секунду,
- * ×900 - сутки за 96 секунд. В режиме «Сейчас» время раз в секунду сверяется с настоящим.
+ * ×900 - сутки за 96 секунд. В режиме «Сейчас» время идёт вместе с настоящим: сверка с часами 4 раза в секунду.
  */
 export function useClock(): void {
   useEffect(() => {
@@ -17,7 +17,7 @@ export function useClock(): void {
       last = t;
       const s = useStore.getState();
       if (s.followNow) {
-        if (t - lastNow > 1000) {
+        if (t - lastNow > 250) {
           lastNow = t;
           s.tick(nowOnTimeline());
         }

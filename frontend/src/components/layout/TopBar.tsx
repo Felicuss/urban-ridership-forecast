@@ -111,9 +111,9 @@ export function TopBar() {
       </div>
 
       <div className={styles.clock} data-tour="clock">
-        <ClockField minute={minute} />
+        <ClockField minute={minute} live={followNow} />
         <button type="button" className={styles.play} onClick={togglePlay} aria-label={playing ? 'Пауза' : 'Пустить время'}
-          title={playing ? 'Пауза' : followNow ? 'Пустить время: режим «Сейчас» выключится'
+          title={followNow ? 'Идёт настоящее время. Пауза выключит режим «Сейчас»' : playing ? 'Пауза'
             : `Пустить время, ${SPEED_HINT[speed]}`}>
           {playing ? <Icon.pause /> : <Icon.play />}
         </button>
@@ -244,14 +244,18 @@ function AlertBell() {
 }
 
 /** Часы: клик открывает ввод «чч:мм» (или просто час), Enter переносит время выбранного дня, Esc отменяет. */
-function ClockField({ minute }: { minute: number }) {
+function ClockField({ minute, live }: { minute: number; live: boolean }) {
+  // секунды только в режиме «Сейчас»: так видно, что время идёт; перерисовывается одна кнопка раз в секунду
+  const sec = useStore((s) => (live ? Math.floor((s.minute % 1) * 60) : 0));
   const setMinute = useStore((s) => s.setMinute);
   const [draft, setDraft] = useState<string | null>(null);
   const cancelled = useRef(false);
   if (draft == null) {
     return (
       <button type="button" className={`num ${styles.clockTime}`} title="Ввести время: например 8:30 или 17"
-        onClick={() => { cancelled.current = false; setDraft(clock(minute)); }}>{clock(minute)}</button>
+        onClick={() => { cancelled.current = false; setDraft(clock(minute)); }}>{clock(minute)}
+        {live && <small className={styles.clockSec}>:{String(sec).padStart(2, '0')}</small>}
+      </button>
     );
   }
   const apply = () => {
