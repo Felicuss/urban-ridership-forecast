@@ -109,3 +109,30 @@ def test_gaps_name_the_reason_and_restore_from_earlier_weeks():
         inside = [d for d in days if p["from"] <= d <= p["to"]]
         assert len(inside) == p["days"]
         assert all(len(days[d]) == 24 for d in inside)
+
+
+def test_outlook_days_differ_inside_the_month_by_real_factors():
+    """Жалоба диспетчеров: в оценке 2026 все будни месяца были равны. Теперь их различают день недели,
+    школьные каникулы, погода и плавный уровень, а сумма месяца остаётся из сезонного индекса."""
+    outlook = pd.read_csv(OUT / "outlook.csv")
+    cal = pd.read_csv(OUT / "timeline_calendar.csv")
+    daily = outlook.groupby(["route", "date"], as_index=False).p50.sum().merge(cal[["date", "kind"]], on="date")
+    workdays = daily[(daily.route == 17) & daily.date.str.startswith("2026-03") & (daily.kind == "workday")]
+
+    assert workdays.p50.nunique() == len(workdays)
+    assert workdays.p50.max() / workdays.p50.min() - 1 > 0.02
+
+
+def test_smooth_level_keeps_month_sums_without_a_step_at_the_border():
+    from outlook_factors import smooth_daily
+
+    dates = pd.Series(pd.date_range("2026-01-01", "2026-03-31").strftime("%Y-%m-%d"))
+    month = dates.str.slice(0, 7)
+    totals = month.map({"2026-01": 3100.0, "2026-02": 5600.0, "2026-03": 3100.0}).to_numpy()
+
+    daily = smooth_daily(dates, np.ones(len(dates)), totals)
+
+    sums = pd.Series(daily).groupby(month).sum()
+    np.testing.assert_allclose(sums.to_numpy(), [3100, 5600, 3100], rtol=1e-9)
+    steps = np.abs(np.diff(daily))
+    assert steps.max() < 10, "уровень меняется плавно, без ступеньки 100 -> 200 на границе месяцев"

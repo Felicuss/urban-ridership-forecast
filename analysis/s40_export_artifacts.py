@@ -22,6 +22,7 @@ from common import FORECAST_END, FORECAST_START, ROOT, ROUTES, TEST_END
 from export_context import build_factors, check as check_factors
 from export_timeline import actuals_frame, check as check_timeline, outlook_frame, timeline_calendar
 from export_gaps import build_gaps
+from outlook_factors import build_outlook_factors
 from export_components import (ROUTE5_SATURDAY, ROUTE5_SUNDAY, TARGET_SUBMISSION, build_components, recompute,
                                scenario_coefficients)
 from export_horizons import backtest_frame, intervals_and_metrics, year_forecast
@@ -166,7 +167,9 @@ def main() -> None:
 
     cal = timeline_calendar()
     actuals, equipment_checks = actuals_frame()
-    outlook = outlook_frame(comp, pred, year, cal)
+    gaps = build_gaps(actuals, cal)
+    outlook_factors = build_outlook_factors(actuals, cal, gaps["periods"], ROUTES, c.precip_day_coef, c.frost_coef)
+    outlook = outlook_frame(comp, pred, year, cal, outlook_factors)
     check_timeline(cal, actuals, outlook, year)
     write_csv(cal, "timeline_calendar.csv")
     write_csv(actuals, "actuals.csv")
@@ -177,7 +180,7 @@ def main() -> None:
     write_json({**metrics, "leaderboard_wape_score": LEADERBOARD_SCORE, "year": year_meta, "stops": stop_stats,
                 "plan": plan_quality(plan, actuals)}, "backtest_metrics.json")
 
-    factors = {**build_factors(), "equipment_checks": equipment_checks, "gaps": build_gaps(actuals, cal)}
+    factors = {**build_factors(), "equipment_checks": equipment_checks, "gaps": gaps}
     check_factors(factors)
     (OUT / "factors.json").write_text(json.dumps(factors, ensure_ascii=False, separators=(",", ":")) + "\n",
                                       encoding="utf-8")
