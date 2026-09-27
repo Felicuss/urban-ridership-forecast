@@ -32,6 +32,11 @@ LEVEL_DAYS = {"workday": 21, "saturday": 28, "sunday": 28}
 SHAPE_DAYS = 56
 SHAPE_HALF_LIFE = 14
 CITY_YEARS = (2019, 2022, 2023, 2024)
+# наши маршруты повторяют сезонные колебания городского трамвая с амплитудой 0.83, как в s10 и s30
+AMPLITUDE = 0.83
+# обычные дни этого типа старше месяца (маршрут долго был в другом режиме) уже не показывают уровень:
+# тогда уровень выходных строится от свежих будней через отношение выходных к будням
+STALE_DAYS = 35
 
 
 def calendar() -> pd.DataFrame:
@@ -45,7 +50,7 @@ def city_season() -> pd.Series:
     """Поездки трамвая Москвы в сутки по месяцам, среднее отношение к январю по прошлым годам."""
     c = pd.read_csv(ROOT / "external/datamos_62521_monthly_ridership.csv")
     c = c[(c.transport == "Трамвай") & c.year.isin(CITY_YEARS)].pivot(index="year", columns="month", values="per_day")
-    return np.log(c.div(c[1], axis=0)).mean()
+    return AMPLITUDE * np.log(c.div(c[1], axis=0)).mean()
 
 
 # Множитель события по его типу, как известно из объявления Дептранса: без измеренного эффекта, чтобы
@@ -60,12 +65,13 @@ def network_events() -> list[dict]:
     e = pd.read_csv(ROOT / "external/events_2025.csv", parse_dates=["start", "end"])
     out = []
     for i, r in enumerate(e.itertuples()):
-        if r.type not in REGIME_TYPES or r.routes == "all":
+        # запись «режим продолжается» только уточняет даты уже действующего режима
+        if r.type not in REGIME_TYPES or r.routes == "all" or "продолжается" in r.description:
             continue
         kind = ("merge" if r.type == "merge" else "detour" if r.type == "detour"
                 else "full" if "не работал" in r.description else "short")
-        out.append(dict(id=i, routes={int(x) for x in r.routes.split(";")}, start=r.start, end=r.end,
-                        days=r.days, prior=REGIME_PRIOR[kind]))
+        out.append(dict(id=i, kind=kind, routes={int(x) for x in r.routes.split(";")}, start=r.start, end=r.end,
+                        days=r.days))
     return out
 
 
@@ -86,12 +92,13 @@ class Data:
         self._regime = {}
 
     def regime(self, route: int, date: pd.Timestamp) -> frozenset:
-        """События, которые действуют на маршрут в этот день с учётом типа дня."""
+        """Типы событий, которые действуют на маршрут в этот день с учётом типа дня: закрытие, укорочение,
+        объединение, объезд. Два одинаковых по типу события - один режим."""
         key = (route, date)
         if key not in self._regime:
             kind = self.cal.kind[date]
             self._regime[key] = frozenset(
-                e["id"] for e in self.events
+                e["kind"] for e in self.events
                 if route in e["routes"] and e["start"] <= date <= e["end"]
                 and (e["days"] == "all" or (e["days"] == "weekends") == (kind != "workday")))
         return self._regime[key]
@@ -101,27 +108,45 @@ class Data:
         Если режим ещё не встречался, - обычный уровень × множители событий. Второе значение - месяц истории."""
         kind = self.cal.kind[target]
         want = self.regime(route, target)
-        count = max(2, LEVEL_DAYS[kind] // 7 * (5 if kind == "workday" else 1))
-
-        def recent(regime: frozenset) -> list[pd.Timestamp]:
-            days = []
-            d = origin
-            stop = max(origin - pd.Timedelta(days=REGIME_LOOKBACK), pd.Timestamp(HISTORY_START))
-            while d >= stop and len(days) < count:
-                if self.cal.kind[d] == kind and (route, d) not in self.bad and self.regime(route, d) == regime:
-                    days.append(d)
-                d -= pd.Timedelta(days=1)
-            return days
-
-        days = recent(want)
+        days = self.recent(route, origin, kind, want)
         factor = 1.0
         if len(days) < 2:
-            days = recent(frozenset())
-            factor = float(np.prod([e["prior"] for e in self.events if e["id"] in want]))
+            days = self.recent(route, origin, kind, frozenset())
+            factor = float(np.prod([REGIME_PRIOR[k] for k in want]))
         if not days:
             return 0.0, origin.month
-        totals = self.daily.reindex([(route, d) for d in days]).fillna(0)
-        return float(totals.median()) * factor, days[len(days) // 2].month
+        if kind != "workday" and (origin - days[0]).days > STALE_DAYS:
+            anchored = self.anchored(route, origin, days)
+            if anchored is not None:
+                return anchored[0] * factor, anchored[1]
+        return self.median(route, days) * factor, days[len(days) // 2].month
+
+    def recent(self, route: int, origin: pd.Timestamp, kind: str, regime: frozenset,
+               before: pd.Timestamp | None = None) -> list[pd.Timestamp]:
+        """Последние дни маршрута этого типа и режима, от свежих к старым."""
+        count = max(2, LEVEL_DAYS[kind] // 7 * (5 if kind == "workday" else 1))
+        days = []
+        d = before or origin
+        stop = max(origin - pd.Timedelta(days=REGIME_LOOKBACK), pd.Timestamp(HISTORY_START))
+        while d >= stop and len(days) < count:
+            if self.cal.kind[d] == kind and (route, d) not in self.bad and self.regime(route, d) == regime:
+                days.append(d)
+            d -= pd.Timedelta(days=1)
+        return days
+
+    def median(self, route: int, days: list[pd.Timestamp]) -> float:
+        return float(self.daily.reindex([(route, d) for d in days]).fillna(0).median())
+
+    def anchored(self, route: int, origin: pd.Timestamp, old: list[pd.Timestamp]) -> tuple[float, int] | None:
+        """Свежий уровень обычных будней × отношение выходных к будням в том периоде, где были old."""
+        now = self.recent(route, origin, "workday", frozenset())
+        if len(now) < 2 or (origin - now[0]).days > STALE_DAYS:
+            return None
+        then = self.recent(route, origin, "workday", frozenset(), before=old[0] + pd.Timedelta(days=7))
+        if len(then) < 2 or self.median(route, then) <= 0:
+            return None
+        ratio = self.median(route, old) / self.median(route, then)
+        return self.median(route, now) * ratio, now[len(now) // 2].month
 
     def history(self, route: int, origin: pd.Timestamp, kind: str, days: int) -> pd.DataFrame:
         """Дни маршрута того же типа за days дней до origin включительно, без аномальных."""
