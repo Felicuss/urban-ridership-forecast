@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useRouteStops } from '../../../api/queries';
 import { useAlerts, type AlertState } from '../../../hooks/useDispatch';
-import { useStore } from '../../../state/store';
+import { useShownRoutes, useStore } from '../../../state/store';
 import { CAPACITY } from '../../../lib/dispatch';
 import { MINUTES_PER_DAY, dayLabel } from '../../../lib/time';
 import { fmtInt, plural } from '../../../lib/format';
-import { ROUTE_IDS, routeColor } from '../../../lib/routes';
+import { routeColor } from '../../../lib/routes';
 import { Card, TramDots } from '../../ui/Controls';
 import { Icon } from '../../ui/Icons';
 import styles from './Shift.module.css';
@@ -61,6 +61,7 @@ function AddAlert() {
   const selected = useStore((s) => s.route);
   const segment = useStore((s) => s.segment);
   const addAlert = useStore((s) => s.addAlert);
+  const shown = useShownRoutes();
   const [route, setRoute] = useState<number>(selected ?? 17);
   const [limit, setLimit] = useState(CAPACITY);
   const [onSegment, setOnSegment] = useState(false);
@@ -76,7 +77,7 @@ function AddAlert() {
       <label className={styles.field}>
         <span>Маршрут</span>
         <select value={route} onChange={(e) => setRoute(Number(e.target.value))}>
-          {ROUTE_IDS.map((r) => <option key={r} value={r}>№{r}</option>)}
+          {shown.map((r) => <option key={r} value={r}>№{r}</option>)}
         </select>
       </label>
       <label className={styles.field}>

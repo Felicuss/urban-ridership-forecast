@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react';
 import { useFactors } from '../../../api/queries';
 import { useDaysLoad, useManyRouteStops } from '../../../hooks/useDispatch';
-import { useStore } from '../../../state/store';
+import { useScopeRoutes, useStore } from '../../../state/store';
 import { CAPACITY, bottlenecks, intervalAdvice } from '../../../lib/dispatch';
 import { MINUTES_PER_DAY, dayIndex, isoDate, shortDate, weekdayName } from '../../../lib/time';
 import { fmtInt, plural } from '../../../lib/format';
-import { ROUTE_IDS, routeColor } from '../../../lib/routes';
+import { routeColor } from '../../../lib/routes';
 import { Card, TramDots } from '../../ui/Controls';
 import panels from '../Panels.module.css';
 import styles from './Shift.module.css';
@@ -20,15 +20,17 @@ export function BottlenecksCard() {
   const selectRoute = useStore((s) => s.selectRoute);
   const factors = useFactors().data;
   const { days, pending } = useDaysLoad(day, DAYS);
-  const stops = useManyRouteStops(ROUTE_IDS);
+  const routes = useScopeRoutes();
+  const route = useStore((s) => s.route);
+  const stops = useManyRouteStops(routes);
   const [limit, setLimit] = useState(CAPACITY);
   const [all, setAll] = useState(false);
-  const list = useMemo(() => bottlenecks(days, factors, ROUTE_IDS, limit, stops), [days, factors, limit, stops]);
+  const list = useMemo(() => bottlenecks(days, factors, routes, limit, stops), [days, factors, routes, limit, stops]);
   const byRoute = list.reduce((m, b) => m.set(b.route, (m.get(b.route) ?? 0) + 1), new Map<number, number>());
   const worst = [...byRoute.entries()].sort((a, b) => b[1] - a[1])[0];
 
   return (
-    <Card id="shift-bottlenecks" title={`Узкие места на ${DAYS} дней`}
+    <Card id="shift-bottlenecks" title={`Узкие места${route != null ? ` №${route}` : ''} на ${DAYS} дней`}
       info="Маршрут, день и часы, где посадок на один рейс больше порога. Рейсы - по расписанию transport.mos.ru, посадки - прогноз по умолчанию без сценария. Остановка - где в час пика входит больше всего людей. Клик по строке показывает этот час на карте.">
       <div className={panels.coefHead}>
         <span>Порог посадок на рейс</span>

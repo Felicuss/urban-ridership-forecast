@@ -1,4 +1,5 @@
 import { useAlerts } from '../../hooks/useDispatch';
+import { useStore } from '../../state/store';
 import { AlertsCard } from './shift/AlertsCard';
 import { BottlenecksCard } from './shift/BottlenecksCard';
 import { BriefCard } from './shift/BriefCard';
@@ -17,6 +18,8 @@ const SECTIONS = [
 
 export default function ShiftTab() {
   const fired = useAlerts().states.filter((s) => s.spans.length > 0).length;
+  const route = useStore((s) => s.route);
+  const selectRoute = useStore((s) => s.selectRoute);
   return (
     <div className={panels.stack}>
       <nav className={styles.nav} aria-label="Разделы смены">
@@ -27,10 +30,16 @@ export default function ShiftTab() {
           </button>
         ))}
       </nav>
+      <p className={styles.scope}>
+        {route != null ? <>Смена по маршруту <b>№{route}</b>.{' '}
+          <button type="button" onClick={() => selectRoute(null)}>Показать всю сеть</button></>
+          : 'Смена по всей сети. Выберите маршрут слева, чтобы смотреть только его.'}
+      </p>
       <BriefCard />
-      <AlertsCard />
+      {/* key: при смене маршрута формы подписки и выпуска берут его заново */}
+      <AlertsCard key={`alerts-${route ?? 'all'}`} />
       <BottlenecksCard />
-      <FleetCard />
+      <FleetCard key={`fleet-${route ?? 'all'}`} />
     </div>
   );
 }

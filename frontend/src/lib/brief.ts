@@ -16,6 +16,8 @@ export interface DayWeatherSeries {
 
 export interface Brief {
   title: string;
+  /** Кого касается сводка: «Сеть» или «№17». */
+  scope: string;
   dayKind: string;
   source: string;
   weather: string | null;
@@ -104,6 +106,7 @@ export function buildBrief(input: BriefInput): Brief {
     ...(input.news ?? [])];
   const brief = {
     title: dayLabel(day),
+    scope: routes.length === 1 ? `№${routes[0]}` : 'Сеть',
     dayKind: calendar?.holiday ?? KIND[calendar?.dayType ?? 'workday'] ?? 'рабочий день',
     source: SOURCE[load.source] ?? 'прогноз',
     weather: weatherLine(input.weather),
@@ -116,9 +119,9 @@ function briefText(b: Omit<Brief, 'text'>, limit: number): string {
   const lines = [
     `Сводка смены «Час пик»: ${b.title} (${b.dayKind}), ${b.source}`,
     b.weather ? `Погода в центре: ${b.weather}` : null,
-    `Сеть: ${fmtCompact(b.total)} посадок, пик ${b.peakHour}:00-${b.peakHour + 1}:00 (${fmtCompact(b.peak)})`
+    `${b.scope}: ${fmtCompact(b.total)} посадок, пик ${b.peakHour}:00-${b.peakHour + 1}:00 (${fmtCompact(b.peak)})`
       + (b.vsWeek != null ? `, к тому же дню неделей раньше ${fmtPct(b.vsWeek)}` : ''),
-    `Больше всего посадок: ${b.top.map((r) => `№${r.route} - ${fmtCompact(r.total)}`).join(', ')}`,
+    b.top.length > 1 ? `Больше всего посадок: ${b.top.map((r) => `№${r.route} - ${fmtCompact(r.total)}`).join(', ')}` : null,
     b.crowded.length
       ? `Тесно (больше ${limit} посадок на рейс):\n${b.crowded.slice(0, 5).map((c) => `- №${c.route}, ${c.from}-${c.to} ч: `
         + `до ${Math.round(c.peak)} на рейс, ${intervalAdvice(c)}`
