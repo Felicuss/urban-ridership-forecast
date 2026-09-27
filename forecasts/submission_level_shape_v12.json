@@ -1,0 +1,13 @@
+{
+  "file": "submission_level_shape_v12.csv",
+  "status": "unscored",
+  "script": "analysis/s85_level_shape.py future",
+  "sha256": "fa9f8457f8c10d1ec3264494ddd00377a14f220ba2e440162f2cf1c8625a627e",
+  "model": "уровень дня маршрута в режиме событий × сезонный переход трамвая Москвы × правила календаря сервиса × форма суток",
+  "development_folds": {
+    "mean": 0.877407,
+    "v11_mean": 0.865783,
+    "report": "docs/research/level_shape_2026-09-27.md"
+  },
+  "caveat": "На табло не загружался. По суммам проб уровня на ноябрь-декабрь уровень ближе у v11: маршрут 5 взят из ex-ante s32, 7 в ноябре ниже на 6 %, 12 в декабре выше на 6 %."
+}
