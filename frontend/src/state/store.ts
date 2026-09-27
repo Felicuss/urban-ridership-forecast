@@ -1,6 +1,8 @@
+import { useMemo } from 'react';
 import { create } from 'zustand';
 import type { CoefficientValue, Horizon, Scenario, ScenarioEvent } from '../api/types';
 import { HORIZON_START, MINUTES_PER_DAY, TIMELINE_MINUTES, clampMinute, dayOf, nowOnTimeline } from '../lib/time';
+import { ROUTE_IDS } from '../lib/routes';
 
 // Состояние интерфейса. Время - минуты от 01.11.2025 00:00, из него карта берёт дату и час,
 // трамваи - своё положение на линии. Флаги слоёв и настроек переживают перезагрузку страницы.
@@ -326,4 +328,20 @@ export const useStore = create<State>((set, get) => {
 
 export function isDefaultScenario(s: Scenario): boolean {
   return Object.keys(s.coefficients).length === 0 && s.events.length === 0;
+}
+
+/** Маршруты в работе: все, кроме скрытых фильтром (по умолчанию скрыт №5, от него организаторы отказались). */
+export function useShownRoutes(): number[] {
+  const hidden = useStore((s) => s.hiddenRoutes);
+  return useMemo(() => {
+    const shown = ROUTE_IDS.filter((r) => !hidden.includes(r));
+    return shown.length ? shown : ROUTE_IDS;
+  }, [hidden]);
+}
+
+/** Маршруты для инструментов смены: выбранный маршрут, а без выбора - все маршруты в работе. */
+export function useScopeRoutes(): number[] {
+  const route = useStore((s) => s.route);
+  const shown = useShownRoutes();
+  return useMemo(() => (route != null ? [route] : shown), [route, shown]);
 }

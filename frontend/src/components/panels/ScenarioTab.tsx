@@ -1,10 +1,9 @@
 import { useMemo, useState } from 'react';
 import { useCoefficients, useMeta, useSeries } from '../../api/queries';
 import type { Coefficient, CoefficientValue, ScenarioEvent } from '../../api/types';
-import { useStore } from '../../state/store';
-import { HORIZON_END, HORIZON_START, dayIndex, fullDate, isoDate, shortDate } from '../../lib/time';
+import { useShownRoutes, useStore } from '../../state/store';
+import { HORIZON_END, HORIZON_START, TIMELINE_END, dayIndex, fullDate, isoDate, shortDate } from '../../lib/time';
 import { fmtCompact, fmtFixed, fmtPct } from '../../lib/format';
-import { ROUTE_COLORS } from '../../lib/routes';
 import { Card, InfoTip, Kpi, Toggle, TramDots } from '../ui/Controls';
 import { Icon } from '../ui/Icons';
 import { NewsEvents } from './NewsEvents';
@@ -40,7 +39,8 @@ export default function ScenarioTab() {
     <div className={styles.stack}>
       <p className={styles.note}>
         «Что если»: добавьте перекрытие, мероприятие или сбой из новостей, либо сдвиньте ползунок модели.
-        Прогноз ноября-декабря 2025 пересчитается сразу, факт и оценка 2026 года не меняются.
+        События действуют на любой день с 1 ноября 2025 по 31 октября 2026, ползунки модели - на ноябрь-декабрь
+        2025. Факт прошедших дней не меняется.
       </p>
       <Impact />
       <Events />
@@ -118,7 +118,12 @@ function CoefficientRow({ c, value, onChange }: {
 function Impact() {
   const scenario = useStore((s) => s.scenario);
   const active = Object.keys(scenario.coefficients).length > 0 || scenario.events.length > 0;
-  const query = useMemo(() => ({ level: 'network' as const, from: HORIZON_START, to: HORIZON_END, granularity: 'day' as const }), []);
+  // период итога: горизонт прогноза, если тронуты ползунки, и даты событий, если их примерили на 2026 год
+  const sliders = Object.keys(scenario.coefficients).length > 0;
+  const first = scenario.events.reduce((m, e) => (e.from < m ? e.from : m), sliders ? HORIZON_START : TIMELINE_END);
+  const last = scenario.events.reduce((m, e) => (e.to > m ? e.to : m), sliders ? HORIZON_END : HORIZON_START);
+  const query = useMemo(() => ({ level: 'network' as const, from: first, to: last, granularity: 'day' as const }),
+    [first, last]);
   const { data, isFetching } = useSeries(active ? query : null, scenario);
   if (!active) {
     return (
@@ -133,11 +138,11 @@ function Impact() {
   const max = Math.max(...deltas.map(Math.abs), 1);
   return (
     <Card title="Итог сценария по сети" actions={isFetching ? <TramDots label="" /> : undefined}
-      info="Сумма посадок всех маршрутов за 61 день: сценарий против прогноза по умолчанию. Столбики - разница по дням, вверх - больше посадок.">
+      info={`Сумма посадок всех маршрутов ${first === last ? `за ${shortDate(first)}` : `с ${shortDate(first)} по ${shortDate(last)}`}: сценарий против прогноза по умолчанию. Ползунки считаются за ноябрь-декабрь 2025, события - за свои дни. Столбики - разница по дням, вверх - больше посадок.`}>
       <div className={styles.split}>
-        <Kpi label="За горизонт" value={fmtPct(delta)} tone={delta >= 0 ? 'up' : 'down'}
+        <Kpi label="За период" value={fmtPct(delta)} tone={delta >= 0 ? 'up' : 'down'}
           sub={`${fmtCompact(data.total.p50)} против ${fmtCompact(base)}`} />
-        <Kpi label="Самый затронутый день" value={fmtCompact(Math.max(...deltas.map(Math.abs)))}
+        <Kpi label="Самый затронутый день" value={fmtSigned(deltas[deltas.map(Math.abs).indexOf(max)] ?? 0)}
           sub={shortDate(data.points[deltas.map(Math.abs).indexOf(max)]?.period ?? HORIZON_START)} />
       </div>
       <div className={styles.deltaBars} role="img" aria-label="Разница сценария по дням">
@@ -156,9 +161,15 @@ function Events() {
   const addEvent = useStore((s) => s.addEvent);
   const removeEvent = useStore((s) => s.removeEvent);
   const day = useStore((s) => isoDate(dayIndex(s.minute)));
-  const [draft, setDraft] = useState<ScenarioEvent>({ route: 17, from: day, to: day, hours: '10-17', multiplier: 0,
-    label: 'перекрытие' });
+  const shown = useShownRoutes();
+  // даты формы следуют за выбранным днём, пока их не поменяли руками
+  const [draft, setDraft] = useState<Omit<ScenarioEvent, 'from' | 'to'> & { from?: string; to?: string }>(
+    { multiplier: 1, label: '' });
   const set = (patch: Partial<ScenarioEvent>) => setDraft((d) => ({ ...d, ...patch }));
+  const canTry = day >= HORIZON_START && day <= TIMELINE_END;
+  const from = draft.from ?? (canTry ? day : HORIZON_START);
+  const to = draft.to ?? from;
+  const ready = draft.multiplier !== 1 && from <= to;
   return (
     <section className={styles.group}>
       <h3 className={styles.groupTitle}>События: перекрытия, стройки, мероприятия
@@ -174,20 +185,24 @@ function Events() {
       ))}
       <div className={styles.row}>
         {PRESETS.map((p) => (
-          <button key={p.label} type="button" className={styles.btn} onClick={() => addEvent(p.make(day))}>{p.label}</button>
+          <button key={p.label} type="button" className={styles.btn} disabled={!canTry}
+            title={canTry ? `Добавить на ${shortDate(day)}` : 'Выберите день с 1 ноября 2025: факт прошедших дней не меняется'}
+            onClick={() => addEvent(p.make(day))}>{p.label}</button>
         ))}
       </div>
+      {!canTry && <p className={styles.note}>Заготовки добавляют событие на выбранный день. Выберите день с 1 ноября 2025:
+        факт прошедших дней сценарий не меняет.</p>}
       <div className={styles.coef}>
         <div className={styles.row}>
           <select className={styles.input} value={draft.route ?? ''} aria-label="Маршрут"
             onChange={(e) => set({ route: e.target.value ? Number(e.target.value) : undefined })}>
             <option value="">все маршруты</option>
-            {Object.keys(ROUTE_COLORS).map((r) => <option key={r} value={r}>маршрут {r}</option>)}
+            {shown.map((r) => <option key={r} value={r}>маршрут {r}</option>)}
           </select>
-          <input className={styles.input} type="date" value={draft.from} min="2025-11-01" max="2025-12-31"
-            aria-label="С даты" onChange={(e) => set({ from: e.target.value })} />
-          <input className={styles.input} type="date" value={draft.to} min="2025-11-01" max="2025-12-31"
-            aria-label="По дату" onChange={(e) => set({ to: e.target.value })} />
+          <input className={styles.input} type="date" value={from} min={HORIZON_START} max={TIMELINE_END}
+            aria-label="С даты" onChange={(e) => set({ from: e.target.value || undefined })} />
+          <input className={styles.input} type="date" value={to} min={from} max={TIMELINE_END}
+            aria-label="По дату" onChange={(e) => set({ to: e.target.value || undefined })} />
           <input className={styles.input} value={draft.hours ?? ''} placeholder="часы, 7-10" aria-label="Часы"
             style={{ width: 84 }} onChange={(e) => set({ hours: e.target.value || undefined })} />
         </div>
@@ -200,7 +215,9 @@ function Events() {
         <div className={styles.row}>
           <input className={styles.input} value={draft.label ?? ''} placeholder="подпись" aria-label="Подпись события"
             style={{ flex: 1 }} onChange={(e) => set({ label: e.target.value })} />
-          <button type="button" className={styles.btnPrimary} onClick={() => addEvent(draft)}>Добавить</button>
+          <button type="button" className={styles.btnPrimary} disabled={!ready}
+            title={ready ? undefined : 'Сдвиньте множитель: при ×1 событие ничего не меняет'}
+            onClick={() => addEvent({ ...draft, from, to, label: draft.label || 'событие' })}>Добавить</button>
         </div>
       </div>
     </section>
@@ -214,6 +231,10 @@ function hoursLabel(hours: string | undefined): string {
   const first = a ?? 0;
   const last = b ?? first;
   return `${first}:00–${last + 1}:00`;
+}
+
+function fmtSigned(v: number): string {
+  return `${v > 0 ? '+' : v < 0 ? '−' : ''}${fmtCompact(Math.abs(v))}`;
 }
 
 function fmtMultiplier(m: number): string {

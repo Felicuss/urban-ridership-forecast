@@ -42,7 +42,7 @@ export function RouteList({ load, factors }: { load: NetworkLoad | undefined; fa
         <span className={styles.badgeAll}>все</span>
         <span className={styles.name}>
           <b>Вся сеть</b>
-          <small>{fmtInt(network)} посадок за сутки, {sourceLabel}</small>
+          <small>{load ? `${fmtInt(network)} посадок за сутки, ${sourceLabel}` : 'загружаем посадки…'}</small>
         </span>
         <Sparkline values={networkHours} color="#e9eef5" hour={hour} width={78} />
       </button>
@@ -55,7 +55,8 @@ export function RouteList({ load, factors }: { load: NetworkLoad | undefined; fa
               onClick={() => selectRoute(route === r ? null : r)} style={{ '--c': color } as React.CSSProperties}>
               <span className={styles.badge}>{r}</span>
               <span className={styles.name}>
-                <b className="num">{total > 0 ? fmtCompact(total) : 'нет рейсов'}</b>
+                {/* без данных - прочерк: ошибка сервиса не должна выглядеть как «нет рейсов» */}
+                <b className="num">{!load ? '-' : total > 0 ? fmtCompact(total) : 'нет рейсов'}</b>
                 <small>{routeTitle(factors, r) || 'маршрут'}</small>
                 <span className={styles.share}><i style={{ width: `${(100 * total) / max}%` }} /></span>
               </span>

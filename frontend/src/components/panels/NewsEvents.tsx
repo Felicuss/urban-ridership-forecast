@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { ScenarioEvent } from '../../api/types';
 import { useNewsFeed, type NewsIncident } from '../../hooks/useNews';
 import { MAX_EVENTS, useStore } from '../../state/store';
-import { HORIZON_END, HORIZON_START, dayIndex, isoDate, shortDate } from '../../lib/time';
+import { HORIZON_START, TIMELINE_END, dayIndex, isoDate, shortDate } from '../../lib/time';
 import { fmt1, plural } from '../../lib/format';
 import { routeColor } from '../../lib/routes';
 import { InfoTip, TramDots } from '../ui/Controls';
@@ -28,7 +28,8 @@ export function NewsEvents() {
   const [all, setAll] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
-  const inHorizon = date >= HORIZON_START && date <= HORIZON_END;
+  // примерить можно на любой будущий день шкалы: прогноз ноября-декабря 2025 и оценку 2026 года
+  const inHorizon = date >= HORIZON_START && date <= TIMELINE_END;
 
   const tryOn = async (n: NewsIncident) => {
     setBusy(n.id);
@@ -72,7 +73,7 @@ export function NewsEvents() {
             + (live.length ? `свежих сбоев трамваев: ${live.length}.` : 'свежих сбоев на десяти маршрутах нет.')
           : 'Живая лента выключена, показан архив 2025 года.'}
         {' '}{inHorizon ? `«Примерить» переносит такой же сбой на ${shortDate(date)}.`
-          : 'Чтобы примерить сбой, выберите день в ноябре-декабре 2025.'}
+          : 'Чтобы примерить сбой, выберите день с 1 ноября 2025: факт прошедших дней сценарий не меняет.'}
       </p>
       {list.map((n) => (
         <div key={n.id} className={styles.news}>
