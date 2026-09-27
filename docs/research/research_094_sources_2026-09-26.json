@@ -74,11 +74,6 @@
       "access": "catalog_history_only_2026_snapshot"
     },
     {
-      "id": "hackathon_ndtp_track",
-      "url": "https://mt-hackathon.ru/",
-      "access": "official_track_description_no_dataset_link"
-    },
-    {
       "id": "annual_reports",
       "url": "https://transport.mos.ru/mostrans/for_journs/data/report-year",
       "access": "catalog_search_result_direct_request_timeout"

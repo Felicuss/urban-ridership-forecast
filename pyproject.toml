@@ -1,7 +1,7 @@
 [project]
 name = "tram-forecast"
 version = "0.1.0"
-description = "Прогноз почасовых посадок на трамвайных маршрутах Москвы (хакатон МТТЕХ 2026)"
+description = "Прогноз почасовых посадок на трамвайных маршрутах Москвы"
 requires-python = ">=3.14"
 dependencies = [
     "beautifulsoup4>=4.15.0",

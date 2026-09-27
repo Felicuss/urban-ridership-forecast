@@ -23,7 +23,7 @@ from common import ROOT, ROUTES
 EXT = ROOT / "external"
 MONTHS_RU = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь",
              "Ноябрь", "Декабрь"]
-UA = {"User-Agent": "tram-forecast-hackathon/0.1 (research)"}
+UA = {"User-Agent": "tram-forecast/0.1 (research)"}
 
 
 def fetch_datamos() -> pd.DataFrame:

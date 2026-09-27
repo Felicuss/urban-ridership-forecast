@@ -1,6 +1,6 @@
 # ML: итог и передача команде
 
-Репозиторий: [Mojarung/hakaton_moskovskogo_transporta_2026](https://github.com/Mojarung/hakaton_moskovskogo_transporta_2026), ветка `main`.
+Репозиторий: [Felicuss/urban-ridership-forecast](https://github.com/Felicuss/urban-ridership-forecast), ветка `main`.
 Код — `analysis/`, внешние данные — `external/`, модели и сабмиты — `forecasts/`.
 
 **Новый рекорд на скриншоте — 0.91274**, предположительно v25. Порядок последних двух загрузок ещё не подтверждён; [итог v22–v26](research/ml_final_push_2026-09-27.md).
@@ -88,8 +88,8 @@ ARIMA с результатом 0.90309 и CatBoost в финальную сме
 ## Что брать
 
 ```bash
-git clone https://github.com/Mojarung/hakaton_moskovskogo_transporta_2026.git
-cd hakaton_moskovskogo_transporta_2026
+git clone https://github.com/Felicuss/urban-ridership-forecast.git
+cd urban-ridership-forecast
 ```
 
 Готовый файл: [forecasts/submission_seasonal_daily_v11.csv](../forecasts/submission_seasonal_daily_v11.csv).

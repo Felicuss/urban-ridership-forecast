@@ -22,7 +22,7 @@ import pandas as pd
 from common import DATASET, ROOT
 from typography import quotes
 
-REFERENCE = DATASET / "spravochniki" / "Хакатон_справочники_трамвай_10_маршрутов.xlsx"
+REFERENCE = DATASET / "spravochniki" / "tram_route_reference.xlsx"
 OSM = ROOT / "external" / "osm_tram_routes.geojson"
 REFERENCE_ROUTES = (1, 5, 7, 11, 12)
 MATCH_METERS = 40.0
@@ -198,4 +198,4 @@ def network_geojson(stops: pd.DataFrame) -> dict:
                          "properties": {"kind": "stop", "stop_id": s.stop_id, "name": s.name,
                                         "routes": [int(r) for r in s.routes.split()], "source": s.source}})
     return {"type": "FeatureCollection", "features": features,
-            "attribution": "© OpenStreetMap contributors, ODbL 1.0; справочник организаторов хакатона"}
+            "attribution": "© OpenStreetMap contributors, ODbL 1.0; справочник маршрутов и остановок"}

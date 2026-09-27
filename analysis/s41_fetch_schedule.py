@@ -24,7 +24,7 @@ URL = "https://transport.mos.ru/transport/schedule"
 # следующие страницы списка сайт подгружает этим ajax-запросом при прокрутке
 PAGE_URL = "https://transport.mos.ru/ru/ajax/App/V2_ScheduleV2Controller/getRoutesList"
 MAX_PAGES = 10
-UA = {"User-Agent": "Mozilla/5.0 (hackathon research; tram load forecast)"}
+UA = {"User-Agent": "Mozilla/5.0 (tram load forecast research)"}
 OUT = ROOT / "external" / "transport_mos_schedule.csv"
 DAY_TYPES = {"weekday": 1, "weekend": 0}  # значение mgt_schedule[workTime] на сайте
 PAUSE_S = 1.0

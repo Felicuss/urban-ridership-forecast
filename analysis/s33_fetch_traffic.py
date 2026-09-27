@@ -28,7 +28,7 @@ EXT = ROOT / "external"
 CHANNEL = "DtOperativno"
 FIRST_DAY, LAST_DAY = "2024-12-01", "2025-12-31"  # декабрь 2024 нужен для базы начала января
 RAW = DATA / "telegram_dtoperativno.parquet"
-UA = {"User-Agent": "Mozilla/5.0 (tram-forecast-hackathon research)"}
+UA = {"User-Agent": "Mozilla/5.0 (tram-forecast research)"}
 
 SCORE = re.compile(r"(\d{1,2})\s*балл")
 SPEED = re.compile(r"скорост[^.\d]{0,40}?(\d{2})\s*км/ч", re.I)

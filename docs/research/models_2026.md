@@ -1,6 +1,6 @@
 # Модели прогнозирования временных рядов для задачи трамвайных посадок: состояние на 25.09.2026
 
-Задача: 10 почасовых рядов (январь-октябрь 2025, около 7300 точек на маршрут), прогноз на 2025-11-01 … 2025-12-31 целиком, то есть 1464 часовых шага без данных внутри горизонта. Метрика WAPE по всей сетке маршрут × дата × час. Известные будущие ковариаты: календарь и фактическая погода. Железо: RTX 5070 12 ГБ, 32 ГБ RAM, Ryzen 5600X, Windows 11, Python 3.13 через uv. Дедлайн CSV по `D:/projects_2/hakaton_moskovskogo_transporta_2026/docs/task.md`: 27.09.2026.
+Задача: 10 почасовых рядов (январь-октябрь 2025, около 7300 точек на маршрут), прогноз на 2025-11-01 … 2025-12-31 целиком, то есть 1464 часовых шага без данных внутри горизонта. Метрика WAPE по всей сетке маршрут × дата × час. Известные будущие ковариаты: календарь и фактическая погода. Железо: RTX 5070 12 ГБ, 32 ГБ RAM, Ryzen 5600X, Windows 11, Python 3.13 через uv. Дедлайн CSV по `docs/task.md`: 27.09.2026.
 
 Как проверялось. Версии пакетов взяты из PyPI JSON API, метаданные моделей (дата создания, лицензия, число параметров из safetensors) из Hugging Face API, релизы из GitHub API, всё 25.09.2026. Лидерборды GIFT-Eval и fev-bench я не читал с картинок: скачал сырые CSV из репозиториев Spaces и пересчитал агрегаты сам. Пересчёт сходится с цифрами из карточек моделей: t0-beta CRPS 0.474 / MASE 0.687 против 0.4738 / 0.6865 в [карточке](https://huggingface.co/theforecastingcompany/t0-beta), Toto-2.0-2.5B 0.476 / 0.696 против 0.476 / 0.696 в [карточке](https://huggingface.co/Datadog/Toto-2.0-2.5B). Всё, что подтвердить не удалось, помечено как «не подтверждено» и собрано в разделе 8.
 
@@ -191,7 +191,7 @@ Space [Datadog/BOOM](https://huggingface.co/spaces/Datadog/BOOM), последн
 
 Моё мнение о кандидатах, которое стоит проверить бэктестом.
 
-TimesFM 3.0 лучшая модель по всем трём лидербордам, которые я проверил, и в карточке прямо сказано, что вес открыт, ковариаты есть, контекст 15 360 покрывает всю историю. Но [лицензия](https://huggingface.co/google/timesfm-3.0-pytorch/blob/main/LICENSE) разрешает только «testing, evaluation, or research not tied to commercial gain», исключая «client deliverables» и «production systems»; README TimesFM это дублирует: «Commercial or production use of the default pretrained weights is not permitted». Заказчик хакатона ГУП «Московский метрополитен», и прогноз должен лечь в сервис для диспетчеров. Я бы не клал TimesFM 3.0 в финальный сабмит без явного ответа организаторов, а использовал бы его как эталон на бэктесте: если Chronos-2 или t0 отстают от него на наших данных на доли процента WAPE, спорить не о чем.
+TimesFM 3.0 лучшая модель по всем трём лидербордам, которые я проверил, и в карточке прямо сказано, что вес открыт, ковариаты есть, контекст 15 360 покрывает всю историю. Но [лицензия](https://huggingface.co/google/timesfm-3.0-pytorch/blob/main/LICENSE) разрешает только «testing, evaluation, or research not tied to commercial gain», исключая «client deliverables» и «production systems»; README TimesFM это дублирует: «Commercial or production use of the default pretrained weights is not permitted». Потенциальный заказчик — ГУП «Московский метрополитен», и прогноз должен лечь в сервис для диспетчеров. Я бы не включал TimesFM 3.0 в итоговое решение без подтверждения прав на использование, а использовал бы его как эталон на бэктесте: если Chronos-2 или t0 отстают от него на наших данных на доли процента WAPE, спорить не о чем.
 
 Chronos-2 выигрывает у остальных практичностью. Установка из PyPI без компиляции, `predict_df` принимает pandas с `future_df`, есть LoRA fine-tuning (с 2.2.0) и обучение на больших датасетах через `Chronos2Pipeline.fit()` (2.3.0, [релизы](https://github.com/amazon-science/chronos-forecasting/releases)). Слабое место видно в GIFT-Eval: на часовых длинных горизонтах он хуже TiRex-2 и t0-beta (MASE 0.701 против 0.623 и 0.640).
 
@@ -201,7 +201,7 @@ TiRex-2 для нас хорош по цифрам, но его установк
 
 Toto 2.0 силён на fev-bench по win rate, но будущих ковариат в 2.0 нет, и на задачах с ковариатами он проседает до 31.5-32.1 skill против 40.0 у Chronos-2. Для нас, где календарь и праздники решают, это существенно.
 
-TabPFN-TS по умолчанию работает в режиме `CLIENT`, то есть отправляет ряды в облако Prior Labs ([README](https://github.com/PriorLabs/tabpfn-time-series)), а локальные веса TabPFN-3/3.5 некоммерческие. На хакатоне с данными метрополитена я бы его не трогал.
+TabPFN-TS по умолчанию работает в режиме `CLIENT`, то есть отправляет ряды в облако Prior Labs ([README](https://github.com/PriorLabs/tabpfn-time-series)), а локальные веса TabPFN-3/3.5 некоммерческие. Для локальной работы с данными метрополитена я бы его не использовал.
 
 ## 5. Классический и ML-стек
 
@@ -231,7 +231,7 @@ TabPFN-TS по умолчанию работает в режиме `CLIENT`, т�
 | `experimental_quality` | `experimental` | Chronos2 (zero-shot + fine-tuned small), Toto2 (`Toto-2.0-313m`) |
 | `chronos2`, `chronos2_small`, `chronos2_ensemble`, `bolt_*` | - | одна модель без выбора или маленький ансамбль Chronos |
 
-Chronos-2 в пресетах есть. По [release notes 1.6.0](https://github.com/autogluon/autogluon/releases/tag/v1.6.0) новые пресеты выигрывают у 1.5 в 65% случаев. Для нас важны зависимости `autogluon.timeseries` 1.6.3: `pandas<2.4.0`, `torch>=2.10,<2.14`, `transformers<5.15`, Python `<3.14` (PyPI requires_dist). В проекте стоит `pandas>=3.0.6` (`D:/projects_2/hakaton_moskovskogo_transporta_2026/pyproject.toml`), значит AutoGluon живёт только в отдельном окружении и с torch 2.13.
+Chronos-2 в пресетах есть. По [release notes 1.6.0](https://github.com/autogluon/autogluon/releases/tag/v1.6.0) новые пресеты выигрывают у 1.5 в 65% случаев. Для нас важны зависимости `autogluon.timeseries` 1.6.3: `pandas<2.4.0`, `torch>=2.10,<2.14`, `transformers<5.15`, Python `<3.14` (PyPI requires_dist). В проекте стоит `pandas>=3.0.6` (`pyproject.toml`), значит AutoGluon живёт только в отдельном окружении и с torch 2.13.
 
 ### 5.2 Конфликты зависимостей с текущим проектом
 
@@ -312,7 +312,7 @@ explicit = true
 - Результаты на TIME-leaderboard (только заявления TimesFM и Datadog).
 - Ячейка Sundial в срезе fev-bench с ковариатами (см. примечание под таблицей 3.1).
 - Совместимость `toto-models` с pandas 3 и Python 3.13 на практике: по метаданным ограничений нет, но не ставил.
-- Разрешают ли правила хакатона некоммерческие веса (TimesFM 3.0, TabPFN-3/3.5, Moirai, TS-ICL, citras-fm). В `docs/task.md` и `docs/evaluation.md` проекта про лицензии моделей ничего нет; вопрос к организаторам.
+- Допустимы ли для проекта некоммерческие веса (TimesFM 3.0, TabPFN-3/3.5, Moirai, TS-ICL, citras-fm). В `docs/task.md` и `docs/evaluation.md` проекта про лицензии моделей ничего нет; нужно отдельное подтверждение условий использования.
 - Точный порядок в интерфейсе Space GIFT-Eval: я пересчитал агрегаты тем же методом по сырым CSV, но интерфейс дополнительно унифицирует частоты, поэтому ранги могут отличаться на единицы.
 
 ## 9. Проверка на наших данных

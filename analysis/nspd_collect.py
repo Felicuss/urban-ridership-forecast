@@ -19,7 +19,7 @@ import urllib.request
 import pandas as pd
 
 URL = os.environ.get("NSPD_API_URL", "https://nspd.gov.ru/api/geoportal/v1/intersects?typeIntersect=fullObject")
-USER_AGENT = os.environ.get("NSPD_USER_AGENT", "tram-forecast/1.0 (project: https://github.com/Mojarung/hakaton_moskovskogo_transporta_2026)")
+USER_AGENT = os.environ.get("NSPD_USER_AGENT", "tram-forecast/1.0 (project: https://github.com/Felicuss/urban-ridership-forecast)")
 GROUPS = {
     "view": [36369, 36384, 36383],                    # здания, ОНС, сооружения
     "parcels": [36368, 38981, 38979, 37158],          # участки

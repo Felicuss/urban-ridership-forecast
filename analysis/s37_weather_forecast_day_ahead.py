@@ -32,7 +32,7 @@ def fetch_forecast() -> pd.DataFrame:
               "hourly": "precipitation_previous_day1,snowfall_previous_day1,temperature_2m_previous_day1",
               "timezone": "Europe/Moscow"}
     resp = requests.get("https://previous-runs-api.open-meteo.com/v1/forecast", params=params, timeout=120,
-                        headers={"User-Agent": "tram-forecast-hackathon/0.1 (research)"})
+                        headers={"User-Agent": "tram-forecast/0.1 (research)"})
     resp.raise_for_status()
     df = pd.DataFrame(resp.json()["hourly"]).rename(columns={"time": "ts"})
     df["ts"] = pd.to_datetime(df.ts)

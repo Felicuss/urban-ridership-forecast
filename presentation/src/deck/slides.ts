@@ -80,7 +80,7 @@ const title: Slide = {
     street(ctx, 1004, t, { pal: PAPER_STREET, scene: 'classic', seed: 1, k: 0.82, speed: 120, alpha: seg(t, 1.2, 1.5, 'linear') });
     compass(ctx, 1790, 120, 34, P.ink!, t);
     const x = 110;
-    kicker(ctx, 'ХАКАТОН МОСКОВСКОГО ТРАНСПОРТА 2026', x, 190, { color: P.inkSoft, p: seg(t, 0.5, 0.8, 'linear') });
+    kicker(ctx, 'ПРОГНОЗ ПАССАЖИРОПОТОКА', x, 190, { color: P.inkSoft, p: seg(t, 0.5, 0.8, 'linear') });
     text(ctx, 'Час пик', x - 8, 350, { size: 176, weight: 200, color: P.ink, p: seg(t, 0.7, 1.3, 'linear'), tracking: 2 });
     lib.ticks(ctx, x, 392, { length: 600 * seg(t, 1.1, 1.0), n: 30, len: 9, major: 5, majorLen: 20, color: P.ink, alpha: 0.5, width: 1.5 });
     para(ctx, 'Прогноз посадок в трамваи Москвы на каждый час, маршрут и остановку', x, 466,
@@ -274,7 +274,7 @@ const finale: Slide = {
       text(ctx, 'docker compose up -d --build', x + 20, 646, { size: 28, weight: 600, family: MONO, color: bone, p: cq });
     }
     text(ctx, 'интерфейс http://localhost:8080 · API /swagger-ui.html', x, 700, { size: 20, weight: 500, family: MONO, color: lav, p: seg(t, 5.0, 0.8, 'linear') });
-    text(ctx, 'github.com/Mojarung/hakaton_moskovskogo_transporta_2026', x, 736, { size: 21, weight: 600, family: MONO, color: lav, p: seg(t, 5.6, 1.0, 'linear') });
+    text(ctx, 'github.com/Felicuss/urban-ridership-forecast', x, 736, { size: 21, weight: 600, family: MONO, color: lav, p: seg(t, 5.6, 1.0, 'linear') });
   },
 };
 
