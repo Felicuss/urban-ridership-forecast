@@ -17,11 +17,12 @@ public final class ForecastService {
 	static final String NOTE_ESTIMATE = "Остановки и участки - оценка: прогноз маршрута разложен по долям остановок, "
 			+ "в валидациях остановки посадки нет";
 	static final String NOTE_YEAR = "Январь-октябрь 2026 - качественный прогноз по сезонному индексу городского "
-			+ "трамвая, коридор ±12 %; сценарий на них не влияет";
+			+ "трамвая, коридор ±12 %; ползунки модели на них не влияют, события сценария - на сутках, неделе и месяце";
 
 	static final String NOTE_FACT = "Январь-октябрь 2025 - факт: успешные валидации из данных организаторов, коридора нет";
-	static final String NOTE_OUTLOOK = "2026 год - оценка: месячный прогноз по сезонному индексу разложен по дням и часам "
-			+ "формой суток декабря 2025, коридор ±12 %; сценарий на неё не влияет";
+	static final String NOTE_OUTLOOK = "2026 год - оценка: помесячный прогноз по сезонному индексу разложен по дням с учётом "
+			+ "типа дня, дня недели, школьных каникул и погоды Open-Meteo (поправки оценены по факту 2025 года), по часам - "
+			+ "формой суток декабря 2025, коридор ±12 %; события сценария её умножают, ползунки модели - нет";
 
 	private final ForecastModel model;
 	private final QueryResolver resolver;
@@ -49,7 +50,8 @@ public final class ForecastService {
 	ForecastResult forecast(ResolvedQuery q, Scenario scenario) {
 		double[] prediction = scenarios.prediction(scenario);
 		List<Point> points = q.isYear() ? year(q, prediction)
-				: aggregator.series(prediction, q.target().weights(), q.from(), q.to(), q.hours(), q.granularity());
+				: aggregator.series(prediction, scenario.events(), q.target().weights(), q.from(), q.to(), q.hours(),
+						q.granularity());
 		List<String> notes = new ArrayList<>();
 		if (q.target().isEstimate()) {
 			notes.add(NOTE_ESTIMATE);

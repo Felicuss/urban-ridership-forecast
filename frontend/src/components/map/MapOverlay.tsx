@@ -8,6 +8,7 @@ import { fmt1, fmtInt } from '../../lib/format';
 import { ROUTE_COLORS, routeColor, yandexPoint, yandexRouteTo } from '../../lib/routes';
 import { Sparkline } from '../charts/Sparkline';
 import { Icon } from '../ui/Icons';
+import { LINE_LOAD_MAX, LOAD_GRADIENT, STOP_LOAD_MAX, loadAt } from './style';
 import { WeatherFx } from './WeatherFx';
 import { flyTo, mapHandle } from './mapHandle';
 import styles from './MapOverlay.module.css';
@@ -57,19 +58,50 @@ export function MapOverlay({ load, weather }: { load: NetworkLoad | undefined; w
         <RouteFilter />
       </nav>
       <div className={styles.legend}>
-        <div className={styles.legendRow}>
-          <span>Посадки в {hour}:00–{hour + 1}:00, {source}</span>
-          <span className={styles.ramp} />
-          <span className={styles.rampLabels}><small>мало</small><small>много</small></span>
-        </div>
+        <LoadLegend hour={hour} source={source} flags={flags} />
         <div className={styles.legendNote}>
-          Толщина линии - посадки маршрута в этот час. {night ? 'Ночь: вагоны' : 'Вагоны'} идут с интервалом по расписанию.
+          {night ? 'Ночь: вагоны' : 'Вагоны'} идут с интервалом по расписанию.
         </div>
         {flags.weather && <PrecipNote grid={weather} hour={hour} />}
       </div>
       <StopCard load={load} hour={hour} />
       <RideCard />
     </>
+  );
+}
+
+const TICKS = [0, 0.25, 0.5, 1];
+
+/** Подписи шкалы: сколько посадок на делении (шкала корневая, см. loadAt), у последней «+»: выше тоже красное. */
+function Ticks({ max, label }: { max: number; label: string }) {
+  return (
+    <div className={styles.scaleRow}>
+      <span className={styles.scaleLabel}>{label}</span>
+      <span className={styles.ticks}>
+        {TICKS.map((t) => (
+          <small key={t} style={{ left: `${t * 100}%` }}>{Math.round(loadAt(t, max))}{t === 1 ? '+' : ''}</small>
+        ))}
+      </span>
+    </div>
+  );
+}
+
+/** Легенда нагрузки: та же шкала LOAD_RAMP и те же максимумы, что в слоях карты (layers.ts). */
+function LoadLegend({ hour, source, flags }: { hour: number; source: string; flags: Flags }) {
+  const stopsShown = flags.stops || flags.heat;
+  const what = [flags.lines && 'цвет и толщина линии - посадки маршрута', flags.stops && 'кружок - посадки на остановке',
+    flags.heat && 'тепло - остановки рядом складываются'].filter(Boolean).join(', ');
+  return (
+    <div className={styles.legendRow}>
+      <span>Посадки за час {hour}:00–{hour + 1}:00, {source}</span>
+      <div className={styles.scaleRow}>
+        <span className={styles.scaleLabel} />
+        <span className={styles.ramp} style={{ background: LOAD_GRADIENT }} />
+      </div>
+      {flags.lines && <Ticks max={LINE_LOAD_MAX} label="маршрут" />}
+      {stopsShown && <Ticks max={STOP_LOAD_MAX} label="остановка" />}
+      {what && <div className={styles.legendNote}>{what[0]!.toUpperCase() + what.slice(1)}.</div>}
+    </div>
   );
 }
 

@@ -96,7 +96,8 @@ export function monthOf(day: number): { first: number; days: number; year: numbe
 export function nowOnTimeline(now = new Date()): number {
   const moscow = new Date(now.getTime() + 3 * 3_600_000);
   const iso = moscow.toISOString().slice(0, 10);
-  const minutes = moscow.getUTCHours() * 60 + moscow.getUTCMinutes();
+  // с секундами: в режиме «Сейчас» трамваи едут плавно, а не прыгают раз в минуту
+  const minutes = moscow.getUTCHours() * 60 + moscow.getUTCMinutes() + (moscow.getUTCSeconds() + moscow.getUTCMilliseconds() / 1000) / 60;
   return clampMinute(dayOf(iso) * MINUTES_PER_DAY + minutes);
 }
 

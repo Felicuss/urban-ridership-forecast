@@ -33,6 +33,17 @@ function options(day: number, horizon: Horizon): Option[] {
   ].filter((o) => o.day >= 0 && o.day < TIMELINE_DAYS);
 }
 
+/**
+ * День второй даты: быстрый вариант считается от выбранного дня (вторник сравнивается со вторником и после
+ * смены даты), дата из календаря остаётся той, что выбрали.
+ */
+export function useCompareDay(day: number, horizon: Horizon): number | null {
+  const compareDay = useStore((s) => s.compareDay);
+  const preset = useStore((s) => s.comparePreset);
+  if (preset == null) return compareDay;
+  return options(day, horizon).find((o) => o.label === preset)?.day ?? null;
+}
+
 /** Подпись второй даты: «7.11, пт» для суток, «неделя с 3.11» для недели, «ноябрь 2025» для месяца. */
 export function compareLabel(day: number, horizon: Horizon): string {
   if (horizon === 'day') return `${shortDate(isoDate(day))}, ${weekdayName(day, true)}`;
@@ -46,8 +57,10 @@ export function CompareBar({ day, horizon, series, other }: {
   series: Series;
   other: Series | undefined;
 }) {
-  const compareDay = useStore((s) => s.compareDay);
+  const compareDay = useCompareDay(day, horizon);
+  const preset = useStore((s) => s.comparePreset);
   const setCompareDay = useStore((s) => s.setCompareDay);
+  const setComparePreset = useStore((s) => s.setComparePreset);
   if (horizon === 'year') return null;
   const opts = options(day, horizon);
   const delta = other && other.total.p50 > 0 ? (100 * (series.total.p50 - other.total.p50)) / other.total.p50 : null;
@@ -59,8 +72,8 @@ export function CompareBar({ day, horizon, series, other }: {
           onClick={() => setCompareDay(null)}>
           нет</button>
         {opts.map((o) => (
-          <button key={o.label} type="button" className={compareDay === o.day ? styles.chipOn : styles.chip}
-            aria-pressed={compareDay === o.day} onClick={() => setCompareDay(o.day)}>{o.label}</button>
+          <button key={o.label} type="button" className={preset === o.label ? styles.chipOn : styles.chip}
+            aria-pressed={preset === o.label} onClick={() => setComparePreset(o.label)}>{o.label}</button>
         ))}
         <input className={styles.input} type="date" min={TIMELINE_START} max={TIMELINE_END} aria-label="Другая дата"
           value={compareDay != null ? isoDate(compareDay) : ''}

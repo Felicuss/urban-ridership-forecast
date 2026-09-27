@@ -43,10 +43,10 @@ public final class NetworkLoadService {
 		ForecastGrid grid = model.grid();
 		List<Series> routes = new ArrayList<>();
 		for (int route : grid.routes()) {
-			routes.add(new Series(String.valueOf(route), values(prediction, Map.of(route, 1.0), day, window)));
+			routes.add(new Series(String.valueOf(route), values(prediction, scenario, Map.of(route, 1.0), day, window)));
 		}
 		List<Series> stops = new ArrayList<>();
-		stopWeights.forEach((stop, weights) -> stops.add(new Series(stop, values(prediction, weights, day, window))));
+		stopWeights.forEach((stop, weights) -> stops.add(new Series(stop, values(prediction, scenario, weights, day, window))));
 		List<Integer> hourList = new ArrayList<>();
 		for (int h = window.first(); h <= window.last(); h++) {
 			hourList.add(h);
@@ -54,10 +54,11 @@ public final class NetworkLoadService {
 		return new NetworkLoad(date, timeline.day(day).source(), hourList, routes, stops);
 	}
 
-	private List<Double> values(double[] prediction, Map<Integer, Double> weights, int day, HourWindow window) {
+	private List<Double> values(double[] prediction, Scenario scenario, Map<Integer, Double> weights, int day,
+			HourWindow window) {
 		List<Double> out = new ArrayList<>(window.last() - window.first() + 1);
 		for (int h = window.first(); h <= window.last(); h++) {
-			out.add(aggregator.cellSum(prediction, weights, day, h));
+			out.add(aggregator.cellSum(prediction, scenario.events(), weights, day, h));
 		}
 		return out;
 	}

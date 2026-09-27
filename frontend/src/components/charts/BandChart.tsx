@@ -62,7 +62,9 @@ function options(width: number, height: number, color: string, labels: string[],
     axes: [
       { stroke: css('--muted'), grid, ticks: tick, font: '11px Onest Variable, system-ui', size: 26,
         values: (_u, splits) => splits.map((v) => labels[Math.round(v)] ?? '') },
-      { stroke: css('--muted'), grid, ticks: tick, font: '10.5px JetBrains Mono Variable, monospace', size: 50,
+      // ширина оси по самой длинной подписи: «1,25 тыс» не обрезается слева (моноширинный шрифт, ~6,4 px на знак)
+      { stroke: css('--muted'), grid, ticks: tick, font: '10.5px JetBrains Mono Variable, monospace',
+        size: (_u, values) => Math.max(50, Math.ceil(Math.max(0, ...(values ?? []).map((v) => String(v).length)) * 6.4) + 16),
         values: (_u, splits) => splits.map(axisValue) },
     ],
     hooks: {
@@ -76,10 +78,15 @@ function options(width: number, height: number, color: string, labels: string[],
   };
 }
 
-/** Подпись оси без дробей: 12 000 -> «12 тыс», 2 500 000 -> «2,5 млн». */
+const THOUSANDS = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2 });
+
+/**
+ * Подпись оси: 12 000 -> «12 тыс», 1 250 -> «1,25 тыс», 2 500 000 -> «2,5 млн». Дробь нужна, чтобы шаг
+ * 1 000 и 1 250 не давал две одинаковые подписи «1 тыс».
+ */
 function axisValue(v: number): string {
   if (Math.abs(v) >= 1e6) return `${fmtCompact(v).replace(' млн', '')} млн`;
-  if (Math.abs(v) >= 1000) return `${Math.round(v / 1000)} тыс`;
+  if (Math.abs(v) >= 1000) return `${THOUSANDS.format(v / 1000)} тыс`;
   return String(Math.round(v));
 }
 

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useStops } from '../../api/queries';
-import { useStore } from '../../state/store';
-import { ROUTE_COLORS, routeColor } from '../../lib/routes';
+import { useShownRoutes, useStore } from '../../state/store';
+import { routeColor } from '../../lib/routes';
 import { flyTo } from '../map/mapHandle';
 import styles from './Search.module.css';
 
@@ -12,18 +12,19 @@ export function Search() {
   const stops = useStops().data;
   const selectStop = useStore((s) => s.selectStop);
   const selectRoute = useStore((s) => s.selectRoute);
+  const shown = useShownRoutes();
   const [q, setQ] = useState('');
   const [open, setOpen] = useState(false);
   const query = q.trim().toLowerCase();
   const results = useMemo(() => {
     if (!query) return [];
-    const routes = Object.keys(ROUTE_COLORS).filter((r) => r.startsWith(query))
+    const routes = shown.map(String).filter((r) => r.startsWith(query))
       .map((r) => ({ kind: 'route' as const, id: r, name: `Маршрут ${r}`, routes: [Number(r)] }));
     const byName = (stops ?? []).filter((s) => s.name.toLowerCase().includes(query))
       .sort((a, b) => Number(!a.name.toLowerCase().startsWith(query)) - Number(!b.name.toLowerCase().startsWith(query)))
       .map((s) => ({ kind: 'stop' as const, id: s.id, name: s.name, routes: s.routes, lat: s.lat, lon: s.lon }));
     return [...routes, ...byName].slice(0, LIMIT);
-  }, [query, stops]);
+  }, [query, stops, shown]);
 
   const pick = (r: (typeof results)[number]) => {
     if (r.kind === 'route') {
@@ -47,7 +48,7 @@ export function Search() {
         }} />
       {open && query && results.length === 0 && (
         <p className={styles.empty} role="status">
-          {stops ? `Ничего не нашлось. Наберите часть названия остановки или номер маршрута: ${Object.keys(ROUTE_COLORS).join(', ')}`
+          {stops ? `Ничего не нашлось. Наберите часть названия остановки или номер маршрута: ${shown.join(', ')}`
             : 'Загружаем остановки…'}
         </p>
       )}

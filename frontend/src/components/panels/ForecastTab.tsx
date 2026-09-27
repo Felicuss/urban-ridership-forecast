@@ -8,7 +8,7 @@ import { targetQuery, useTarget } from '../../hooks/useTarget';
 import { CAPACITY, MIN_HEADWAY, headway } from '../../lib/dispatch';
 import { BandChart, type BandSeries } from '../charts/BandChart';
 import { Card, InfoTip, Kpi, Segmented, TramDots } from '../ui/Controls';
-import { CompareBar, compareLabel } from './CompareBar';
+import { CompareBar, compareLabel, useCompareDay } from './CompareBar';
 import { ExplainCard } from './ExplainCard';
 import styles from './Panels.module.css';
 
@@ -88,7 +88,7 @@ export function ForecastTab() {
     return { ...base, horizon: 'year' };
   }, [target, horizon, day]);
   const { data: series, isFetching } = useSeries(query, scenario);
-  const compareDay = useStore((s) => s.compareDay);
+  const compareDay = useCompareDay(day, horizon);
   const compareQuery = useMemo<SeriesQuery | null>(() => (compareDay == null || horizon === 'year' ? null
     : { ...query, from: isoDate(horizon === 'week' ? weekStart(compareDay) : compareDay) }), [query, compareDay, horizon]);
   const other = useSeries(compareQuery, scenario).data;

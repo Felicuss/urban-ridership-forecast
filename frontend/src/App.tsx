@@ -18,7 +18,7 @@ import { StationMatrix } from './components/panels/StationMatrix';
 import { PanelsBoard, SplitPane } from './components/layout/Workspace';
 import { useLayout } from './state/layout';
 import { TramDots } from './components/ui/Controls';
-import { Tour, tourSeen } from './components/tour/Tour';
+import { LayoutTour, Tour, tourSeen } from './components/tour/Tour';
 import styles from './App.module.css';
 
 // Карта и правая панель грузятся отдельными чанками параллельно с данными, пока идёт заставка.
@@ -141,6 +141,7 @@ export function App() {
       {intro && phase !== 'done' && <TramLoader steps={steps} leaving={phase === 'leaving'} />}
       {boardOpen && <Suspense fallback={null}><Board /></Suspense>}
       <Tour />
+      <LayoutTour />
     </div>
   );
 }

@@ -312,5 +312,13 @@
     "sha256": "515c63de2938bdf38ed898cdf78add6727ae66235da6deecff3c2024b804bc9e",
     "leaderboard_score": 0.91263,
     "evidence": "User reported 0.91263 for v21."
+  },
+  {
+    "file": "submission_ensemble_e1.csv",
+    "sha256": "0c0f056b88a4ed9789c13550aa8ac209eb469acffd855b54c44770d54825ccca",
+    "leaderboard_score": 0.90742,
+    "platform_display_number": 1,
+    "submitted_at": "2026-09-27T16:14:00+03:00",
+    "evidence": "Platform result 27.09.2026 16:14 +03:00, score 0.90742. analysis/s86_model_ensemble.py: v11, v8, v9 equal weights."
   }
 ]

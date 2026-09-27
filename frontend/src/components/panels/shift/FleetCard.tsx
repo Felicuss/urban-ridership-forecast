@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { useCalendar, useFactors, useNetwork, useNetworkLoad } from '../../../api/queries';
-import { useStore } from '../../../state/store';
+import { useShownRoutes, useStore } from '../../../state/store';
 import { MIN_HEADWAY, SPEED_KMH, fleet, headway, routeLength, tripsPerHour } from '../../../lib/dispatch';
 import { dayIndex, isoDate } from '../../../lib/time';
 import { fmt1, fmtInt, plural } from '../../../lib/format';
-import { ROUTE_IDS } from '../../../lib/routes';
 import { Card, Kpi } from '../../ui/Controls';
 import panels from '../Panels.module.css';
 import styles from './Shift.module.css';
@@ -25,6 +24,7 @@ export function FleetCard() {
   const network = useNetwork().data;
   const dayOff = useCalendar().data?.[day]?.dayOff ?? false;
   const load = useNetworkLoad(isoDate(day), scenario).data;
+  const shown = useShownRoutes();
   const [route, setRoute] = useState(selected ?? 17);
   const [from, setFrom] = useState(7);
   const [to, setTo] = useState(10);
@@ -57,7 +57,7 @@ export function FleetCard() {
         <label className={styles.field}>
           <span>Маршрут</span>
           <select value={route} onChange={(e) => { setRoute(Number(e.target.value)); setHw(null); }}>
-            {ROUTE_IDS.map((r) => <option key={r} value={r}>№{r}</option>)}
+            {shown.map((r) => <option key={r} value={r}>№{r}</option>)}
           </select>
         </label>
         <label className={styles.field}>

@@ -137,6 +137,27 @@ class ApiContractTest {
 	}
 
 	@Test
+	void eventScalesTheOutlookDayOf2026() {
+		String body = """
+				{"query": {"level": "route", "id": "17", "horizon": "day", "from": "2026-09-27"},
+				 "events": [{"from": "2026-09-27", "to": "2026-09-27", "multiplier": 0.85, "label": "снегопад"}]}""";
+		ScenarioResponse r = postScenario(body).expectStatus().isOk().expectBody(ScenarioResponse.class).returnResult()
+			.getResponseBody();
+
+		assertThat(r.points()).allSatisfy(p -> assertThat(p.p50()).isCloseTo(0.85 * p.baseline(), within(0.06)));
+		assertThat(r.total().baseline()).isPositive();
+	}
+
+	@Test
+	void eventAfterTheTimelineIsRejected() {
+		String body = """
+				{"query": {"level": "route", "id": "17"},
+				 "events": [{"from": "2026-10-31", "to": "2026-11-01", "multiplier": 0.85}]}""";
+		postScenario(body).expectStatus().isBadRequest()
+			.expectBody().jsonPath("$.errors[0].field").isEqualTo("events[0]");
+	}
+
+	@Test
 	void networkGeoJsonIsCachedByEtag() {
 		String etag = client.get().uri("/api/v1/network").exchange()
 			.expectStatus().isOk()

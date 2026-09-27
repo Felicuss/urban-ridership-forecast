@@ -1,6 +1,8 @@
+import { useMemo } from 'react';
 import { create } from 'zustand';
 import type { CoefficientValue, Horizon, Scenario, ScenarioEvent } from '../api/types';
 import { HORIZON_START, MINUTES_PER_DAY, TIMELINE_MINUTES, clampMinute, dayOf, nowOnTimeline } from '../lib/time';
+import { ROUTE_IDS } from '../lib/routes';
 
 // Состояние интерфейса. Время - минуты от 01.11.2025 00:00, из него карта берёт дату и час,
 // трамваи - своё положение на линии. Флаги слоёв и настроек переживают перезагрузку страницы.
@@ -184,6 +186,8 @@ interface State {
   settingsOpen: boolean;
   /** Тур по разделам: сам открывается при первом входе, потом по кнопке «?» в верхней строке. */
   tourOpen: boolean;
+  layoutTourOpen: boolean;
+  setLayoutTourOpen: (open: boolean) => void;
   setTourOpen: (open: boolean) => void;
   alerts: AlertRule[];
   addAlert: (rule: Omit<AlertRule, 'id'>) => void;
@@ -193,6 +197,9 @@ interface State {
   setBoardOpen: (open: boolean) => void;
   /** День шкалы, с которым сравнивается прогноз; null - без сравнения. */
   compareDay: number | null;
+  /** Быстрый вариант сравнения («неделей раньше»): день второй даты считается от выбранной даты заново. */
+  comparePreset: string | null;
+  setComparePreset: (label: string | null) => void;
   setCompareDay: (day: number | null) => void;
   viewMode: ViewMode;
   setViewMode: (v: ViewMode) => void;
@@ -267,6 +274,8 @@ export const useStore = create<State>((set, get) => {
     },
     settingsOpen: false,
     tourOpen: false,
+    layoutTourOpen: false,
+    setLayoutTourOpen: (layoutTourOpen) => set({ layoutTourOpen }),
     setTourOpen: (tourOpen) => set({ tourOpen }),
     alerts: loadAlerts(),
     addAlert: (rule) => {
@@ -282,7 +291,9 @@ export const useStore = create<State>((set, get) => {
     boardOpen: false,
     setBoardOpen: (boardOpen) => set({ boardOpen }),
     compareDay: null,
-    setCompareDay: (compareDay) => set({ compareDay }),
+    setCompareDay: (compareDay) => set({ compareDay, comparePreset: null }),
+    comparePreset: null,
+    setComparePreset: (comparePreset) => set({ comparePreset, compareDay: null }),
     viewMode: 'perspective',
     setViewMode: (viewMode) => set({ viewMode }),
     rotated: false,
@@ -296,7 +307,7 @@ export const useStore = create<State>((set, get) => {
     })),
     togglePlay: () => set(manual({ playing: !get().playing })),
     setSpeed: (speed) => set(manual({ speed })),
-    setFollowNow: (on) => set(on ? { followNow: true, playing: false, speed: 1, minute: nowOnTimeline(), nowNotice: null }
+    setFollowNow: (on) => set(on ? { followNow: true, playing: true, speed: 1, minute: nowOnTimeline(), nowNotice: null }
       : { followNow: false }),
     selectRoute: (route) => set(route == null ? { route, stop: null, segment: null, stopsOpen: false, matrixOpen: false }
       : { route, stop: null, segment: null }),
@@ -326,4 +337,20 @@ export const useStore = create<State>((set, get) => {
 
 export function isDefaultScenario(s: Scenario): boolean {
   return Object.keys(s.coefficients).length === 0 && s.events.length === 0;
+}
+
+/** Маршруты в работе: все, кроме скрытых фильтром (по умолчанию скрыт №5, от него организаторы отказались). */
+export function useShownRoutes(): number[] {
+  const hidden = useStore((s) => s.hiddenRoutes);
+  return useMemo(() => {
+    const shown = ROUTE_IDS.filter((r) => !hidden.includes(r));
+    return shown.length ? shown : ROUTE_IDS;
+  }, [hidden]);
+}
+
+/** Маршруты для инструментов смены: выбранный маршрут, а без выбора - все маршруты в работе. */
+export function useScopeRoutes(): number[] {
+  const route = useStore((s) => s.route);
+  const shown = useShownRoutes();
+  return useMemo(() => (route != null ? [route] : shown), [route, shown]);
 }

@@ -243,3 +243,24 @@
   justify-self: start;
   color: var(--text-2);
 }
+
+.scope {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 12px;
+}
+
+.scope b {
+  color: var(--text);
+}
+
+.scope button {
+  margin-left: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}

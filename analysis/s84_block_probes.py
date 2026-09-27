@@ -351,6 +351,7 @@ def main() -> None:
     a = sub.add_parser("apply")
     a.add_argument("--out", required=True, help="имя файла в forecasts/; загруженные кандидаты не перезаписываем")
     a.add_argument("--ids", nargs="*", help="только эти пробы; по умолчанию все со скором")
+    a.add_argument("--base", help="файл в forecasts/ с той же сеткой вместо v11: пересчёт ансамбля или другой модели")
     sub.add_parser("selftest")
     args = ap.parse_args()
     if args.cmd == "build":
@@ -369,6 +370,12 @@ def main() -> None:
             print(f"{e['id']} {e['name']:12s} Y = {e['y']:>11,.0f}  v11 = {e['base_sum']:>11,}  Y/v11 = {e['ratio']:.4f}")
     elif args.cmd == "apply":
         g = grid()
+        base_name = BASE.name
+        if args.base:
+            other = pd.read_csv(ROOT / "forecasts" / args.base, sep=";")
+            g = g.drop(columns="prediction").merge(other, on=["route", "date", "hour"], how="left", validate="one_to_one")
+            assert g.prediction.notna().all(), args.base
+            base_name = args.base
         measured = decoded(load_ledger())
         if args.ids:
             measured = [e for e in measured if e["id"] in args.ids]
@@ -378,7 +385,7 @@ def main() -> None:
         pred = to_int(rake(g, cons, start_values(g, measured)))
         path = ROOT / "forecasts" / args.out
         write(g, pred, path)
-        meta = {"file": path.name, "sha256": sha256(path), "base": BASE.name,
+        meta = {"file": path.name, "sha256": sha256(path), "base": base_name,
                 "probes": {e["id"]: e["score"] for e in measured}}
         path.with_suffix(".json").write_text(json.dumps(meta, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
         print(f"{path.name}: сумм {len(cons)}, итог {pred.sum():,} (v11 {g.prediction.sum():,}, T {T:,.0f})")

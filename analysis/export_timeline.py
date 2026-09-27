@@ -2,8 +2,12 @@
 
 - январь-октябрь 2025 - факт: успешные валидации по часам из данных организаторов;
 - ноябрь-декабрь 2025 - почасовой прогноз модели (forecast_components.csv, пересчитывается сценарием);
-- январь-октябрь 2026 - оценка: месячный прогноз года (forecast_year.csv) раскладывается по дням с весом
-  типа дня и по часам с формой суток маршрута из прогноза декабря 2025 (1-28.12, без предновогодних дней).
+- январь-октябрь 2026 - оценка: месячный прогноз года (forecast_year.csv, сезонный индекс) раскладывается
+  по дням и по часам. Сумма месяца маршрута не меняется, внутри месяца вес дня - произведение поправок
+  (analysis/outlook_factors.py, все оценены по факту 2025 года): тип дня (суббота, воскресенье и праздник
+  к будню - из прогноза декабря 2025), день недели Пн-Пт, школьные каникулы, погода Open-Meteo по коэффициентам
+  модели; уровень плавно меняется между серединами месяцев, без ступеньки на границе. По часам - форма суток
+  маршрута из прогноза декабря 2025 (1-28.12, без предновогодних дней).
 
 Календарь 2025 - как в модели (calendar_ru, рабочая суббота 01.11), 2026 - официальный производственный
 календарь isdayoff.ru с переносами (09.01, 09.03, 11.05 и др.), названия праздников из пакета holidays.
@@ -22,6 +26,7 @@ import pandas as pd
 
 from calendar_ru import calendar_frame
 from common import ROOT, ROUTES, load_labels
+from outlook_factors import OutlookFactors, smooth_daily
 
 TIMELINE_START, TIMELINE_END = "2025-01-01", "2026-10-31"
 FACT_END, FORECAST_END = "2025-10-31", "2025-12-31"
@@ -127,17 +132,31 @@ def day_shapes(comp: pd.DataFrame, prediction: np.ndarray) -> tuple[pd.Series, p
     return share, weight
 
 
-def outlook_frame(comp: pd.DataFrame, prediction: np.ndarray, year: pd.DataFrame, cal: pd.DataFrame) -> pd.DataFrame:
+def day_weights(days: pd.DataFrame, route: int, weight: pd.Series, factors: OutlookFactors) -> np.ndarray:
+    """Вес дня маршрута к среднему будню: тип дня × день недели × школьные каникулы × погода."""
+    kind = days.kind.to_numpy()
+    w = np.array([weight.get((route, k), 1.0) for k in kind])
+    workday = kind == "workday"
+    dow = days.dow.to_numpy()
+    profile = factors.weekday.loc[route]
+    w = w * np.where(workday, [profile.get(d, 1.0) for d in dow], 1.0)
+    on_break = days.date.isin(factors.break_dates).to_numpy()
+    w = w * np.where(workday & on_break, factors.school_break, 1.0)
+    return w * days.date.map(factors.weather).fillna(1.0).to_numpy()
+
+
+def outlook_frame(comp: pd.DataFrame, prediction: np.ndarray, year: pd.DataFrame, cal: pd.DataFrame,
+                  factors: OutlookFactors) -> pd.DataFrame:
+    """Оценка 2026 года по часам: сумма месяца из сезонного индекса, внутри месяца - поправки factors."""
     share, weight = day_shapes(comp, prediction)
-    days = cal[cal.source == "outlook"].assign(month=lambda c: c.date.str.slice(0, 7))
+    days = cal[cal.source == "outlook"].sort_values("date").reset_index(drop=True)
+    month = days.date.str.slice(0, 7)
     parts = []
     for route in ROUTES:
         totals = year[(year.route == route) & (year.method == "seasonal_index")].set_index("month").p50
-        w = days.kind.map(lambda k: weight.get((route, k), 1.0)).to_numpy()
-        month_w = pd.Series(w).groupby(days.month.to_numpy()).transform("sum").to_numpy()
-        daily = days.month.map(totals).to_numpy() * w / month_w
+        daily = smooth_daily(days.date, day_weights(days, route, weight, factors), month.map(totals).to_numpy(float))
         for hour in range(HOURS):
-            s = days.kind.map(lambda k, h=hour: share.get((route, k, h), 0.0)).to_numpy()
+            s = days.kind.map(lambda k, h=hour, r=route: share.get((r, k, h), 0.0)).to_numpy()
             parts.append(pd.DataFrame({"route": route, "date": days.date.to_numpy(), "hour": hour,
                                        "p50": np.round(daily * s, 1)}))
     out = pd.concat(parts, ignore_index=True)

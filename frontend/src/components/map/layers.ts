@@ -4,18 +4,45 @@ import type {
 import type { NetworkGeoJson, NetworkLoad } from '../../api/types';
 import type { Flags } from '../../state/store';
 import { ROUTE_COLORS, routeColor } from '../../lib/routes';
-import { FONT } from './style';
+import { FONT, LINE_LOAD_MAX, LOAD_RAMP, STOP_LOAD_MAX } from './style';
 import { TRAM_SCREEN_PX } from './trams';
 
 // Слои сети. Посадки по 24 часам лежат в свойствах объектов (h0..h23 у остановок, l0..l23 у линий),
 // поэтому смена часа - это только новое выражение стиля, без перезаливки данных в видеокарту.
+// Нагрузку показывают цвет линии (посадки маршрута за час), цвет кружка остановки и тепловая карта
+// (посадки на остановках, соседние складываются); все три берут цвет из одной шкалы LOAD_RAMP.
 
 type Feature = GeoJSON.Feature<GeoJSON.Geometry, Record<string, unknown>>;
 type Collection = GeoJSON.FeatureCollection<GeoJSON.Geometry, Record<string, unknown>>;
 
-const HEAT_RAMP: ExpressionSpecification = ['interpolate', ['linear'], ['heatmap-density'],
-  0, 'rgba(60,70,100,0)', 0.15, 'rgba(74,94,140,0.35)', 0.35, 'rgba(111,143,201,0.55)', 0.55, 'rgba(143,184,168,0.65)',
-  0.72, 'rgba(217,179,108,0.72)', 0.87, 'rgba(224,135,106,0.78)', 1, 'rgba(216,102,111,0.82)'];
+function rgba(hex: string, alpha: number): string {
+  const n = Number.parseInt(hex.slice(1), 16);
+  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${alpha})`;
+}
+
+/** Доля шкалы (0..1) в цвет той же шкалы, что в легенде. */
+function rampColor(t: ExpressionSpecification): ExpressionSpecification {
+  return ['interpolate', ['linear'], t, ...LOAD_RAMP.flat()] as unknown as ExpressionSpecification;
+}
+
+/** Плотность тепловой карты в цвет шкалы. Плотность - это доля максимума посадок, а цвет, как у кружков
+ * и в легенде, стоит на корне из неё: деление t шкалы приходится на плотность t². Самая слабая нагрузка
+ * уже видна синим, сильная - плотнее и краснее. */
+const HEAT_MIN_DENSITY = 0.008;
+const HEAT_RAMP = ['interpolate', ['linear'], ['heatmap-density'], 0, rgba(LOAD_RAMP[0]![1], 0),
+  ...LOAD_RAMP.flatMap(([t, c]) => [Math.max(t * t, HEAT_MIN_DENSITY), rgba(c, 0.55 + 0.35 * t)])] as unknown as
+  ExpressionSpecification;
+
+const CASING = '#0a0a0c';
+
+/** Тепловая карта плотная на общем плане и к уровню улиц переходит в кружки остановок того же цвета:
+ * вблизи пятно в сотни пикселей шире остановки и кольцами шкалы только мешает читать число. При выбранном
+ * маршруте тепло тише, чтобы маршрут был виден. */
+function heatOpacity(dimmed: boolean): ExpressionSpecification {
+  const k = dimmed ? 0.45 : 1;
+  return ['interpolate', ['linear'], ['zoom'], 12, 0.95 * k, 13.5, 0.85 * k, 15, 0.5 * k, 16.5, 0.25 * k];
+}
+const HEAT_OPACITY = heatOpacity(false);
 
 const BEFORE_LABELS = 'highway_name_other';
 
@@ -54,7 +81,8 @@ export function stopFeatures(network: NetworkGeoJson): Feature[] {
       properties: { id: f.properties.stop_id, name: f.properties.name, routes: ` ${(f.properties.routes ?? []).join(' ')} ` } }));
 }
 
-/** Посадки суток в свойства объектов; масштаб растёт только вверх, чтобы цвета не прыгали между днями. */
+/** Посадки суток в свойства объектов. Максимум по дням копится в scale для справки, а цвет и толщина идут по
+ * абсолютной шкале из style.ts, чтобы легенда с числами совпадала с картой в любой день. */
 export function withLoad(paths: Feature[], stops: Feature[], load: NetworkLoad, scale: Scale) {
   const lines = paths.map((f) => {
     const values = load.routes.get(Number(f.properties.route)) ?? [];
@@ -79,24 +107,33 @@ export function addNetworkLayers(map: MapLibre, paths: Feature[], stops: Feature
   map.addSource('trams-3d', { type: 'geojson', data: emptyCollection() });
   map.addSource('segment', { type: 'geojson', data: emptyCollection() });
   const b = before(map);
-  map.addLayer({ id: 'stops-heat', type: 'heatmap', source: 'stops', maxzoom: 16.5, paint: {
-    'heatmap-weight': 0, 'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 9, 0.7, 14, 1.2],
-    'heatmap-radius': ['interpolate', ['exponential', 1.6], ['zoom'], 9, 10, 12, 22, 15, 55],
-    'heatmap-color': HEAT_RAMP, 'heatmap-opacity': ['interpolate', ['linear'], ['zoom'], 13, 0.6, 16, 0.25],
+  // Радиус до приближения 14 растёт почти вдвое на шаг, то есть держит на земле 400-600 м: на общем плане
+  // остановки сливаются в районы, ближе - в полосу вдоль линии. Дальше рост медленнее, а тепло гаснет
+  // и уступает кружкам остановок (heatOpacity).
+  // Пик одной остановки в тепловой карте равен 0,4 × вес × интенсивность, поэтому на крупном плане
+  // интенсивность 2,5 даёт одиночной остановке тот же цвет, что у её кружка; на общем плане соседи
+  // складываются, и интенсивность ниже, чтобы центр не заливался красным целиком.
+  map.addLayer({ id: 'stops-heat', type: 'heatmap', source: 'stops', maxzoom: 17, paint: {
+    'heatmap-weight': 0,
+    'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 9, 1.1, 11, 1.5, 13, 2, 15, 2.5],
+    'heatmap-radius': ['interpolate', ['exponential', 2], ['zoom'], 9, 15, 11, 21, 12, 28, 13, 42, 14, 70, 15, 110,
+      16.5, 200],
+    'heatmap-color': HEAT_RAMP, 'heatmap-opacity': HEAT_OPACITY,
   } }, b);
   // выбранный участок: светлый ореол под линией маршрута
   map.addLayer({ id: 'segment-halo', type: 'line', source: 'segment', filter: ['==', ['geometry-type'], 'LineString'],
     layout: { 'line-cap': 'round', 'line-join': 'round' },
     paint: { 'line-color': '#f4f4f5', 'line-opacity': 0.85, 'line-blur': 1,
       'line-width': ['interpolate', ['linear'], ['zoom'], 10, 13, 15, 24] } }, b);
+  // обводка тёмная, у выбранного маршрута - в цвет маршрута (setSelection): цвет самой линии занят нагрузкой
   map.addLayer({ id: 'route-casing', type: 'line', source: 'paths', layout: { 'line-cap': 'round', 'line-join': 'round' },
-    paint: { 'line-color': '#0a0a0c', 'line-width': 5, 'line-opacity': 0.6 } }, b);
+    paint: { 'line-color': CASING, 'line-width': 5, 'line-opacity': 0.6 } }, b);
   map.addLayer({ id: 'route-lines', type: 'line', source: 'paths', layout: { 'line-cap': 'round', 'line-join': 'round' },
-    paint: { 'line-color': ['get', 'color'], 'line-width': 2.5, 'line-opacity': 0.9 } }, b);
+    paint: { 'line-color': LOAD_RAMP[0]![1], 'line-width': 2.5, 'line-opacity': 0.9 } }, b);
   map.addLayer({ id: 'stops-dot', type: 'circle', source: 'stops', minzoom: 11.2, paint: {
-    'circle-radius': 3, 'circle-color': '#18181b', 'circle-stroke-color': '#d4d4d8', 'circle-stroke-width': 1.1,
+    'circle-radius': 3, 'circle-color': LOAD_RAMP[0]![1], 'circle-stroke-color': CASING, 'circle-stroke-width': 1.2,
     'circle-opacity': ['interpolate', ['linear'], ['zoom'], 11.2, 0, 12, 1],
-    'circle-stroke-opacity': ['interpolate', ['linear'], ['zoom'], 11.2, 0, 12, 1],
+    'circle-stroke-opacity': ['interpolate', ['linear'], ['zoom'], 11.2, 0, 12, 0.9],
   } });
   map.addLayer({ id: 'segment-ends', type: 'circle', source: 'segment', filter: ['==', ['geometry-type'], 'Point'],
     paint: { 'circle-radius': 7, 'circle-color': 'rgba(244,244,245,0.12)', 'circle-stroke-color': '#f4f4f5',
@@ -129,16 +166,20 @@ export function setLoadData(map: MapLibre, lines: Feature[], points: Feature[]):
   (map.getSource('stops') as GeoJSONSource | undefined)?.setData({ type: 'FeatureCollection', features: points });
 }
 
-/** Выражения для часа: вес тепловой карты, размер точки остановки, толщина линии маршрута. */
-export function setHour(map: MapLibre, hour: number, scale: Scale): void {
-  const stop: ExpressionSpecification = ['coalesce', ['get', `h${hour}`], 0];
-  const line: ExpressionSpecification = ['coalesce', ['get', `l${hour}`], 0];
-  const stopMax = Math.max(scale.stop, 1);
-  const routeMax = Math.max(scale.route, 1);
-  map.setPaintProperty('stops-heat', 'heatmap-weight', ['min', ['/', stop, stopMax * 0.55], 1]);
+/** Выражения для часа: вес тепловой карты, цвет и размер кружка остановки, цвет и толщина линии маршрута. */
+export function setHour(map: MapLibre, hour: number, _scale: Scale): void {
+  // доля абсолютного максимума (выше него - просто красный) и позиция на шкале: корень из доли, как в легенде
+  const stopShare: ExpressionSpecification = ['min', ['/', ['coalesce', ['get', `h${hour}`], 0], STOP_LOAD_MAX], 1];
+  const lineShare: ExpressionSpecification = ['min', ['/', ['coalesce', ['get', `l${hour}`], 0], LINE_LOAD_MAX], 1];
+  const stop: ExpressionSpecification = ['sqrt', stopShare];
+  const line: ExpressionSpecification = ['sqrt', lineShare];
+  // вес линейный, чтобы соседние остановки складывались посадками; корень учтён в HEAT_RAMP
+  map.setPaintProperty('stops-heat', 'heatmap-weight', stopShare);
+  map.setPaintProperty('stops-dot', 'circle-color', rampColor(stop));
   map.setPaintProperty('stops-dot', 'circle-radius', ['interpolate', ['linear'], ['zoom'],
-    11, ['+', 2, ['*', 6, ['sqrt', ['/', stop, stopMax]]]], 16, ['+', 4, ['*', 16, ['sqrt', ['/', stop, stopMax]]]]]);
-  const width: ExpressionSpecification = ['+', 1.2, ['*', 7, ['sqrt', ['/', line, routeMax]]]];
+    11, ['+', 2, ['*', 4, stop]], 16, ['+', 5, ['*', 12, stop]]]);
+  map.setPaintProperty('route-lines', 'line-color', rampColor(line));
+  const width: ExpressionSpecification = ['+', 1.2, ['*', 5, line]];
   // на крупном плане линия сужается, чтобы не перекрывать объёмные вагоны
   map.setPaintProperty('route-lines', 'line-width', ['interpolate', ['linear'], ['zoom'], 9, ['*', 0.6, width],
     14, ['*', 1.5, width], LINE_THIN_ZOOM, ['*', 0.8, width], 17.5, ['*', 0.5, width]]);
@@ -153,9 +194,11 @@ export function setSelection(map: MapLibre, route: number | null, stop: string |
     route == null ? on : ['case', ['==', ['get', 'route'], route], on, off];
   map.setPaintProperty('route-lines', 'line-opacity', dim(0.95, 0.18));
   map.setPaintProperty('route-casing', 'line-opacity', dim(0.8, 0.1));
+  // выбранный маршрут узнаётся по обводке в его цвете, цвет линии остаётся за нагрузкой
+  map.setPaintProperty('route-casing', 'line-color', route == null ? CASING
+    : ['case', ['==', ['get', 'route'], route], ['get', 'color'], CASING]);
   map.setPaintProperty('trams', 'icon-opacity', dim(1, 0.3));
-  map.setPaintProperty('stops-heat', 'heatmap-opacity', ['interpolate', ['linear'], ['zoom'], 13,
-    route == null ? 0.9 : 0.35, 16, route == null ? 0.35 : 0.15]);
+  map.setPaintProperty('stops-heat', 'heatmap-opacity', heatOpacity(route != null));
   map.setFilter('stop-selected', ['==', ['get', 'id'], stop ?? ''] as FilterSpecification);
   const visible = ROUTE_IDS.filter((r) => !hidden.includes(r));
   const shown: FilterSpecification | null = hidden.length === 0 ? null

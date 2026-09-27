@@ -119,3 +119,27 @@
   color: var(--muted);
   font-size: 13px;
 }
+
+.help {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  margin-left: auto;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: none;
+  color: var(--text-2);
+  cursor: pointer;
+}
+
+.help:hover {
+  border-color: var(--line-strong);
+  color: var(--text);
+}
+
+.help svg {
+  width: 16px;
+  height: 16px;
+}

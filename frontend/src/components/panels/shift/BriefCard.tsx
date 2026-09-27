@@ -3,14 +3,14 @@ import { useCalendar, useFactors, useNetworkLoad } from '../../../api/queries';
 import { useWeatherGrid } from '../../../hooks/useWeather';
 import { useDaysLoad, useManyRouteStops } from '../../../hooks/useDispatch';
 import { useNews, newsLine } from '../../../hooks/useNews';
-import { useStore } from '../../../state/store';
+import { useScopeRoutes, useStore } from '../../../state/store';
 import { buildBrief } from '../../../lib/brief';
 import { CAPACITY, intervalAdvice } from '../../../lib/dispatch';
 import { askFromUi } from '../../../lib/agent';
 import { CENTER_INDEX } from '../../../lib/weatherGrid';
 import { MINUTES_PER_DAY, dayIndex, isoDate, shortDate } from '../../../lib/time';
 import { capitalize, fmtCompact, fmtInt, fmtPct } from '../../../lib/format';
-import { ROUTE_IDS, routeColor } from '../../../lib/routes';
+import { routeColor } from '../../../lib/routes';
 import { Card, Kpi, TramDots } from '../../ui/Controls';
 import styles from './Shift.module.css';
 
@@ -26,17 +26,19 @@ export function BriefCard() {
   const factors = useFactors().data;
   const calendar = useCalendar().data;
   const grid = useWeatherGrid(date).data;
-  const stops = useManyRouteStops(ROUTE_IDS);
+  const routes = useScopeRoutes();
+  const route = useStore((s) => s.route);
+  const stops = useManyRouteStops(routes);
   const news = useNews().data;
   const [copied, setCopied] = useState<'ok' | 'fail' | null>(null);
 
   const brief = useMemo(() => {
     if (!load || load.date !== date) return null;
     const c = grid?.[CENTER_INDEX];
-    return buildBrief({ day, calendar: calendar?.[day], load, weekAgo, factors, routes: ROUTE_IDS, limit: CAPACITY,
+    return buildBrief({ day, calendar: calendar?.[day], load, weekAgo, factors, routes, limit: CAPACITY,
       weather: c ? { temp: c.temp, rain: c.rain, snow: c.snow } : null, scenarioEvents: scenario.events, stops,
       news: news?.filter((n) => n.start.slice(0, 10) === date).map(newsLine) });
-  }, [load, date, grid, day, calendar, weekAgo, factors, scenario.events, stops, news]);
+  }, [load, date, grid, day, calendar, weekAgo, factors, routes, scenario.events, stops, news]);
 
   if (!brief) return <TramDots label="Собираем сводку смены" />;
 
@@ -51,7 +53,7 @@ export function BriefCard() {
   };
 
   return (
-    <Card id="shift-brief" title={`Сводка смены: ${brief.title}`}
+    <Card id="shift-brief" title={`Сводка смены${route != null ? ` №${route}` : ''}: ${brief.title}`}
       info="Собирается из прогноза на день, расписания, погоды Open-Meteo и событий сети. Кнопка «Скопировать» кладёт текст в буфер обмена, чтобы отправить его в рабочий чат.">
       <p className={styles.meta}>
         {capitalize(brief.dayKind)}, {brief.source}{brief.weather ? `. Погода: ${brief.weather}` : ''}
@@ -62,12 +64,12 @@ export function BriefCard() {
         <Kpi label="К неделе назад" value={brief.vsWeek != null ? fmtPct(brief.vsWeek) : '-'}
           tone={brief.vsWeek == null ? undefined : brief.vsWeek >= 0 ? 'up' : 'down'} sub={`к ${shortDate(isoDate(day - 7))}`} />
       </div>
-      <p className={styles.line}>
+      {route == null && <p className={styles.line}>
         Больше всего посадок:{' '}
         {brief.top.map((r, i) => (
           <span key={r.route}>{i > 0 && ', '}<b style={{ color: routeColor(r.route) }}>№{r.route}</b> {fmtCompact(r.total)}</span>
         ))}
-      </p>
+      </p>}
       <div>
         <p className={styles.sub}>
           {brief.crowded.length ? `Тесно: больше ${CAPACITY} посадок на рейс` : `Тесных часов нет: везде меньше ${CAPACITY} посадок на рейс`}
@@ -96,7 +98,8 @@ export function BriefCard() {
           {copied === 'ok' ? 'Скопировано' : copied === 'fail' ? 'Буфер обмена недоступен' : 'Скопировать для чата'}
         </button>
         <button type="button" className={styles.secondary} title="Помощник диспетчера перескажет сводку своими словами"
-          onClick={() => askFromUi(`Составь короткую сводку смены на ${date}: пики, погода, события, где сократить интервал.`)}>
+          onClick={() => askFromUi(`Перескажи коротко сводку смены своими словами, новых расчётов не делай:
+${brief.text}`)}>
           Сводка от помощника
         </button>
       </div>

@@ -256,3 +256,12 @@
     display: inline;
   }
 }
+
+.skills {
+  display: grid;
+  gap: 3px;
+  margin: 0 0 4px;
+  padding-left: 18px;
+  color: var(--text-2);
+  font-size: 12.5px;
+}
